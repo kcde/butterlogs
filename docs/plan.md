@@ -41,10 +41,10 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [x] `.env.example`, `.gitignore`, folders from `building-in-code.md`
 - [x] PRD at `docs/prd.md`; commands filled in in `CLAUDE.md`
 - [x] Both artifact links open in Claude Code
-- [ ] First commit
+- [x] First commit
 
 **Accounts (Keside)**
-- [ ] GitHub repo pushed
+- [x] GitHub repo pushed
 - [ ] Supabase project (note the region: close to Nigeria)
 - [ ] PowerSync instance, connected to the Supabase project
 - [ ] Vercel project linked to the GitHub repo
