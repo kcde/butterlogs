@@ -68,12 +68,12 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 **Supabase**
 - [ ] Enable email + password auth; turn off email confirmation for the spike if it gets in the way
 - [x] Supabase CLI added; migrations in `supabase/migrations/`
-- [ ] Spike `ingredients` table with RLS limiting each row to its owner (migration written; apply with `npx supabase db push`). M2 moves to `business_id` and `is_member`
-- [x] `powersync_role` and `powersync` publication (done in M0, `FOR ALL TABLES`)
+- [x] Spike `ingredients` table with RLS limiting each row to its owner (applied with `npx supabase db push`). M2 moves to `business_id` and `is_member`
+- [x] `powersync_role` and `powersync` publication (`FOR ALL TABLES`); PowerSync connects as `powersync_role`
 
 **PowerSync**
 - [x] Supabase auth turned on in the PowerSync instance (M0)
-- [ ] One sync stream (edition 3) for the spike table (written in `powersync/sync-config.yaml`; deploy from the dashboard)
+- [x] One sync stream (edition 3) for the spike table (`powersync/sync-config.yaml`, deployed from the dashboard)
 - [x] Client schema for the table (`src/lib/db/`)
 - [x] Client-only PowerSync provider; nothing server-rendered reads data
 - [x] Upload connector through supabase-js with the user's session (upsert / update / delete)
@@ -83,7 +83,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [x] Service worker never caches Sentry's `/monitoring` tunnel route
 - [x] Web manifest: name, standalone display, `theme-color` light `#ffffff` / dark `#0c0a09`, placeholder icon
 - [x] `viewport-fit=cover`
-- [x] Production build creates the service worker (`/serwist/sw.js`, 56 precache entries, ~4.2 MB). Registration still to confirm in a browser
+- [x] Production build creates and registers the service worker (`/serwist/sw.js`, 56 precache entries, ~4.2 MB)
 
 **Screens (bare, unstyled)**
 - [x] Log in page (email + password)
@@ -97,11 +97,13 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [ ] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
 - [ ] Deployed to Vercel
 - [ ] Installed from Safari on her iPhone; opens full screen
+- [x] Desktop Chrome: offline add → back online → row in Supabase with no refresh (reconnects on the `online` event)
 - [ ] Airplane mode → add an ingredient → reconnect → row appears in Supabase
 
 **Done when:** installed from Safari, she adds an ingredient in airplane mode, and it appears in Supabase after reconnecting.
 
 **Notes**
+- 19 Oct 2026: code done; offline add-and-sync passes in desktop Chrome. Fixed: PowerSync didn't reconnect until a refresh, so the app now reconnects on the browser's `online` event. Waiting on Vercel and the iPhone test.
 
 ---
 
