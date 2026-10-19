@@ -458,7 +458,7 @@ Unique on `(business_id, user_id)`. Her name lives in Supabase Auth's user metad
 | position | double precision |
 | created_at, updated_at | timestamptz |
 
-A real delete. `recipes.category_id` uses `ON DELETE SET NULL`, and the app also clears it locally in the same transaction.
+A real delete. `recipes.category_id` uses `ON DELETE SET NULL (category_id)` (the column list keeps `business_id`), and the app also clears it locally in the same transaction.
 
 **4. `overhead_items`**
 
@@ -485,7 +485,7 @@ A real delete. `recipes.category_id` uses `ON DELETE SET NULL`, and the app also
 | deleted_at | timestamptz | |
 | created_at, updated_at | timestamptz | |
 
-**6. `ingredient_price_history`** (server only, never synced)
+**6. `ingredient_price_history`** (server only, never synced; insert-only, so `recorded_at` instead of `created_at`/`updated_at`)
 
 | Column | Type |
 |---|---|
@@ -533,7 +533,7 @@ A real delete. `recipes.category_id` uses `ON DELETE SET NULL`, and the app also
 | amount | double precision | Above 0 |
 | created_at, updated_at | timestamptz | |
 
-Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check).
+Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleting a section deletes its lines (`ON DELETE CASCADE`), so a section delete that uploads before its line deletes is never rejected.
 
 **10. `recipe_overhead_lines`**
 

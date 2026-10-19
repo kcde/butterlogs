@@ -90,6 +90,7 @@ npm run typecheck   # tsc --noEmit
 npm run lint        # ESLint
 npm test            # Vitest, src/**/*.test.ts
 npm run e2e         # Playwright, e2e/, 390 × 844 light + dark, against a production build
+npm run test:db     # Vitest, tests/db/: RLS, keys, triggers and PowerSync against the live project, with throwaway users (needs .env.local)
 ```
 
 Database changes are migrations in `supabase/migrations/`, applied with `npx supabase db push`. PowerSync's sync streams live in `powersync/sync-config.yaml` and are deployed from the PowerSync dashboard.

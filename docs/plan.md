@@ -13,7 +13,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 |---|---|---|---|---|
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
-| M2 | Full data model | All (data) | Not started | |
+| M2 | Full data model | All (data) | In progress | |
 | M3 | Tokens and components | F9 (look) | Not started | |
 | M4 | Calculation engine | F3, F5, F6, F7 (maths) | Not started | |
 | M5 | Getting started | F1, F9 | Not started | |
@@ -114,41 +114,44 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **PRD:** §6 (all of it).
 
-**Migrations** *(proposal: add the Supabase CLI and keep migrations in `supabase/migrations/`; to discuss at the start of M2)*
-- [ ] Drop the M1 spike table
-- [ ] Ten tables from §6 with the exact column types (money `bigint`, amounts `double precision`, ordering `position double precision`)
-- [ ] `created_at` / `updated_at` on every table; `set_updated_at` trigger on every table
-- [ ] Composite unique `(business_id, id)` on every parent table, and composite foreign keys from every child
-- [ ] `recipes.category_id` → `ON DELETE SET NULL`
-- [ ] Server checks that can never fail on valid app data: exactly one of `ingredient_id` / `sub_recipe_id`; `amount > 0`; `amount_minor >= 0`; `yield_type` and `pricing_method` values; `business_members` unique `(business_id, user_id)`
-- [ ] Soft delete `deleted_at` on `ingredients`, `overhead_items`, `recipes`
+**Migrations** (`supabase/migrations/20261019120000_m2_data_model.sql`)
+- [x] Drop the M1 spike table
+- [x] Ten tables from §6 with the exact column types (money `bigint`, amounts `double precision`, ordering `position double precision`)
+- [x] `created_at` / `updated_at` on every table; `set_updated_at` trigger on every table (price history is insert-only: `recorded_at` instead)
+- [x] Composite unique `(business_id, id)` on every parent table, and composite foreign keys from every child
+- [x] `recipes.category_id` → `ON DELETE SET NULL`
+- [x] Server checks that can never fail on valid app data: exactly one of `ingredient_id` / `sub_recipe_id`; `amount > 0`; `amount_minor >= 0`; `yield_type` and `pricing_method` values; `business_members` unique `(business_id, user_id)`
+- [x] Soft delete `deleted_at` on `ingredients`, `overhead_items`, `recipes`
 
 **Functions and triggers**
-- [ ] `is_member(business_id)`: security definer, stable
-- [ ] `create_business(name, currency, method, percent, amount)`: one transaction; business + owner row + five starter overhead items (Gas, Electricity, Transport, Labour, Packaging); refuses a second business
-- [ ] `record_price_history`: after insert/update on `ingredients` when price, size or size unit changes
+- [x] `is_member(business_id)`: security definer, stable
+- [x] `create_business(name, currency, method, percent, amount)`: one transaction; business + owner row + five starter overhead items (Gas, Electricity, Transport, Labour, Packaging); refuses a second business
+- [x] `record_price_history`: after insert/update on `ingredients` when price, size or size unit changes
 
 **Row Level Security**
-- [ ] Business data tables: select / insert / update / delete when `is_member(business_id)`, using and with check
-- [ ] `businesses`: select and update for members; no insert or delete
-- [ ] `business_members`: select own rows only; writes only through `create_business`
-- [ ] `ingredient_price_history`: no app access
+- [x] Business data tables: select / insert / update / delete when `is_member(business_id)`, using and with check
+- [x] `businesses`: select and update for members; no insert or delete
+- [x] `business_members`: select own rows only; writes only through `create_business`
+- [x] `ingredient_price_history`: no app access
 
 **PowerSync**
-- [ ] Publication lists every synced table (all except price history). M0 created it `FOR ALL TABLES`: drop and recreate it with the explicit list
-- [ ] Sync stream from §6, with the `with:` block for the user's businesses (check syntax against PowerSync's "Writing queries" docs)
-- [ ] Full client schema in `src/lib/db/` (uuid/text/timestamptz → text, bigint → integer, double → real)
-- [ ] Upload connector: temporary errors retry; permanent errors (rejected data, RLS) drop the change. Sentry reporting is wired in M11; the message to her is in M9
+- [x] Publication lists every synced table (all except price history). M0 created it `FOR ALL TABLES`: drop and recreate it with the explicit list
+- [x] Sync stream from §6, with the `with:` block for the user's businesses (check syntax against PowerSync's "Writing queries" docs)
+- [x] Full client schema in `src/lib/db/` (uuid/text/timestamptz → text, bigint → integer, double → real)
+- [x] Upload connector: temporary errors retry; permanent errors (rejected data, RLS) drop the change. Takes a Supabase client so tests can use each test user's. Sentry reporting is wired in M11; the message to her is in M9
 
 **Tests**
 - [ ] RLS test with two businesses: each sees and changes only its own rows, directly and through PowerSync
 - [ ] Composite keys block a reference to another business's row
 - [ ] A price change writes one history row; a notes change writes none
 - [ ] `create_business` creates five overhead items and refuses a second call
+- [ ] Tests live in `tests/db/` and run with `npm run test:db` against the live project, with throwaway users (removed before and after each run)
+- [x] M1 spike page removed; home is a signed-in placeholder until M5
 
 **Done when:** the two-business RLS test passes, directly and through PowerSync, and a price change writes a history row.
 
 **Notes**
+- 19 Oct 2026: migration, sync config, client schema and tests written; typecheck and lint pass. `@powersync/node` pinned to 1.1.1 so it shares `@powersync/common` 2.3.1 with `@powersync/web`. Waiting on Keside to apply the migration (`npx supabase db push` asks for the database password) and deploy the sync config.
 
 ---
 
