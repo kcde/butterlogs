@@ -12,7 +12,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | # | Milestone | Features | Status | Finished |
 |---|---|---|---|---|
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
-| M1 | Offline spike on an iPhone | F8 (proof) | In progress | |
+| M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
 | M2 | Full data model | All (data) | Not started | |
 | M3 | Tokens and components | F9 (look) | Not started | |
 | M4 | Calculation engine | F3, F5, F6, F7 (maths) | Not started | |
@@ -47,7 +47,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [x] GitHub repo pushed
 - [x] Supabase project (note the region: close to Nigeria)
 - [x] PowerSync instance, connected to the Supabase project (powersync_role, publication, Supabase auth)
-- [ ] Vercel project linked to the GitHub repo (moved to M1: needed for the iPhone install)
+- [x] Vercel project linked to the GitHub repo (done in M1)
 - [x] Sentry project (Next.js), org `keside`, project `butterlogs`; test error received
 - [x] Keys in `.env.local` (see `.env.example`); Vercel copies go in with the Vercel project in M1
 
@@ -91,19 +91,20 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Font check (PRD §11)**
 - [x] Noto Sans via `next/font` (latin + latin-ext)
-- [ ] ₦ and tabular figures render on the iPhone (her phone is checked in M11)
+- [ ] ₦ and tabular figures render on the iPhone: not confirmed in M1; carried to the M11 real-iPhone pass
 
 **Deploy and test**
-- [ ] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
-- [ ] Deployed to Vercel
-- [ ] Installed from Safari on Keside's iPhone; opens full screen
+- [x] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
+- [x] Deployed to Vercel
+- [x] Installed from Safari on Keside's iPhone; opens full screen
 - [x] Desktop Chrome: offline add → back online → row in Supabase with no refresh (reconnects on the `online` event)
-- [ ] Airplane mode → add an ingredient → reconnect → row appears in Supabase
+- [x] Airplane mode → add an ingredient → reconnect → row appears in Supabase
 
 **Done when:** installed from Safari on Keside's iPhone, an ingredient added in airplane mode appears in Supabase after reconnecting.
 
 **Notes**
 - 19 Oct 2026: code done; offline add-and-sync passes in desktop Chrome. Fixed: PowerSync didn't reconnect until a refresh, so the app now reconnects on the browser's `online` event. Waiting on Vercel and the iPhone test.
+- 19 Oct 2026: done. On Keside's iPhone, offline adds show as waiting and upload on reconnect. Verdict: stay with PowerSync; the snags were service-worker caching and reconnect timing, both fixed. Next: M2, the full data model.
 
 ---
 
