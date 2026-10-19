@@ -8,7 +8,7 @@ A phone-first app (installable as a PWA) for bakers. It scales recipes and works
 ## Setup
 
 ```bash
-npm install                  # also copies PowerSync's worker files into public/@powersync
+npm install
 cp .env.example .env.local   # then fill in the keys
 npx playwright install       # browsers for npm run e2e
 ```

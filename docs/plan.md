@@ -12,7 +12,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | # | Milestone | Features | Status | Finished |
 |---|---|---|---|---|
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
-| M1 | Offline spike on her iPhone | F8 (proof) | Not started | |
+| M1 | Offline spike on an iPhone | F8 (proof) | In progress | |
 | M2 | Full data model | All (data) | Not started | |
 | M3 | Tokens and components | F9 (look) | Not started | |
 | M4 | Calculation engine | F3, F5, F6, F7 (maths) | Not started | |
@@ -36,7 +36,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 **Project (Claude)**
 - [x] Next.js 16 app at the repo root (TypeScript, App Router, `src/`, ESLint, Turbopack; no Tailwind)
 - [x] Stack installed: Supabase, PowerSync, Serwist (`@serwist/turbopack`), React Hook Form, Zod, lucide-react, Sentry, Vitest, Playwright, axe
-- [x] Postinstall copies PowerSync worker files to `public/@powersync/`
+- [x] ~~Postinstall copies PowerSync worker files to `public/@powersync/`~~ (removed in M1: Turbopack bundles them)
 - [x] Vitest and Playwright configs (390 × 844, light + dark)
 - [x] `.env.example`, `.gitignore`, folders from `building-in-code.md`
 - [x] PRD at `docs/prd.md`; commands filled in in `CLAUDE.md`
@@ -59,7 +59,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 ---
 
-## M1 — Offline spike on her iPhone
+## M1 — Offline spike on an iPhone (Keside's)
 
 **Goal:** prove the riskiest part of the stack, offline add-and-sync on a real iPhone, before building on it. Code here is allowed to be rough; M2 replaces the schema.
 
@@ -67,39 +67,43 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Supabase**
 - [ ] Enable email + password auth; turn off email confirmation for the spike if it gets in the way
-- [ ] Spike `ingredients` table (a few columns from §6.5) with RLS limiting each row to its owner *(proposal: tie rows to the logged-in user for the spike only; M2 moves to `business_id` and `is_member`)*
-- [ ] `powersync_role` and `powersync` publication for that table
+- [x] Supabase CLI added; migrations in `supabase/migrations/`
+- [x] Spike `ingredients` table with RLS limiting each row to its owner (applied with `npx supabase db push`). M2 moves to `business_id` and `is_member`
+- [x] `powersync_role` and `powersync` publication (`FOR ALL TABLES`); PowerSync connects as `powersync_role`
 
 **PowerSync**
-- [ ] Supabase auth turned on in the PowerSync instance
-- [ ] One sync stream (edition 3) for the spike table
-- [ ] Client schema for the table (`src/lib/db/`)
-- [ ] Client-only PowerSync provider; nothing server-rendered reads data
-- [ ] Upload connector through supabase-js with the user's session (upsert / update / delete)
+- [x] Supabase auth turned on in the PowerSync instance (M0)
+- [x] One sync stream (edition 3) for the spike table (`powersync/sync-config.yaml`, deployed from the dashboard)
+- [x] Client schema for the table (`src/lib/db/`)
+- [x] Client-only PowerSync provider; nothing server-rendered reads data
+- [x] Upload connector through supabase-js with the user's session (upsert / update / delete)
 
 **PWA**
-- [ ] Serwist service worker with `@serwist/turbopack`; app shell cached so it opens offline
-- [ ] Service worker never caches Sentry's `/monitoring` tunnel route
-- [ ] Web manifest: name, standalone display, `theme-color` light `#ffffff` / dark `#0c0a09`, placeholder icon
-- [ ] `viewport-fit=cover`
-- [ ] Production build creates and registers the service worker. If Serwist fails under Turbopack: switch to `@serwist/next` + webpack and update the PRD decisions log
+- [x] Serwist service worker with `@serwist/turbopack`; app shell, fonts and the SQLite `.wasm` precached so it opens offline
+- [x] Service worker never caches Sentry's `/monitoring` tunnel route
+- [x] Web manifest: name, standalone display, `theme-color` light `#ffffff` / dark `#0c0a09`, placeholder icon
+- [x] `viewport-fit=cover`
+- [x] Production build creates and registers the service worker (`/serwist/sw.js`, 56 precache entries, ~4.2 MB)
 
 **Screens (bare, unstyled)**
-- [ ] Log in page (email + password)
-- [ ] Ingredient list + add form
+- [x] Log in page (email + password)
+- [x] Ingredient list + add form
 
 **Font check (PRD §11)**
-- [ ] Noto Sans via `next/font` (latin + latin-ext); ₦ and tabular figures render on her iPhone
+- [x] Noto Sans via `next/font` (latin + latin-ext)
+- [ ] ₦ and tabular figures render on the iPhone (her phone is checked in M11)
 
 **Deploy and test**
 - [ ] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
 - [ ] Deployed to Vercel
-- [ ] Installed from Safari on her iPhone; opens full screen
+- [ ] Installed from Safari on Keside's iPhone; opens full screen
+- [x] Desktop Chrome: offline add → back online → row in Supabase with no refresh (reconnects on the `online` event)
 - [ ] Airplane mode → add an ingredient → reconnect → row appears in Supabase
 
-**Done when:** installed from Safari, she adds an ingredient in airplane mode, and it appears in Supabase after reconnecting.
+**Done when:** installed from Safari on Keside's iPhone, an ingredient added in airplane mode appears in Supabase after reconnecting.
 
 **Notes**
+- 19 Oct 2026: code done; offline add-and-sync passes in desktop Chrome. Fixed: PowerSync didn't reconnect until a refresh, so the app now reconnects on the browser's `online` event. Waiting on Vercel and the iPhone test.
 
 ---
 
@@ -390,7 +394,7 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 **PRD:** §5 hosting, F6, F8, F9, §11.
 
 - [x] Sentry SDK: client, server and edge errors, global error page (done early, in M0)
-- [ ] Permanently rejected uploads reported to Sentry
+- [x] Permanently rejected uploads reported to Sentry
 - [ ] Source maps upload on Vercel builds (`SENTRY_AUTH_TOKEN` in Vercel); production stack traces readable
 - [ ] Daily keep-alive (Vercel cron or GitHub Action) for Supabase and PowerSync
 - [ ] Playwright flows: sign up → setup → ingredient → recipe → scale
@@ -453,8 +457,8 @@ Raise each before the milestone that needs it. Answers go into the PRD.
 
 | # | Question | Needed by |
 |---|---|---|
-| 1 | M1 spike RLS: tie rows to the logged-in user until M2 brings in businesses? | M1 |
-| 2 | Add the Supabase CLI for migrations (`supabase/migrations/`)? | M2 |
+| 1 | ~~M1 spike RLS: tie rows to the logged-in user until M2 brings in businesses?~~ Yes (19 Oct) | M1 |
+| 2 | ~~Add the Supabase CLI for migrations (`supabase/migrations/`)?~~ Yes, added in M1 (19 Oct) | M2 |
 | 3 | The "set a new password" page has no mockup. Build it from the sign-in screen pattern? | M5 |
 | 4 | Which currencies go in the Setup list, and how is "the likely one first" chosen? | M5 |
 | 5 | Money is stored in minor units (kobo). For a currency with no minor unit (e.g. JPY), do we still store ×100? | M5 |

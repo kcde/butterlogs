@@ -13,7 +13,6 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     // Generated or copied files:
-    "public/@powersync/**",
     "coverage/**",
     "playwright-report/**",
   ]),

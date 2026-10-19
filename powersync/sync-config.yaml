@@ -1,0 +1,14 @@
+# yaml-language-server: $schema=https://unpkg.com/@powersync/service-sync-rules@latest/schema/sync_rules.json
+# Source of truth for the PowerSync instance's Sync Streams. Paste into the
+# PowerSync dashboard (Sync Streams) and deploy after every change.
+
+config:
+  edition: 3
+
+streams:
+  # M1 spike: each user syncs only their own ingredients. M2 replaces this
+  # with the business-based stream from PRD §6.
+  my_ingredients:
+    auto_subscribe: true
+    queries:
+      - SELECT * FROM ingredients WHERE owner_id = auth.user_id()
