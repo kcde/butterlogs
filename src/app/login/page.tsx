@@ -5,7 +5,7 @@ import { type FormEvent, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import styles from "../spike.module.css";
 
-// M1 spike: bare log in. The real LogIn screen is built in M5.
+// M1 spike: bare log in. The real LogIn screen is built in M3.
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);

@@ -615,21 +615,22 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 
 **Work one milestone at a time.** Each ends with its checks passing and a short note of what was done. The task breakdown and progress for each milestone are in `docs/plan.md`.
 
+**From M3 on, each milestone is a vertical slice:** the components, maths and screens for one part of the app, built together and checked on Keside's iPhone before the next starts. Nothing is built ahead of the screen that needs it, so problems show up while they're cheap to fix.
+
 | # | Milestone | Done when |
 |---|---|---|
 | M0 | **Accounts** (Keside): GitHub repo, Supabase, PowerSync, Vercel, Sentry. Docs copied into `docs/` | Keys in `.env.local`; both artifact links open in Claude Code |
 | M1 | **Offline spike on an iPhone (Keside's).** Next.js + Serwist + Supabase email login + an `ingredients` table with RLS + PowerSync | Installed from Safari, an ingredient added in airplane mode appears in Supabase after reconnecting |
 | M2 | **Full data model:** all tables, composite keys, triggers, `create_business`, RLS, publication, sync streams | RLS test with two businesses passes (each sees only its own rows, directly and through PowerSync); a price change writes a history row |
-| M3 | **Tokens and components:** `tokens.css` from `tokens.json`; all 38 components from their README, `index.d.ts` and `bundle.css`; a `/dev/components` page | Each component matches its design-system preview in light and dark; axe passes |
-| M4 | **Calculation engine** (`lib/calc`, `lib/format`, `lib/units`) | All section 9 fixtures pass; full coverage of conversions, missing vs zero, sub-recipes, loops, pricing |
-| M5 | **Getting started:** Welcome, Sign up, Log in, Forgot password + reset page, Setup, Install guide, empty Recipes | A new user reaches the empty Recipes screen with five overhead items |
-| M6 | **Ingredients:** list, search, sheet (add/edit), delete-in-use warning, empty state | Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g"; missing and ₦0 behave differently |
-| M7 | **Recipes:** list with chips, recipe screen (scale bar, Ingredients/Costs, sub-recipe inline, stat tiles, incomplete banner), "…" menu, delete flows, Edit recipe with Discard | Vanilla Cake fixtures shown on screen; editing overhead doesn't change the saved recipe |
-| M8 | **New recipe flow:** steps 1–3, category sheet, add-ingredients sheet, saved toast | A recipe made offline syncs and matches when reopened |
-| M9 | **Settings and sync:** Settings, overhead items, categories, sign out (both variants), sync sheet, loading, dark mode | The sign-out warning appears with changes waiting; every screen is checked in dark mode |
-| M10 | **Load her spreadsheet** (section 7) | Every loaded recipe matches its tab at ×1 |
-| M11 | **Hardening:** Sentry, daily keep-alive, Playwright offline tests, screenshot comparison with the mockups at 390 × 844, real-iPhone pass (₦, tabular numbers, keyboard, safe areas, Wake Lock) | No failing checks; ₦ renders on her phone |
-| M12 | **Pilot:** she uses it for real for 1–2 weeks | Issues logged and fixed |
+| M3 | **Foundation and getting started:** `tokens.css` from `tokens.json`, global styles, the components these screens use, money format and pricing maths; Welcome, Sign up, Log in, Forgot password + reset page, Setup, Install guide, empty Recipes, tab bar | On Keside's iPhone, a new user reaches the empty Recipes screen with five overhead items; ₦ and tabular figures render |
+| M4 | **Ingredients:** units and cost-per-unit maths; list, search, sheet (add/edit), delete-in-use warning, empty state | On Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g"; missing and ₦0 behave differently |
+| M5 | **Create recipes:** line, sub-recipe, overhead and total maths, loop check; new recipe steps 1–3, category sheet, add-ingredients sheet; Recipes list with chips | On Keside's iPhone, Vanilla Cake made offline shows ₦10,287 on its card and syncs |
+| M6 | **Recipe screen (the calculator):** scaling maths; scale bar, Ingredients/Costs, sub-recipe inline, stat tiles, incomplete banner, saved toast | On Keside's iPhone, the Vanilla Cake fixtures show on screen; editing overhead doesn't change the saved recipe |
+| M7 | **Change and delete recipes:** "…" menu, Edit recipe with Discard, delete flows | An edit made offline syncs; deleting a sub-recipe in use marks its users incomplete |
+| M8 | **Settings and sync:** Settings, overhead items, categories, sign out (both variants), sync sheet, loading, dark mode | The sign-out warning appears with changes waiting; every screen is checked in dark mode |
+| M9 | **Load her spreadsheet** (section 7) | Every loaded recipe matches its tab at ×1 |
+| M10 | **Hardening:** daily keep-alive, source maps, Playwright offline tests, screenshot comparison with the mockups at 390 × 844, axe on every screen, her-phone pass (₦, tabular numbers, keyboard, safe areas, Wake Lock) | No failing checks; ₦ renders on her phone |
+| M11 | **Pilot:** she uses it for real for 1–2 weeks | Issues logged and fixed |
 
 ---
 
@@ -690,6 +691,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Money | Whole kobo in `bigint` |
 | Price history | Server-only, filled by a trigger, not shown in the MVP |
 | Spreadsheet | Load ingredients and finished cakes; she adds the rest |
+| Build order | Vertical slices from M3: each milestone builds its own components, maths and screens and is checked on a real iPhone (changed 19 Oct 2026, replacing "all components, then all maths, then screens") |
 
 ---
 
@@ -700,7 +702,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | App icon and logo | To design. The name is set in Noto Sans Bold until then |
 | Highlight old prices | Not in the MVP. Later: "updated" turns red after a set time |
 | Swipe down to close sheets | Not in the MVP (close button and tapping outside). Add Vaul if she misses it |
-| Noto Sans ₦ and tabular figures | Check on an iPhone in M1; again on her phone in M11 |
+| Noto Sans ₦ and tabular figures | Check on Keside's iPhone in M3; again on her phone in M10 |
 
 ---
 

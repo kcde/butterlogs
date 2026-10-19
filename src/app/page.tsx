@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import styles from "./spike.module.css";
 
-// Placeholder home until M5 builds the real shell (Recipes, Ingredients, Settings).
+// Placeholder home until M3 builds the real shell (Recipes, Ingredients, Settings).
 export default function Home() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
