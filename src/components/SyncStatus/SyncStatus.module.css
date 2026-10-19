@@ -1,0 +1,46 @@
+/* Ported from ba-sync in the design system's bundle.css. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink-muted);
+  font: var(--type-label);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+button.pill {
+  cursor: pointer;
+}
+
+.pill svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  stroke-width: 2;
+}
+
+.pending {
+  color: var(--ink);
+}
+
+.pending svg {
+  color: var(--caramel);
+}
+
+/* "All synced" fades after 3 seconds; pending and offline stay. */
+.synced {
+  animation: fade-out 400ms ease 3s forwards;
+}
+
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}

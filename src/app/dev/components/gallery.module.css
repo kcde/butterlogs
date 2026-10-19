@@ -1,0 +1,52 @@
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--screen-top) var(--space-4) calc(140px + var(--safe-bottom));
+}
+
+.title {
+  font: var(--type-large-title);
+  letter-spacing: var(--type-large-title-tracking);
+}
+
+.lede,
+.hint {
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}
+
+.lede {
+  margin-top: var(--space-2);
+}
+
+.section {
+  margin-top: var(--space-8);
+}
+
+.name {
+  font: var(--type-overline);
+  letter-spacing: var(--type-overline-tracking);
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* TopBar includes the screen's top padding; cancel it in the gallery. */
+.frame {
+  margin-top: calc(var(--screen-top) * -1);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}

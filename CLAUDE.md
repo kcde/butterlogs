@@ -89,7 +89,8 @@ npm run build       # production build (Turbopack)
 npm run typecheck   # tsc --noEmit
 npm run lint        # ESLint
 npm test            # Vitest, src/**/*.test.ts
-npm run e2e         # Playwright, e2e/, 390 × 844 light + dark, against a production build
+npm run e2e         # Playwright, e2e/, 390 × 844 light + dark (WebKit), against a production build on port 3100; throwaway users
+npm run tokens      # regenerate src/styles/tokens.css from design/tokens.json
 npm run test:db     # Vitest, tests/db/: RLS, keys, triggers and PowerSync against the live project, with throwaway users (needs .env.local)
 ```
 

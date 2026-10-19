@@ -1,0 +1,57 @@
+/* Ported from ba-notice and ba-result in the design system's bundle.css. */
+.notice {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  font-size: 15px;
+  line-height: 22px;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: var(--raised);
+  color: var(--ink);
+}
+
+.icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.title {
+  display: block;
+  font-weight: 700;
+}
+
+.message {
+  display: block;
+  color: var(--ink-muted);
+}
+
+.result {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.resultLabel {
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}
+
+.resultValue {
+  font: var(--type-section);
+  font-weight: 700;
+}

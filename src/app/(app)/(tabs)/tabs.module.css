@@ -1,0 +1,8 @@
+/* Tab home layout (screen-patterns.md): 16px side margins, and 120px at the
+   bottom so the last card clears the tab bar. */
+.screen {
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 var(--space-4) calc(120px + var(--safe-bottom));
+}

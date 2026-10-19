@@ -15,7 +15,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
-| M3 | Foundation and getting started | F1, F7, F9 | Not started | |
+| M3 | Foundation and getting started | F1, F7, F9 | In progress | |
 | M4 | Ingredients | F3 | Not started | |
 | M5 | Create recipes | F2, F4, F5, F7 | Not started | |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
@@ -177,45 +177,53 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **PRD:** F1, F7 (default), F9, §4 (money format). **Screens:** Welcome, Setup, InstallGuide, EmptyRecipes, TabBar, and the email and code screens built from the sign-in pattern (SignUp and LogIn were drawn for passwords; ForgotPassword is not built).
 
 **Foundation** (sources: design system `tokens.json`, `components/index.d.ts`, `components/bundle.css`, `building-in-code.md`)
-- [ ] Script that generates `src/styles/tokens.css` from `tokens.json` (light on `:root`, dark in `prefers-color-scheme: dark`, `--money: var(--ink)`); an npm script to rerun it
-- [ ] `src/styles/globals.css`: body, `--font-sans`, tabular numbers, focus ring, type-style classes (large-title, title, section, body, body-strong, meta, label, caption, overline, amount, big-number)
-- [ ] Noto Sans 400/600/700 via `next/font`, latin + latin-ext
-- [ ] Inputs at 16px or more (no iPhone zoom); safe-area padding helpers
-- [ ] `/dev/components` page (not linked from the app); grows with every slice
-- [ ] Playwright + axe set up for slice flows at 390 × 844, light and dark
+- [x] `scripts/tokens.mjs` generates `src/styles/tokens.css` from `design/tokens.json` (a copy of the design system's); light on `:root`, dark in `prefers-color-scheme: dark`, `--money: var(--ink)`; rerun with `npm run tokens`
+- [x] `src/styles/globals.css`: body, `--font-sans`, tabular numbers, focus ring, `--screen-top` and safe-area helpers. Type styles are font variables in `tokens.css` (`font: var(--type-title)`) rather than classes, so CSS modules don't rely on `composes` from global classes under Turbopack
+- [x] Noto Sans 400/600/700 via `next/font`, latin + latin-ext
+- [x] Inputs at 16px or more (no iPhone zoom); safe-area padding
+- [x] `/dev/components` page (not linked from the app); grows with every slice
+- [x] Playwright + axe for slice flows at 390 × 844, light and dark (WebKit), against a production build on port 3100, two browsers at a time
 
-**Components** (first needed here): TopBar, TabBar, Button, IconButton, TextField, SelectField, AmountField, ChoiceGrid, Card, BottomSheet, StepList, EmptyState, Notice, SyncStatus (pill only: "All synced", "Offline", "N changes waiting"; the sheet is M8)
+**Components** (first needed here): TopBar, TabBar, Button, IconButton, TextField, SelectField, ChoiceGrid, BottomSheet, StepList, EmptyState, Notice, SyncStatus (pill only: "All synced", "Offline", "N changes waiting"; the sheet is M8). AmountField and Card moved to M4: no M3 screen needs them.
+- [x] All 12 built, with every variant, and on `/dev/components`. TextField also takes `onBlur` (not in `index.d.ts`) so forms validate on blur, as its README asks
+- [x] **CodeField** (new, not in the design system yet): six boxes for the sign-in code, one real input underneath so iPhone can fill the code from Mail. To be added to the design system artifact
 
 **Maths**
-- [ ] `format.ts`: money in the business currency, whole units, from minor units
-- [ ] Pricing: markup, margin (must be under 100%), fixed profit, set price, none; profit, margin and markup always derived. §9 fixture: the four pricing methods at ₦10,000 (Setup's live example uses it)
+- [x] `format.ts`: money in the business currency, whole units, from minor units (`formatMoney`)
+- [x] `calc/pricing.ts`: markup, margin (must be under 100%), fixed profit, set price, none; profit, margin and markup always derived. §9 fixture: the four pricing methods at ₦10,000
+- [x] Also: `parse.ts` (numbers typed as "1,700"), `currency.ts` (the four currencies, likely one from the phone's time zone), `auth-messages.ts`, `pending-sign-in.ts`; 100% coverage of the pure modules
 
 **Accounts (Keside)**
-- [ ] Custom SMTP for Supabase Auth (e.g. Resend), so codes aren't limited to a few emails an hour
-- [ ] Supabase email templates send the 6-digit code (`{{ .Token }}`), not a link
+- [x] Custom SMTP for Supabase Auth: Resend, on Keside's domain; emails-per-hour limit raised
+- [x] Supabase email templates (Magic Link, Confirm signup) send the 6-digit code (`{{ .Token }}`), not a link; email code length set to 6
 
 **Auth** (one-time email code, PRD F1)
-- [ ] *Welcome*: Get started (sign up) / I already have an account (log in)
-- [ ] Sign up: name + email → code; name saved as `display_name` in auth metadata
-- [ ] Log in: email → code; an email with no account says so and offers sign up
-- [ ] Code screen: 6-digit entry, "Resend code" after 60 seconds, plain-words errors for a wrong or expired code
-- [ ] Stays logged in offline; signing in needs internet (clear message when offline)
-- [ ] Forms with React Hook Form + Zod
-- [ ] Spike log-in page and placeholder home removed
+- [x] *Welcome*: title and bold tagline only (the example card waits for Keside's design); Get started / I already have an account
+- [x] Sign up: name + email → code; name saved as `display_name` in auth metadata
+- [x] Log in: email → code; an email with no account says so
+- [x] Code screen: six boxes (CodeField), checked as soon as the last digit is in; the email in the subtitle with "Change" (back with it filled in); "Didn’t get it? Resend code" after 60 seconds; plain-words errors for a wrong or expired code
+- [x] Stays logged in offline, even after the hour-long access token expires (the stored login is trusted; supabase-js refreshes in the background); signing in needs internet
+- [x] Forms with React Hook Form + Zod
+- [x] Spike log-in page and placeholder home removed
 
 **Setup**
-- [ ] *Setup*: business name, currency (Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira), default pricing method + value (Markup 50% preselected), live example price
-- [ ] Calls `create_business` (online only); PowerSync connects afterwards
+- [x] *Setup*: business name, currency (Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira), default pricing method (Markup 50% preselected); a % and live example price for Markup and Margin only, no amount for Fixed profit or Set price
+- [x] Calls `create_business` (online only). PowerSync runs whenever she's signed in; Setup waits for her new business to sync, then opens Recipes
 
 **Shell**
-- [ ] Route guard: signed out → Welcome; signed in without a business → Setup; otherwise Recipes
-- [ ] *TabBar*: Recipes · Ingredients · Settings (Ingredients and Settings can be stubs until M4 and M8)
-- [ ] *InstallGuide* sheet offered once after setup (remember it was shown)
-- [ ] *EmptyRecipes*: main button is "Add ingredients"
+- [x] Route guard: signed out → Welcome; waiting for a code → the code screen; signed in without a business → Setup; otherwise Recipes
+- [x] *TabBar*: Recipes · Ingredients · Settings. Ingredients is a stub until M4; Settings is a stub with "Install on iPhone" and a plain "Sign out" until M8
+- [x] *InstallGuide* sheet offered once, right after setup, unless the app is already open from the home screen
+- [x] *EmptyRecipes*: main button is "Add ingredients" ("Start a recipe anyway" comes with the flow in M5)
+- [x] Service worker: every app page precached; Supabase, PowerSync and Sentry requests bypass it; PowerSync's worker scripts are served without their cached address (otherwise WebKit lost Turbopack's settings and the app showed a blank screen on every reopen)
+
+**Check**
+- [ ] On Keside's iPhone: sign up with a real email code, Setup, Recipes; ₦ and tabular figures; airplane mode and reopen
 
 **Done when:** on Keside's iPhone, a new user signs up with an email code, sets up her business and reaches the empty Recipes screen, with five overhead items in the database; ₦ and tabular figures render.
 
 **Notes**
+- 19 Oct 2026: built and passing typecheck, lint, unit tests (100% of the pure modules) and the Playwright flows in light and dark. The flows found three real problems, all fixed: the Supabase project sent 8-digit codes (set to 6); the app showed a blank screen on every reopen in WebKit (service worker vs Turbopack's worker settings); and opening offline after an hour waited up to 30 s on a token refresh. Decided along the way: no default amount for Fixed profit or Set price at setup, and a six-box code screen. Waiting on the iPhone check.
 
 ---
 
@@ -225,7 +233,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 **PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients.
 
-**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog
+**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card
 
 **Maths**
 - [ ] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
@@ -275,7 +283,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [ ] *NewRecipe2* (Ingredients): sections (one to start, name hidden while alone), ingredient and sub-recipe lines, reorder, running ingredient cost
 - [ ] *AddIngredients*: searchable sheet with checkboxes, then fill in amounts
 - [ ] Sub-recipe lines: amount in the sub-recipe's yield unit; blocked when the needed yield is missing; loop check before saving
-- [ ] *NewRecipe3* (Overhead & price): pick overhead items with amounts; pricing method + value (business default; empty = cost only); margin under 100%
+- [ ] *NewRecipe3* (Overhead & price): pick overhead items with amounts; pricing method + value (business default; a Fixed profit or Set price default starts with the amount empty; empty method = cost only); margin under 100%
 - [ ] Back / Next with the running total in the ActionBar; Discard dialog on close
 - [ ] Save writes the recipe, sections and lines in one local transaction
 - [ ] After saving: back to Recipes with the "saved" Toast (M6 switches this to opening the recipe, as in *RecipeSaved*)
@@ -467,8 +475,8 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 | Milestone | Components |
 |---|---|
-| M3 | TopBar, TabBar, Button, IconButton, TextField, SelectField, AmountField, ChoiceGrid, Card, BottomSheet, StepList, EmptyState, Notice, SyncStatus |
-| M4 | SearchField, FAB, IngredientCard, ConfirmDialog |
+| M3 | TopBar, TabBar, Button, IconButton, TextField, SelectField, ChoiceGrid, BottomSheet, StepList, EmptyState, Notice, SyncStatus; plus CodeField (not in the design system yet) |
+| M4 | SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card |
 | M5 | StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast |
 | M6 | ScaleBar, Switch, IngredientRow, CostLine, StatTile, WarningBanner |
 | M7 | ActionSheet, CollapsibleSection |

@@ -1,0 +1,49 @@
+/* Ported from ba-field and ba-select in the design system's bundle.css. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label,
+.help {
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+.select {
+  position: relative;
+}
+
+.select select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: var(--field-height);
+  padding: 0 44px 0 var(--space-4);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-input);
+  background: var(--input);
+  color: var(--ink);
+}
+
+.select select:focus {
+  outline: none;
+  border-color: var(--caramel);
+}
+
+.select select:focus-visible {
+  box-shadow: none;
+}
+
+.select svg {
+  position: absolute;
+  top: 50%;
+  right: var(--space-3);
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.5;
+  color: var(--ink-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}

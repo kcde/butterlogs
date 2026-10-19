@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "playwright test",
-    "test:db": "vitest run --config vitest.db.config.mts"
+    "test:db": "vitest run --config vitest.db.config.mts",
+    "tokens": "node scripts/tokens.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

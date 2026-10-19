@@ -93,11 +93,12 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
   - "Resend code" after 60 seconds. A wrong or expired code says so in plain words.
   - No magic links: on iPhone they open in Safari, which keeps a separate login from the installed app. No Google sign-in in the MVP.
   - **Screens:** the SignUp, LogIn and ForgotPassword mockups were drawn for passwords. The email and code screens are built from the sign-in screen pattern in the design system (`screen-patterns.md`), using its components. ForgotPassword is not built.
-  - **Email delivery:** Supabase sends the codes through a custom SMTP provider (e.g. Resend). Its built-in sender allows only a few emails an hour.
+  - **Email delivery:** Supabase sends the codes through Resend (custom SMTP, on Keside's domain). Its built-in sender allows only a few emails an hour, to team members only.
+  - **Code screen:** six boxes, one per digit (a CodeField component, not yet in the design system), checked as soon as the last digit is in; the email shown with a "Change" link back to the previous screen.
 - **A business is created at setup.** All data belongs to the business, not the person. The *Setup* screen asks for:
   - business name
   - currency: Nigerian Naira (₦), US Dollar ($), British Pound (£), Euro (€). The one matching the phone's region is first and preselected (Nigeria → Naira, US → Dollar, UK → Pound, eurozone → Euro); otherwise Naira.
-  - default pricing method and value (Markup 50% preselected)
+  - default pricing method (Markup 50% preselected). Markup and Margin also take their default percentage, with a live example ("A cake that costs ₦10,000 to make sells for ₦15,000"). Fixed profit and Set price take no amount: a profit or price differs per product, so it's typed on each recipe.
 - **Setup also creates five starter overhead items:** Gas, Electricity, Transport, Labour, Packaging.
 - **One login per business** in the MVP. The data model allows staff logins later without a rebuild.
 - **She stays logged in while offline.**
@@ -315,7 +316,7 @@ Each recipe has one method (or none); the business has a default.
   - Recipes: overhead items, categories
   - App: install on iPhone
   - Account: email, sign out (no change password: sign-in uses email codes; the Settings mockup's row is left out)
-- **Install guide** (*InstallGuide.dc.html*): offered once after setup; always reachable from Settings.
+- **Install guide** (*InstallGuide.dc.html*): offered once after setup (not when the app is already open from the home screen); always reachable from Settings.
 - **Empty states:**
   - Recipes empty → the main button is "Add ingredients", because recipes need prices first.
   - Ingredients empty → "Add your first ingredient".
@@ -388,6 +389,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
   - If Serwist gives trouble under Turbopack, build with webpack.
 - **PowerSync runs only on the client.** Keep it in a client provider; server-rendered pages get no data.
 - **The app's files** (component layout, token setup, conventions) follow the design system's `building-in-code.md`.
+- **Service worker:** Supabase, PowerSync and Sentry requests bypass it. PowerSync's worker scripts are served from the precache but without their cached address: Turbopack passes the workers' settings in the script address, and WebKit (iPhone) would otherwise lose them and PowerSync wouldn't open on reopening the app.
 
 **Pilot hosting**
 - Free tiers of Supabase, PowerSync and Vercel.
@@ -435,7 +437,7 @@ businesses
 | currency_code | text |
 | default_pricing_method | text: `markup` · `margin` · `fixed_profit` · `set_price`; default `markup` |
 | default_pricing_percent | double precision; default 50 |
-| default_pricing_amount_minor | bigint |
+| default_pricing_amount_minor | bigint; left empty in the MVP (Fixed profit and Set price amounts are typed per recipe) |
 | created_at, updated_at | timestamptz |
 
 Created only by `create_business`.
@@ -676,6 +678,8 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Login | One-time email code (changed 19 Oct 2026 from email + password). No magic links (they open in Safari, not the installed app); no Google sign-in in the MVP |
 | Currencies | Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira |
 | Money in minor units | Always × 100, whatever the currency |
+| Email sender | Resend via Supabase custom SMTP, on Keside's domain (19 Oct 2026) |
+| Default pricing at setup | Method for all four; a default % only for Markup and Margin. Fixed profit and Set price amounts are per recipe (19 Oct 2026) |
 | Offline | Full offline (PowerSync), from day one |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
 | Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |

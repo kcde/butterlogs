@@ -1,0 +1,47 @@
+/* Ported from ba-topbar and ba-page-title in the design system's bundle.css.
+   Not sticky in the MVP: it scrolls with the page. */
+.bar {
+  padding-top: var(--screen-top);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--tap-target);
+}
+
+.actions,
+.lead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.lead {
+  gap: var(--space-3);
+}
+
+.largeTitle {
+  font: var(--type-large-title);
+  letter-spacing: var(--type-large-title-tracking);
+}
+
+.smallTitle {
+  font: var(--type-section);
+}
+
+.pageTitle {
+  margin-top: var(--space-4);
+  font: var(--type-title);
+}
+
+.subtitle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}

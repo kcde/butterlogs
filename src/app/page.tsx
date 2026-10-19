@@ -1,34 +1,20 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
-import styles from "./spike.module.css";
+import { useEffect } from "react";
+import { readPendingSignIn } from "@/lib/pending-sign-in";
+import { getSignedInUser } from "@/lib/session";
 
-// Placeholder home until M3 builds the real shell (Recipes, Ingredients, Settings).
+// Opening the app: signed in → Recipes (which sends her to Setup if she has no
+// business yet); waiting for a code → the code screen; otherwise Welcome.
 export default function Home() {
   const router = useRouter();
-  const [email, setEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    // Reads the stored session, so this works offline.
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setEmail(data.session.user.email ?? "");
-      else router.replace("/login");
+    void getSignedInUser().then((user) => {
+      router.replace(user ? "/recipes" : readPendingSignIn() ? "/code" : "/welcome");
     });
   }, [router]);
 
-  if (email === null) return null;
-  return (
-    <main className={styles.page}>
-      <h1>Butterlogs</h1>
-      <p className={styles.status}>Signed in as {email}</p>
-      <button
-        type="button"
-        onClick={() => void supabase.auth.signOut().then(() => router.replace("/login"))}
-      >
-        Sign out
-      </button>
-    </main>
-  );
+  return null;
 }
