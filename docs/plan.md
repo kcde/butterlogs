@@ -13,7 +13,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 |---|---|---|---|---|
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
-| M2 | Full data model | All (data) | In progress | |
+| M2 | Full data model | All (data) | Done | 19 Oct 2026 |
 | M3 | Tokens and components | F9 (look) | Not started | |
 | M4 | Calculation engine | F3, F5, F6, F7 (maths) | Not started | |
 | M5 | Getting started | F1, F9 | Not started | |
@@ -141,17 +141,18 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [x] Upload connector: temporary errors retry; permanent errors (rejected data, RLS) drop the change. Takes a Supabase client so tests can use each test user's. Sentry reporting is wired in M11; the message to her is in M9
 
 **Tests**
-- [ ] RLS test with two businesses: each sees and changes only its own rows, directly and through PowerSync
-- [ ] Composite keys block a reference to another business's row
-- [ ] A price change writes one history row; a notes change writes none
-- [ ] `create_business` creates five overhead items and refuses a second call
-- [ ] Tests live in `tests/db/` and run with `npm run test:db` against the live project, with throwaway users (removed before and after each run)
+- [x] RLS test with two businesses: each sees and changes only its own rows, directly and through PowerSync
+- [x] Composite keys block a reference to another business's row
+- [x] A price change writes one history row; a notes change writes none
+- [x] `create_business` creates five overhead items and refuses a second call
+- [x] Tests live in `tests/db/` and run with `npm run test:db` against the live project, with throwaway users (removed before and after each run)
 - [x] M1 spike page removed; home is a signed-in placeholder until M5
 
 **Done when:** the two-business RLS test passes, directly and through PowerSync, and a price change writes a history row.
 
 **Notes**
 - 19 Oct 2026: migration, sync config, client schema and tests written; typecheck and lint pass. `@powersync/node` pinned to 1.1.1 so it shares `@powersync/common` 2.3.1 with `@powersync/web`. Waiting on Keside to apply the migration (`npx supabase db push` asks for the database password) and deploy the sync config.
+- 19 Oct 2026: done. Migration applied and sync config deployed; `npm run test:db` passes (54 tests: RLS on every table, composite keys, checks, `create_business`, price history, and two phones through PowerSync, including a rejected cross-business upload being dropped). Test users are removed before and after each run. Next: M3, tokens and components.
 
 ---
 
