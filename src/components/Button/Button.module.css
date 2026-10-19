@@ -1,0 +1,73 @@
+/* Ported from ba-btn in the design system's bundle.css. */
+.button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--button-height);
+  padding: 0 var(--space-6);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--input);
+  color: var(--ink);
+  font: var(--type-body-strong);
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 100ms ease;
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.button svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  stroke-width: 1.5;
+}
+
+.primary {
+  background: var(--caramel);
+  color: var(--on-caramel);
+}
+
+.ghost {
+  padding: 0 var(--space-4);
+  background: transparent;
+  color: var(--caramel);
+}
+
+.danger {
+  background: var(--warning);
+  color: var(--on-warning);
+}
+
+.block {
+  width: 100%;
+}
+
+.sm {
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  font-size: 14px;
+}
+
+/* Keeps the hit area at 44px while the pill is 36px. */
+.sm::before {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+}

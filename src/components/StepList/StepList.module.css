@@ -1,0 +1,43 @@
+/* Ported from ba-steplist and ba-stepnum in the design system's bundle.css. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  font: var(--type-body);
+  line-height: 22px;
+}
+
+.step svg {
+  width: 24px;
+  height: 24px;
+  flex: none;
+  stroke-width: 1.5;
+}
+
+.number {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  background: var(--ink);
+  color: var(--on-ink);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.text {
+  flex: 1 1 0;
+}

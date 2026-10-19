@@ -18,7 +18,7 @@ export const BUSINESS_TABLES = [
 ] as const;
 export type BusinessTable = (typeof BUSINESS_TABLES)[number];
 
-export type TestUser = { client: SupabaseClient; userId: string; businessId: string };
+export type TestUser = { client: SupabaseClient; userId: string; email: string; businessId: string };
 
 // One row id per business table, from seed().
 export type Seed = Record<BusinessTable, string>;
@@ -49,9 +49,14 @@ export function must<T>(result: { data: T | null; error: PostgrestError | null }
   return result.data as T;
 }
 
+/** A throwaway address that removeTestUsers() cleans up. */
+export function testEmail() {
+  return `${EMAIL_PREFIX}${randomUUID()}@example.com`;
+}
+
 // A signed-in user with no business yet.
 export async function createSignedInUser(): Promise<Omit<TestUser, "businessId">> {
-  const email = `${EMAIL_PREFIX}${randomUUID()}@example.com`;
+  const email = testEmail();
   const password = randomUUID();
   const { data, error } = await admin().auth.admin.createUser({
     email,
@@ -63,7 +68,7 @@ export async function createSignedInUser(): Promise<Omit<TestUser, "businessId">
   const client = anonClient();
   const signIn = await client.auth.signInWithPassword({ email, password });
   if (signIn.error) throw signIn.error;
-  return { client, userId: data.user.id };
+  return { client, userId: data.user.id, email };
 }
 
 export function createBusiness(client: SupabaseClient) {

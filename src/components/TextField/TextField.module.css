@@ -1,0 +1,87 @@
+/* Ported from ba-field, ba-input, ba-inputwrap and ba-textarea in the design system's bundle.css. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label,
+.help {
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+.input,
+.wrap,
+.textarea {
+  width: 100%;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-input);
+  background: var(--input);
+  color: var(--ink);
+}
+
+.input {
+  height: var(--field-height);
+  padding: 0 var(--space-4);
+}
+
+.textarea {
+  display: block;
+  min-height: 88px;
+  padding: var(--space-3) var(--space-4);
+  font: var(--type-body);
+  resize: none;
+}
+
+.wrap {
+  display: flex;
+  align-items: center;
+  height: var(--field-height);
+}
+
+.bare {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0 0 var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.suffix {
+  padding: 0 var(--space-4) 0 var(--space-1);
+  color: var(--ink-muted);
+}
+
+.input::placeholder,
+.bare::placeholder,
+.textarea::placeholder {
+  color: var(--ink-muted);
+}
+
+/* Fields show focus with a caramel border instead of the ring. */
+.input:focus-visible,
+.bare:focus-visible,
+.textarea:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.input:focus,
+.textarea:focus,
+.wrap:focus-within {
+  outline: none;
+  border-color: var(--caramel);
+}
+
+.error .input,
+.error .wrap,
+.error .textarea {
+  border-color: var(--warning);
+}
+
+.error .help {
+  color: var(--warning);
+}

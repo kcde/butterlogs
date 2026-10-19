@@ -1,0 +1,89 @@
+/* Ported from ba-sheet-wrap, ba-sheet, ba-grabber and ba-sheet-head in the design system's bundle.css.
+   The <dialog> itself is the full-screen scrim, so tokens apply to it (::backdrop doesn't
+   read page variables in every Safari). */
+.dialog {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--scrim);
+  color: var(--ink);
+}
+
+.dialog[open] {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.dialog::backdrop {
+  background: transparent;
+}
+
+.sheet {
+  display: flex;
+  flex-direction: column;
+  max-height: 90%;
+  padding: var(--space-2) var(--space-4) calc(var(--space-6) + var(--safe-bottom));
+  border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+  background: var(--raised);
+  box-shadow: var(--shadow-float);
+  animation: slide-up 250ms ease-out;
+}
+
+.grabber {
+  flex: none;
+  width: 36px;
+  height: 5px;
+  margin: 0 auto var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--line);
+}
+
+.head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+/* The close button's icon sits flush with the right margin. */
+.head > :last-child {
+  margin-right: -10px;
+}
+
+.title {
+  font: var(--type-title);
+}
+
+.body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.footer {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-4);
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet {
+    animation: none;
+  }
+}

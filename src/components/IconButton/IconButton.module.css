@@ -1,0 +1,31 @@
+/* Ported from ba-iconbtn in the design system's bundle.css. */
+.iconButton {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: var(--tap-target);
+  height: var(--tap-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.iconButton svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 1.5;
+}
+
+.plain {
+  background: transparent;
+  color: var(--ink-muted);
+}
+
+.plain svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}

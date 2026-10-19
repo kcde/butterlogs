@@ -8,11 +8,18 @@ const revision =
   crypto.randomUUID();
 
 export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } = createSerwistRoute({
-  // The app's pages, so it opens with no connection.
+  // Every app page, so each opens with no connection.
   additionalPrecacheEntries: [
-    { url: "/", revision },
-    { url: "/login", revision },
-  ],
+    "/",
+    "/welcome",
+    "/signup",
+    "/login",
+    "/code",
+    "/setup",
+    "/recipes",
+    "/ingredients",
+    "/settings",
+  ].map((url) => ({ url, revision })),
   // Serwist's defaults plus fonts (Noto Sans) and the SQLite engine PowerSync's
   // default storage (IDBBatchAtomicVFS) loads. Without them the app can't
   // render or open its database offline.

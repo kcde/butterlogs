@@ -1,7 +1,8 @@
 import { SerwistProvider } from "@serwist/turbopack/react";
 import type { Metadata, Viewport } from "next";
 import { Noto_Sans } from "next/font/google";
-import "./globals.css";
+import "@/styles/tokens.css";
+import "@/styles/globals.css";
 
 // Bundled with the app so it works offline. latin-ext carries ₦.
 const notoSans = Noto_Sans({

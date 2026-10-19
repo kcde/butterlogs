@@ -1,0 +1,13 @@
+.intro {
+  color: var(--ink-muted);
+}
+
+.steps {
+  margin-top: 20px;
+}
+
+.note {
+  margin: var(--space-4) var(--space-1) 0;
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
