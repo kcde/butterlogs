@@ -5,6 +5,7 @@ import {
   type PowerSyncBackendConnector,
   UpdateType,
 } from "@powersync/web";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
 // Postgres errors that will fail every retry: data exceptions (22),
@@ -13,11 +14,14 @@ import { supabase } from "@/lib/supabase";
 const PERMANENT_ERROR_CODES = [/^22...$/, /^23...$/, /^42501$/];
 
 export class SupabaseConnector implements PowerSyncBackendConnector {
+  // The browser client by default; tests pass each test user's own client.
+  constructor(private readonly client: SupabaseClient = supabase) {}
+
   async fetchCredentials() {
     const {
       data: { session },
       error,
-    } = await supabase.auth.getSession();
+    } = await this.client.auth.getSession();
     if (error || !session) {
       throw new Error("Not signed in");
     }
@@ -36,7 +40,7 @@ export class SupabaseConnector implements PowerSyncBackendConnector {
     try {
       for (const op of transaction.crud) {
         lastOp = op;
-        const table = supabase.from(op.table);
+        const table = this.client.from(op.table);
         const result =
           op.op === UpdateType.PUT
             ? await table.upsert({ ...op.opData, id: op.id })

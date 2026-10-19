@@ -6,6 +6,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 - Tick tasks as they're done. When a milestone finishes, set its status, add the date, and write 2–3 lines in its **Notes**.
 - If a task here and the PRD disagree, the PRD wins. Fix this file.
 - Screens are named by their mockup file (`Recipe.dc.html` → *Recipe*). Components are named as in the design system.
+- From M3 on, each milestone is a vertical slice: components, maths and screens for one part of the app, checked on Keside's iPhone (see "How each milestone from M3 on is built").
 
 ## Status
 
@@ -13,17 +14,16 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 |---|---|---|---|---|
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
-| M2 | Full data model | All (data) | Not started | |
-| M3 | Tokens and components | F9 (look) | Not started | |
-| M4 | Calculation engine | F3, F5, F6, F7 (maths) | Not started | |
-| M5 | Getting started | F1, F9 | Not started | |
-| M6 | Ingredients | F3 | Not started | |
-| M7 | Recipes | F4, F5, F6, F7 | Not started | |
-| M8 | New recipe flow | F4, F5, F7 | Not started | |
-| M9 | Settings and sync | F1, F2, F4, F8, F9 | Not started | |
-| M10 | Load her spreadsheet | — | Not started | |
-| M11 | Hardening | F6, F8, F9 | Not started | |
-| M12 | Pilot | — | Not started | |
+| M2 | Full data model | All (data) | Done | 19 Oct 2026 |
+| M3 | Foundation and getting started | F1, F7, F9 | Not started | |
+| M4 | Ingredients | F3 | Not started | |
+| M5 | Create recipes | F2, F4, F5, F7 | Not started | |
+| M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
+| M7 | Change and delete recipes | F4, F5 | Not started | |
+| M8 | Settings and sync | F1, F2, F4, F8, F9 | Not started | |
+| M9 | Load her spreadsheet | — | Not started | |
+| M10 | Hardening | F6, F8, F9 | Not started | |
+| M11 | Pilot | — | Not started | |
 
 Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
@@ -55,7 +55,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Notes**
 - 17 Oct 2026: project set up; typecheck, lint, tests and build pass. Waiting on accounts.
-- 19 Oct 2026: Supabase, PowerSync and Sentry connected. Sentry's wizard also set up the SDK (pulled forward from M11); Session Replay removed, DSN read from `NEXT_PUBLIC_SENTRY_DSN`.
+- 19 Oct 2026: Supabase, PowerSync and Sentry connected. Sentry's wizard also set up the SDK (pulled forward from Hardening, now M10); Session Replay removed, DSN read from `NEXT_PUBLIC_SENTRY_DSN`.
 
 ---
 
@@ -91,7 +91,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Font check (PRD §11)**
 - [x] Noto Sans via `next/font` (latin + latin-ext)
-- [ ] ₦ and tabular figures render on the iPhone: not confirmed in M1; carried to the M11 real-iPhone pass
+- [ ] ₦ and tabular figures render on the iPhone: not confirmed in M1; carried to M3, which ends with a check on Keside's iPhone
 
 **Deploy and test**
 - [x] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
@@ -114,177 +114,196 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **PRD:** §6 (all of it).
 
-**Migrations** *(proposal: add the Supabase CLI and keep migrations in `supabase/migrations/`; to discuss at the start of M2)*
-- [ ] Drop the M1 spike table
-- [ ] Ten tables from §6 with the exact column types (money `bigint`, amounts `double precision`, ordering `position double precision`)
-- [ ] `created_at` / `updated_at` on every table; `set_updated_at` trigger on every table
-- [ ] Composite unique `(business_id, id)` on every parent table, and composite foreign keys from every child
-- [ ] `recipes.category_id` → `ON DELETE SET NULL`
-- [ ] Server checks that can never fail on valid app data: exactly one of `ingredient_id` / `sub_recipe_id`; `amount > 0`; `amount_minor >= 0`; `yield_type` and `pricing_method` values; `business_members` unique `(business_id, user_id)`
-- [ ] Soft delete `deleted_at` on `ingredients`, `overhead_items`, `recipes`
+**Migrations** (`supabase/migrations/20261019120000_m2_data_model.sql`)
+- [x] Drop the M1 spike table
+- [x] Ten tables from §6 with the exact column types (money `bigint`, amounts `double precision`, ordering `position double precision`)
+- [x] `created_at` / `updated_at` on every table; `set_updated_at` trigger on every table (price history is insert-only: `recorded_at` instead)
+- [x] Composite unique `(business_id, id)` on every parent table, and composite foreign keys from every child
+- [x] `recipes.category_id` → `ON DELETE SET NULL`
+- [x] Server checks that can never fail on valid app data: exactly one of `ingredient_id` / `sub_recipe_id`; `amount > 0`; `amount_minor >= 0`; `yield_type` and `pricing_method` values; `business_members` unique `(business_id, user_id)`
+- [x] Soft delete `deleted_at` on `ingredients`, `overhead_items`, `recipes`
 
 **Functions and triggers**
-- [ ] `is_member(business_id)`: security definer, stable
-- [ ] `create_business(name, currency, method, percent, amount)`: one transaction; business + owner row + five starter overhead items (Gas, Electricity, Transport, Labour, Packaging); refuses a second business
-- [ ] `record_price_history`: after insert/update on `ingredients` when price, size or size unit changes
+- [x] `is_member(business_id)`: security definer, stable
+- [x] `create_business(name, currency, method, percent, amount)`: one transaction; business + owner row + five starter overhead items (Gas, Electricity, Transport, Labour, Packaging); refuses a second business
+- [x] `record_price_history`: after insert/update on `ingredients` when price, size or size unit changes
 
 **Row Level Security**
-- [ ] Business data tables: select / insert / update / delete when `is_member(business_id)`, using and with check
-- [ ] `businesses`: select and update for members; no insert or delete
-- [ ] `business_members`: select own rows only; writes only through `create_business`
-- [ ] `ingredient_price_history`: no app access
+- [x] Business data tables: select / insert / update / delete when `is_member(business_id)`, using and with check
+- [x] `businesses`: select and update for members; no insert or delete
+- [x] `business_members`: select own rows only; writes only through `create_business`
+- [x] `ingredient_price_history`: no app access
 
 **PowerSync**
-- [ ] Publication lists every synced table (all except price history). M0 created it `FOR ALL TABLES`: drop and recreate it with the explicit list
-- [ ] Sync stream from §6, with the `with:` block for the user's businesses (check syntax against PowerSync's "Writing queries" docs)
-- [ ] Full client schema in `src/lib/db/` (uuid/text/timestamptz → text, bigint → integer, double → real)
-- [ ] Upload connector: temporary errors retry; permanent errors (rejected data, RLS) drop the change. Sentry reporting is wired in M11; the message to her is in M9
+- [x] Publication lists every synced table (all except price history). M0 created it `FOR ALL TABLES`: drop and recreate it with the explicit list
+- [x] Sync stream from §6, with the `with:` block for the user's businesses (check syntax against PowerSync's "Writing queries" docs)
+- [x] Full client schema in `src/lib/db/` (uuid/text/timestamptz → text, bigint → integer, double → real)
+- [x] Upload connector: temporary errors retry; permanent errors (rejected data, RLS) drop the change. Takes a Supabase client so tests can use each test user's. Sentry reporting is wired in M10; the message to her is in M8
 
 **Tests**
-- [ ] RLS test with two businesses: each sees and changes only its own rows, directly and through PowerSync
-- [ ] Composite keys block a reference to another business's row
-- [ ] A price change writes one history row; a notes change writes none
-- [ ] `create_business` creates five overhead items and refuses a second call
+- [x] RLS test with two businesses: each sees and changes only its own rows, directly and through PowerSync
+- [x] Composite keys block a reference to another business's row
+- [x] A price change writes one history row; a notes change writes none
+- [x] `create_business` creates five overhead items and refuses a second call
+- [x] Tests live in `tests/db/` and run with `npm run test:db` against the live project, with throwaway users (removed before and after each run)
+- [x] M1 spike page removed; home is a signed-in placeholder until M3
 
 **Done when:** the two-business RLS test passes, directly and through PowerSync, and a price change writes a history row.
 
 **Notes**
+- 19 Oct 2026: migration, sync config, client schema and tests written; typecheck and lint pass. `@powersync/node` pinned to 1.1.1 so it shares `@powersync/common` 2.3.1 with `@powersync/web`. Waiting on Keside to apply the migration (`npx supabase db push` asks for the database password) and deploy the sync config.
+- 19 Oct 2026: done. Migration applied and sync config deployed; `npm run test:db` passes (54 tests: RLS on every table, composite keys, checks, `create_business`, price history, and two phones through PowerSync, including a rejected cross-business upload being dropped). Test users are removed before and after each run. Next: M3, foundation and getting started.
 
 ---
 
-## M3 — Tokens and components
+## How each milestone from M3 on is built
 
-**Goal:** the whole design system in code, viewable on one page.
+Each milestone is a **vertical slice**: one part of the app, built all the way through and checked on a real phone. Nothing is built ahead of the screen that needs it.
 
-**Sources:** design system `tokens.json`, `components/index.d.ts`, `components/bundle.css`, each component's `README.md`, `building-in-code.md`.
+Every slice includes:
+- **Components** its screens use first: ported from the `ba-` blocks in `bundle.css`, with props exactly as in `index.d.ts`, and added to `/dev/components` with their states. The list under each milestone is a starting point; it's confirmed against the mockups in plan mode before the milestone starts.
+- **Maths** its screens need, in `src/lib/calc`, `units.ts` or `format.ts`, as pure functions with Vitest tests, including any PRD §9 fixtures it covers. Full coverage of `src/lib/` throughout.
+- **Screens**, matched to their mockups at 390 × 844 in light and dark.
+- **Checks**: typecheck, lint, tests; a Playwright run of the slice's flow with axe; works offline; deployed to Vercel and checked on Keside's iPhone.
 
-**Tokens and global styles**
+Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only buttons require `label`. Native `<dialog>` with `showModal()`, `<select>`, `<input type="checkbox">`. No inline styles, no hex values. Components only display pre-formatted text.
+
+---
+
+## M3 — Foundation and getting started
+
+**Goal:** the design system's foundation in code, and a new user going from first open to an empty Recipes screen with her business set up, on a real phone.
+
+**PRD:** F1, F7 (default), F9, §4 (money format). **Screens:** Welcome, Setup, InstallGuide, EmptyRecipes, TabBar, and the email and code screens built from the sign-in pattern (SignUp and LogIn were drawn for passwords; ForgotPassword is not built).
+
+**Foundation** (sources: design system `tokens.json`, `components/index.d.ts`, `components/bundle.css`, `building-in-code.md`)
 - [ ] Script that generates `src/styles/tokens.css` from `tokens.json` (light on `:root`, dark in `prefers-color-scheme: dark`, `--money: var(--ink)`); an npm script to rerun it
 - [ ] `src/styles/globals.css`: body, `--font-sans`, tabular numbers, focus ring, type-style classes (large-title, title, section, body, body-strong, meta, label, caption, overline, amount, big-number)
 - [ ] Noto Sans 400/600/700 via `next/font`, latin + latin-ext
 - [ ] Inputs at 16px or more (no iPhone zoom); safe-area padding helpers
+- [ ] `/dev/components` page (not linked from the app); grows with every slice
+- [ ] Playwright + axe set up for slice flows at 390 × 844, light and dark
 
-**Components** — one folder each in `src/components/` (`Name.tsx`, `Name.module.css`, `index.ts`), props exactly as in `index.d.ts`, ported from the `ba-` blocks in `bundle.css`
+**Components** (first needed here): TopBar, TabBar, Button, IconButton, TextField, SelectField, AmountField, ChoiceGrid, Card, BottomSheet, StepList, EmptyState, Notice, SyncStatus (pill only: "All synced", "Offline", "N changes waiting"; the sheet is M8)
 
-- [ ] **Navigation:** TopBar, TabBar, FAB, ActionBar, StepIndicator
-- [ ] **Buttons and controls:** Button, IconButton, Chip, SegmentedControl, Switch, ChoiceGrid, RadioList, CheckRow
-- [ ] **Fields:** TextField, AmountField, SelectField, SearchField
-- [ ] **Containers:** Card, ListGroup, CollapsibleSection, BottomSheet, ActionSheet, ConfirmDialog
-- [ ] **Recipe and ingredient:** RecipeCard, IngredientCard, IngredientRow, EditLineRow, CostLine, ScaleBar, StatTile
-- [ ] **Feedback and status:** Tag, Notice, WarningBanner, Toast, SyncStatus, Skeleton, EmptyState, StepList
+**Maths**
+- [ ] `format.ts`: money in the business currency, whole units, from minor units
+- [ ] Pricing: markup, margin (must be under 100%), fixed profit, set price, none; profit, margin and markup always derived. §9 fixture: the four pricing methods at ₦10,000 (Setup's live example uses it)
 
-Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only buttons require `label`. Native `<dialog>` with `showModal()`, `<select>`, `<input type="checkbox">`. No inline styles, no hex values. Components only display pre-formatted text.
+**Accounts (Keside)**
+- [ ] Custom SMTP for Supabase Auth (e.g. Resend), so codes aren't limited to a few emails an hour
+- [ ] Supabase email templates send the 6-digit code (`{{ .Token }}`), not a link
 
-**Dev page**
-- [ ] `/dev/components` showing every component in each of its states (not linked from the app)
-
-**Done when:** every component matches its design-system preview in light and dark, and axe passes on `/dev/components`.
-
-**Notes**
-
----
-
-## M4 — Calculation engine
-
-**Goal:** all the maths as pure, fully tested TypeScript, before any screen uses it.
-
-**PRD:** §4, §9, F3, F5, F6, F7.
-
-**`src/lib/units.ts`**
-- [ ] Unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs)
-- [ ] Convert within a kind with the §4 factors; refuse across kinds
-
-**`src/lib/calc/`**
-- [ ] Ingredient cost per unit = pack price ÷ pack size converted to the measuring unit; missing if price or size is empty or the ingredient is deleted; ₦0 is a real price
-- [ ] Ingredient line cost = amount × cost per unit
-- [ ] Sub-recipe line cost = amount × (sub-recipe ingredient cost ÷ its yield in g or pcs); missing if the sub-recipe is deleted or has any missing line; ingredients only (no overhead or markup carried in)
-- [ ] Recipe ingredient total (every line, including sub-recipe lines) and an incomplete flag with a count of missing lines
-- [ ] Overhead total; deleted overhead items still count; per-calculation overrides
-- [ ] Total cost; cost per piece and per gram where the yield allows
-- [ ] Multiplier from weight, from count, or typed; which fields the yield supports
-- [ ] Scaling: ingredient and sub-recipe amounts and set price scale; overhead and fixed profit don't
-- [ ] Pricing: markup, margin (must be under 100%), fixed profit, set price, none; profit, margin and markup always derived
-- [ ] Loop detection for sub-recipes (direct and indirect)
-- [ ] Unit change on an ingredient converts its recipe line amounts so costs don't change
-- [ ] Sub-recipe yield check (gram amount needs a weight yield; pieces need a count yield)
-
-**`src/lib/format.ts`**
-- [ ] Money in the business currency, whole units, from minor units
-- [ ] Cost per unit (2 decimals), amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2), multiplier (up to 3), a space before units
-- [ ] Missing price never formats as ₦0
-
-**Tests**
-- [ ] Every §9 fixture: Vanilla Cake ×1, at 800 g, with Labour edited to ₦2,000; the four pricing methods at ₦10,000; ₦15,000 / 12.5 kg → ₦1.20 per g; ₦1,000 / 50 pcs and 12 bags ×3; ₦0 vs empty
-- [ ] Full coverage of `src/lib/` (conversions, missing vs zero, sub-recipes, loops, pricing)
-
-**Done when:** all §9 fixtures pass, with full coverage of conversions, missing vs zero, sub-recipes, loops and pricing.
-
-**Notes**
-
----
-
-## M5 — Getting started
-
-**Goal:** a new user goes from first open to an empty Recipes screen with her business set up.
-
-**PRD:** F1, F9. **Screens:** Welcome, SignUp, LogIn, ForgotPassword, Setup, InstallGuide, EmptyRecipes, TabBar.
-
-**Auth**
-- [ ] *Welcome*: Sign up / Log in
-- [ ] *SignUp*: name, email, password (8+ characters, show/hide); name saved as `display_name` in auth metadata
-- [ ] *LogIn*: email + password; link to Forgot password
-- [ ] *ForgotPassword*: sends the reset email (needs internet)
-- [ ] "Set a new password" page opened from the email link, in the browser *(no mockup: see Open questions)*
-- [ ] Stays logged in offline; first sign-in needs internet (clear message when offline)
+**Auth** (one-time email code, PRD F1)
+- [ ] *Welcome*: Get started (sign up) / I already have an account (log in)
+- [ ] Sign up: name + email → code; name saved as `display_name` in auth metadata
+- [ ] Log in: email → code; an email with no account says so and offers sign up
+- [ ] Code screen: 6-digit entry, "Resend code" after 60 seconds, plain-words errors for a wrong or expired code
+- [ ] Stays logged in offline; signing in needs internet (clear message when offline)
 - [ ] Forms with React Hook Form + Zod
+- [ ] Spike log-in page and placeholder home removed
 
 **Setup**
-- [ ] *Setup*: business name, currency (list, likely one first), default pricing method + value (Markup 50% preselected)
+- [ ] *Setup*: business name, currency (Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira), default pricing method + value (Markup 50% preselected), live example price
 - [ ] Calls `create_business` (online only); PowerSync connects afterwards
 
 **Shell**
 - [ ] Route guard: signed out → Welcome; signed in without a business → Setup; otherwise Recipes
-- [ ] *TabBar*: Recipes · Ingredients · Settings (Settings can be a stub until M9)
+- [ ] *TabBar*: Recipes · Ingredients · Settings (Ingredients and Settings can be stubs until M4 and M8)
 - [ ] *InstallGuide* sheet offered once after setup (remember it was shown)
 - [ ] *EmptyRecipes*: main button is "Add ingredients"
 
-**Done when:** a new user reaches the empty Recipes screen with five overhead items.
+**Done when:** on Keside's iPhone, a new user signs up with an email code, sets up her business and reaches the empty Recipes screen, with five overhead items in the database; ₦ and tabular figures render.
 
 **Notes**
 
 ---
 
-## M6 — Ingredients
+## M4 — Ingredients
 
 **Goal:** she can manage her full ingredient list, offline.
 
 **PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients.
 
+**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog
+
+**Maths**
+- [ ] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
+- [ ] Ingredient cost per unit = pack price ÷ pack size converted to the measuring unit; missing if price or size is empty or the ingredient is deleted; ₦0 is a real price
+- [ ] Unit change on an ingredient converts its recipe line amounts so costs don't change
+- [ ] `format.ts`: cost per unit (2 decimals), amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2), a space before units; missing price never formats as ₦0
+- [ ] §9 fixtures: ₦15,000 / 12.5 kg → ₦1.20 per g; ₦1,000 / 50 pcs; ₦0 vs empty
+
+**Screens**
 - [ ] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add
 - [ ] *EmptyIngredients*: "Add your first ingredient"
 - [ ] *IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes; "Works out to ₦1.20 per g"; "Price last updated"
 - [ ] Validation in the app: name unique among non-deleted ingredients ignoring capitals; pack size unit must be the same kind as the unit
 - [ ] Empty price = missing; ₦0 saves as a real price
 - [ ] `price_updated_at` set when price, size or size unit changes
-- [ ] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (uses M4)
+- [ ] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (tested now; seen on screen from M5)
 - [ ] *DeleteIngredient*: soft delete; when in use, warns with the recipe list ("Flour is in 14 recipes")
 - [ ] Money entered in whole currency units and stored in minor units
-- [ ] Works offline; matches mockups in light and dark
 
-**Done when:** Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
+**Done when:** on Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
 
 **Notes**
 
 ---
 
-## M7 — Recipes
+## M5 — Create recipes
 
-**Goal:** the recipe list and the recipe screen, which is the calculator.
+**Goal:** she can create a full recipe offline in three steps and see it on the Recipes list with the right cost.
 
-**PRD:** F4 (chips), F5 (view, edit, delete), F6, F7. **Screens:** Main, RecipesDark, Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeMenu, EditRecipe, DiscardChanges, DeleteRecipe, DeleteRecipeInUse.
+**PRD:** F4 (chips, picker), F5 (create), F7. **Screens:** NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, Main, RecipesDark.
+
+**Components** (first needed here): StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast
+
+**Maths**
+- [ ] Ingredient line cost = amount × cost per unit
+- [ ] Sub-recipe line cost = amount × (sub-recipe ingredient cost ÷ its yield in g or pcs); missing if the sub-recipe is deleted or has any missing line; ingredients only (no overhead or markup carried in)
+- [ ] Recipe ingredient total (every line, including sub-recipe lines) and an incomplete flag with a count of missing lines
+- [ ] Overhead total; deleted overhead items still count
+- [ ] Total cost; cost per piece and per gram where the yield allows
+- [ ] Loop detection for sub-recipes (direct and indirect)
+- [ ] Sub-recipe yield check (gram amount needs a weight yield; pieces need a count yield)
+- [ ] §9 fixture: Vanilla Cake ×1
+
+**New recipe flow**
+- [ ] *NewRecipe1* (Basics): name, category, notes, yield type + amount, optional second figure; weight in any unit, stored in grams
+- [ ] *CategoryPicker*: pick one or add a new one on the spot
+- [ ] *NewRecipe2* (Ingredients): sections (one to start, name hidden while alone), ingredient and sub-recipe lines, reorder, running ingredient cost
+- [ ] *AddIngredients*: searchable sheet with checkboxes, then fill in amounts
+- [ ] Sub-recipe lines: amount in the sub-recipe's yield unit; blocked when the needed yield is missing; loop check before saving
+- [ ] *NewRecipe3* (Overhead & price): pick overhead items with amounts; pricing method + value (business default; empty = cost only); margin under 100%
+- [ ] Back / Next with the running total in the ActionBar; Discard dialog on close
+- [ ] Save writes the recipe, sections and lines in one local transaction
+- [ ] After saving: back to Recipes with the "saved" Toast (M6 switches this to opening the recipe, as in *RecipeSaved*)
 
 **Recipes list**
-- [ ] *Main*: RecipeCards, search, category chips (All, her categories in order, Uncategorised if any recipe has none), incomplete tag on cards, FAB
+- [ ] *Main*: RecipeCards (yield, total, per g or per piece), search, category chips (All, her categories in order, Uncategorised if any recipe has none), incomplete tag on cards, FAB
+- [ ] *EmptyRecipes* "Start a recipe anyway" opens the flow
+
+**Done when:** on Keside's iPhone, Vanilla Cake made offline shows ₦10,287 on its card, syncs, and shows the same after a reload.
+
+**Notes**
+
+---
+
+## M6 — Recipe screen (the calculator)
+
+**Goal:** opening a recipe shows its ingredients and costs, and scales them.
+
+**PRD:** F5 (view), F6, F7. **Screens:** Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeSaved.
+
+**Components** (first needed here): ScaleBar, Switch, IngredientRow, CostLine, StatTile, WarningBanner
+
+**Maths**
+- [ ] Multiplier from weight, from count, or typed; which fields the yield supports
+- [ ] Scaling: ingredient and sub-recipe amounts and set price scale; overhead and fixed profit don't
+- [ ] Per-calculation overhead overrides
+- [ ] `format.ts`: multiplier (up to 3 decimals)
+- [ ] §9 fixtures: Vanilla Cake at 800 g, and with Labour edited to ₦2,000; 12 bags ×3
 
 **Recipe screen**
 - [ ] Title block: name, category tag, base yield
@@ -300,59 +319,52 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 - [ ] StatTile grid
 - [ ] Nothing saved; leaving returns to ×1
 - [ ] Wake Lock while the recipe is open
+- [ ] *RecipeSaved*: saving a new recipe opens it at ×1 with the "saved" toast; RecipeCards open the recipe
 
-**Menu, edit, delete**
+**Done when:** on Keside's iPhone, the Vanilla Cake fixtures show on screen (₦10,287 at ×1; ₦7,983 at 800 g, priced ₦11,975), and editing overhead doesn't change the saved recipe.
+
+**Notes**
+
+---
+
+## M7 — Change and delete recipes
+
+**Goal:** she can edit, recategorise and delete recipes safely.
+
+**PRD:** F4 (change category), F5 (edit, delete). **Screens:** RecipeMenu, EditRecipe, DiscardChanges, DeleteRecipe, DeleteRecipeInUse.
+
+**Components** (first needed here): ActionSheet, CollapsibleSection
+
 - [ ] *RecipeMenu*: Edit recipe · Change category · Delete recipe
-- [ ] *EditRecipe*: one page, collapsible Basics / Ingredients / Overhead & price; sections and lines reorderable; same validation as M8
+- [ ] *EditRecipe*: one page, collapsible Basics / Ingredients / Overhead & price; sections and lines reorderable; same validation as M5
 - [ ] *DiscardChanges* on close with unsaved changes
 - [ ] *DeleteRecipe*: confirm, soft delete
 - [ ] *DeleteRecipeInUse*: lists recipes that use it; their lines then show "Salted Caramel was deleted" and totals go incomplete
 
-**Done when:** the Vanilla Cake fixtures show on screen, and editing overhead doesn't change the saved recipe.
+**Done when:** on Keside's iPhone, an edit made offline syncs, and deleting a sub-recipe in use marks the recipes that use it incomplete.
 
 **Notes**
 
 ---
 
-## M8 — New recipe flow
+## M8 — Settings and sync
 
-**Goal:** she can create a full recipe offline in three steps.
-
-**PRD:** F4 (picker), F5 (create), F7. **Screens:** NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, RecipeSaved.
-
-- [ ] *NewRecipe1* (Basics): name, category, notes, yield type + amount, optional second figure; weight in any unit, stored in grams
-- [ ] *CategoryPicker*: pick one or add a new one on the spot
-- [ ] *NewRecipe2* (Ingredients): sections (one to start, name hidden while alone), ingredient and sub-recipe lines, reorder, running ingredient cost
-- [ ] *AddIngredients*: searchable sheet with checkboxes, then fill in amounts
-- [ ] Sub-recipe lines: amount in the sub-recipe's yield unit; blocked when the needed yield is missing; loop check before saving
-- [ ] *NewRecipe3* (Overhead & price): pick overhead items with amounts; pricing method + value (business default; empty = cost only); margin under 100%
-- [ ] Back / Next with the running total in the ActionBar; Discard dialog on close
-- [ ] Save writes the recipe, sections and lines in one local transaction
-- [ ] *RecipeSaved*: opens the recipe at ×1 with the "saved" toast
-
-**Done when:** a recipe made offline syncs and matches when reopened.
-
-**Notes**
-
----
-
-## M9 — Settings and sync
-
-**Goal:** everything around the recipes: settings, lists, sync status and signing out.
+**Goal:** everything around the recipes: settings, lists, sync details and signing out.
 
 **PRD:** F1, F2, F4, F8, F9. **Screens:** Settings, SettingsDark, OverheadItems, Categories, SyncSheet, SignOut, Loading.
 
+**Components** (first needed here): ListGroup, Skeleton
+
 **Settings**
-- [ ] *Settings*: Business (name, currency, default pricing) · Recipes (overhead items, categories) · App (install on iPhone) · Account (email, change password, sign out)
+- [ ] *Settings*: Business (name, currency, default pricing) · Recipes (overhead items, categories) · App (install on iPhone) · Account (email, sign out; no change password, so the mockup's row is left out)
 - [ ] Changing currency changes display only; amounts never convert
-- [ ] Change password *(no mockup: see Open questions)*
 
 **Lists**
 - [ ] *OverheadItems*: add, rename, delete, recipe count per row; delete-in-use warns with the recipe list; lines stay as "(deleted)" and still count
 - [ ] *Categories*: create, rename, reorder, delete; deleting moves its recipes to Uncategorised (cleared locally in the same transaction)
 
 **Sync**
-- [ ] SyncStatus pill on tab screens: "All synced" (fades), "3 changes waiting" (opens the sheet), "Offline" (neutral)
+- [ ] SyncStatus pill opens the sheet when changes wait; "All synced" fades
 - [ ] *SyncSheet*: waiting changes (what and when), last sync time
 - [ ] A dropped (rejected) change is explained to her in plain words
 - [ ] *SignOut*: simple confirm when nothing waits; warning with "Stay signed in" / "Sign out anyway" when changes wait; clears the local copy
@@ -361,13 +373,13 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 - [ ] *Loading*: skeleton cards, only before the first sync
 - [ ] Dark mode pass on every screen
 
-**Done when:** the sign-out warning appears with changes waiting, and every screen has been checked in dark mode.
+**Done when:** on Keside's iPhone, the sign-out warning appears with changes waiting, and every screen has been checked in dark mode.
 
 **Notes**
 
 ---
 
-## M10 — Load her spreadsheet
+## M9 — Load her spreadsheet
 
 **Goal:** her account opens with her ingredients and finished cakes in place.
 
@@ -388,7 +400,7 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 
 ---
 
-## M11 — Hardening
+## M10 — Hardening
 
 **Goal:** ready for real use on her phone.
 
@@ -398,11 +410,11 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 - [x] Permanently rejected uploads reported to Sentry
 - [ ] Source maps upload on Vercel builds (`SENTRY_AUTH_TOKEN` in Vercel); production stack traces readable
 - [ ] Daily keep-alive (Vercel cron or GitHub Action) for Supabase and PowerSync
-- [ ] Playwright flows: sign up → setup → ingredient → recipe → scale
+- [ ] Playwright end-to-end: sign up → setup → ingredient → recipe → scale (joins the slice flows)
 - [ ] Playwright offline tests: add and edit offline, then sync
 - [ ] Screenshot comparison with every mockup at 390 × 844, light and dark
 - [ ] axe on every screen
-- [ ] Real-iPhone pass: ₦, tabular numbers, keyboard (ActionBar and sheets above it), safe areas, Wake Lock, install guide
+- [ ] Her-phone pass: ₦, tabular numbers, keyboard (ActionBar and sheets above it), safe areas, Wake Lock, install guide
 
 **Done when:** no failing checks, and ₦ renders on her phone.
 
@@ -410,11 +422,11 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 
 ---
 
-## M12 — Pilot
+## M11 — Pilot
 
 **Goal:** she uses it for real for 1–2 weeks.
 
-- [ ] Her account loaded (M10) and app installed on her phone
+- [ ] Her account loaded (M9) and app installed on her phone
 - [ ] Testers invited (empty accounts with starter overhead items)
 - [ ] Issues logged in this section as they come in, and fixed
 
@@ -430,25 +442,37 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 
 | Feature | Milestones |
 |---|---|
-| F1 Account and business | M2 (`create_business`), M5, M9 (settings) |
-| F2 Overhead items | M2 (starter items), M4 (maths), M7 (edit in calculator), M8 (pick), M9 (manage) |
-| F3 Ingredients | M4 (maths), M6 |
-| F4 Categories | M7 (chips), M8 (picker), M9 (manage) |
-| F5 Recipes | M4 (maths), M7 (view, edit, delete), M8 (create) |
-| F6 Scaling calculator | M4 (maths), M7 |
-| F7 Pricing methods | M4 (maths), M5 (default), M7, M8 |
-| F8 Offline and sync | M1, M2, M9, M11 |
-| F9 App shell and install | M1 (PWA), M3, M5, M9, M11 |
+| F1 Account and business | M2 (`create_business`), M3, M8 (settings) |
+| F2 Overhead items | M2 (starter items), M5 (pick, maths), M6 (edit in calculator), M8 (manage) |
+| F3 Ingredients | M4 |
+| F4 Categories | M5 (chips, picker), M7 (change), M8 (manage) |
+| F5 Recipes | M5 (create), M6 (view), M7 (edit, delete) |
+| F6 Scaling calculator | M6 |
+| F7 Pricing methods | M3 (maths, default), M5, M6 |
+| F8 Offline and sync | M1, M2, M3 (pill), every slice (works offline), M8, M10 |
+| F9 App shell and install | M1 (PWA), M3, M8, M10 |
 
 **Screens → milestones** (all 39 mockups)
 
 | Milestone | Screens |
 |---|---|
-| M5 | Welcome, SignUp, LogIn, ForgotPassword, Setup, InstallGuide, EmptyRecipes, TabBar |
-| M6 | Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients |
-| M7 | Main, RecipesDark, Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeMenu, EditRecipe, DiscardChanges, DeleteRecipe, DeleteRecipeInUse |
-| M8 | NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, RecipeSaved |
-| M9 | Settings, SettingsDark, OverheadItems, Categories, SyncSheet, SignOut, Loading |
+| M3 | Welcome, Setup, InstallGuide, EmptyRecipes, TabBar; email and code screens in place of SignUp and LogIn (ForgotPassword not built) |
+| M4 | Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients |
+| M5 | NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, Main, RecipesDark |
+| M6 | Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeSaved |
+| M7 | RecipeMenu, EditRecipe, DiscardChanges, DeleteRecipe, DeleteRecipeInUse |
+| M8 | Settings, SettingsDark, OverheadItems, Categories, SyncSheet, SignOut, Loading |
+
+**Components → milestones** (all 38)
+
+| Milestone | Components |
+|---|---|
+| M3 | TopBar, TabBar, Button, IconButton, TextField, SelectField, AmountField, ChoiceGrid, Card, BottomSheet, StepList, EmptyState, Notice, SyncStatus |
+| M4 | SearchField, FAB, IngredientCard, ConfirmDialog |
+| M5 | StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast |
+| M6 | ScaleBar, Switch, IngredientRow, CostLine, StatTile, WarningBanner |
+| M7 | ActionSheet, CollapsibleSection |
+| M8 | ListGroup, Skeleton |
 
 ---
 
@@ -460,7 +484,7 @@ Raise each before the milestone that needs it. Answers go into the PRD.
 |---|---|---|
 | 1 | ~~M1 spike RLS: tie rows to the logged-in user until M2 brings in businesses?~~ Yes (19 Oct) | M1 |
 | 2 | ~~Add the Supabase CLI for migrations (`supabase/migrations/`)?~~ Yes, added in M1 (19 Oct) | M2 |
-| 3 | The "set a new password" page has no mockup. Build it from the sign-in screen pattern? | M5 |
-| 4 | Which currencies go in the Setup list, and how is "the likely one first" chosen? | M5 |
-| 5 | Money is stored in minor units (kobo). For a currency with no minor unit (e.g. JPY), do we still store ×100? | M5 |
-| 6 | "Change password" in Settings has no mockup. Sheet, or its own screen? | M9 |
+| 3 | ~~The "set a new password" page has no mockup.~~ No passwords: sign-in uses one-time email codes, screens built from the sign-in pattern (19 Oct) | M3 |
+| 4 | ~~Which currencies go in the Setup list, and which first?~~ Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira (19 Oct) | M3 |
+| 5 | ~~For a currency with no minor unit, do we still store ×100?~~ Yes, always ×100 (19 Oct) | M3 |
+| 6 | ~~"Change password" in Settings has no mockup.~~ Not needed: no passwords (19 Oct) | M8 |

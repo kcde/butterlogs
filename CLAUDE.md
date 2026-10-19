@@ -12,7 +12,7 @@ A phone-first app (installable as a PWA) for bakers. It scales recipes and works
   - `building-in-code.md`: follow it for folder layout and conventions
 - **Mockups:** https://claude.ai/artifact/JChFePQ5mcTiZAVG4XScWw
   - One file per screen, e.g. `Recipe.dc.html`. The PRD refers to screens by these names.
-- **`docs/costing-journal.xlsx`:** her spreadsheet, used for loading her data (M10) and checking totals.
+- **`docs/costing-journal.xlsx`:** her spreadsheet, used for loading her data (M9) and checking totals.
 
 Read the two artifacts with the Artifact tool, fetching only the files you need.
 
@@ -24,7 +24,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 
 ## How we work
 
-- **Build one milestone at a time** (PRD section 8, M0–M12).
+- **Build one milestone at a time** (PRD section 8, M0–M11). From M3 on, each milestone is a vertical slice: its components, maths and screens, checked on a real iPhone.
   - Before starting: say what you'll do.
   - When finished: run the checks, then write 2–3 lines on what changed and what's next. Wait for me before starting the next milestone.
   - Keep `docs/plan.md` current: tick tasks as they're done, and on finishing set the status, date and Notes.
@@ -36,7 +36,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 ## Stack
 
 - Next.js on Vercel, made installable with Serwist
-- Supabase: Postgres, email + password auth, Row Level Security
+- Supabase: Postgres, email one-time-code auth (no passwords), Row Level Security
 - PowerSync for offline sync (Sync Streams, edition 3)
 - CSS Modules + `styles/tokens.css`, generated from the design system's `tokens.json`
   - No Tailwind, no component libraries
@@ -90,6 +90,7 @@ npm run typecheck   # tsc --noEmit
 npm run lint        # ESLint
 npm test            # Vitest, src/**/*.test.ts
 npm run e2e         # Playwright, e2e/, 390 × 844 light + dark, against a production build
+npm run test:db     # Vitest, tests/db/: RLS, keys, triggers and PowerSync against the live project, with throwaway users (needs .env.local)
 ```
 
 Database changes are migrations in `supabase/migrations/`, applied with `npx supabase db push`. PowerSync's sync streams live in `powersync/sync-config.yaml` and are deployed from the PowerSync dashboard.

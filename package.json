@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "playwright test"
+    "e2e": "playwright test",
+    "test:db": "vitest run --config vitest.db.config.mts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
@@ -30,10 +31,12 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@playwright/test": "^1.64.1",
+    "@powersync/node": "1.1.1",
     "@types/node": "^24.19.2",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^5.0.5",
+    "better-sqlite3": "^13.0.3",
     "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",

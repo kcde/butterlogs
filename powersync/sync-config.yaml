@@ -6,9 +6,19 @@ config:
   edition: 3
 
 streams:
-  # M1 spike: each user syncs only their own ingredients. M2 replaces this
-  # with the business-based stream from PRD §6.
-  my_ingredients:
+  # PRD §6: everything in the businesses the user belongs to. Price history is
+  # server only and never synced.
+  business_data:
     auto_subscribe: true
+    with:
+      user_businesses: SELECT business_id FROM business_members WHERE user_id = auth.user_id()
     queries:
-      - SELECT * FROM ingredients WHERE owner_id = auth.user_id()
+      - SELECT * FROM businesses WHERE id IN user_businesses
+      - SELECT * FROM business_members WHERE user_id = auth.user_id()
+      - SELECT * FROM categories WHERE business_id IN user_businesses
+      - SELECT * FROM overhead_items WHERE business_id IN user_businesses
+      - SELECT * FROM ingredients WHERE business_id IN user_businesses
+      - SELECT * FROM recipes WHERE business_id IN user_businesses
+      - SELECT * FROM recipe_sections WHERE business_id IN user_businesses
+      - SELECT * FROM recipe_lines WHERE business_id IN user_businesses
+      - SELECT * FROM recipe_overhead_lines WHERE business_id IN user_businesses
