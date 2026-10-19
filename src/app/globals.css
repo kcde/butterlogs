@@ -1,0 +1,14 @@
+/* Minimal M1 styles. M3 replaces this with tokens.css and the design system. */
+body {
+  margin: 0;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 16px or bigger, so iPhone doesn't zoom into fields. */
+input,
+select,
+button {
+  font: inherit;
+  font-size: 16px;
+}

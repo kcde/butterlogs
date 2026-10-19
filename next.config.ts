@@ -1,11 +1,14 @@
 import { withSentryConfig } from "@sentry/nextjs/config";
+import { withSerwist } from "@serwist/turbopack";
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  cacheComponents: true,
-  partialPrefetching: true,
-};
+// No cacheComponents: data lives on the phone (PowerSync), and Serwist's
+// service worker route needs route segment config that cacheComponents rejects.
+const nextConfig: NextConfig = withSerwist({
+  turbopack: {
+    root: import.meta.dirname,
+  },
+});
 
 export default withSentryConfig(nextConfig, {
   // For all available options, see:

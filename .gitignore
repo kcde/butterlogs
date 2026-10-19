@@ -45,8 +45,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# PowerSync worker files, copied from node_modules on install
-/public/@powersync/
 
 # Sentry Config File
 .env.sentry-build-plugin

@@ -28,6 +28,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
   - Before starting: say what you'll do.
   - When finished: run the checks, then write 2–3 lines on what changed and what's next. Wait for me before starting the next milestone.
   - Keep `docs/plan.md` current: tick tasks as they're done, and on finishing set the status, date and Notes.
+- **One branch per milestone.** Branch from an up-to-date `main` (e.g. `m1-offline-spike`), commit there, and push the branch. I merge it. Never commit or push to `main` directly.
 - **Don't add features, screens or fields** that aren't in the PRD. If you think something is missing, suggest it and wait.
 - **Talk through big decisions before writing them:** schema changes, new libraries, changing a rule. Explain why in plain words.
 - **Keep the PRD up to date.** When we change a decision, update the PRD in the same change.
@@ -91,7 +92,7 @@ npm test            # Vitest, src/**/*.test.ts
 npm run e2e         # Playwright, e2e/, 390 × 844 light + dark, against a production build
 ```
 
-`npm install` runs a postinstall that copies PowerSync's worker files into `public/@powersync/` (git-ignored).
+Database changes are migrations in `supabase/migrations/`, applied with `npx supabase db push`. PowerSync's sync streams live in `powersync/sync-config.yaml` and are deployed from the PowerSync dashboard.
 
 ## Done means
 

@@ -381,7 +381,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 
 **Notes for the build**
 - **Next.js 16 builds with Turbopack.**
-  - PowerSync needs its worker files copied to `public/` by a postinstall step.
+  - Turbopack bundles PowerSync's worker and SQLite engine itself (as in PowerSync's Next.js example); nothing is copied to `public/`. The service worker precaches the SQLite `.wasm` so the database opens offline.
   - If Serwist gives trouble under Turbopack, build with webpack.
 - **PowerSync runs only on the client.** Keep it in a client provider; server-rendered pages get no data.
 - **The app's files** (component layout, token setup, conventions) follow the design system's `building-in-code.md`.
@@ -672,6 +672,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check).
 | Login | Email + password; no magic links |
 | Offline | Full offline (PowerSync), from day one |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
+| Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |
 | PWA package | `@serwist/turbopack` (keeps the default Turbopack build); fall back to `@serwist/next` + webpack if it fails the M1 offline test |
 | Pilot hosting | Free tiers + daily keep-alive |
 | Overhead | Per-recipe amounts; never scales; one list |
