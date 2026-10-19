@@ -24,13 +24,22 @@ export function PowerSyncProvider({ children }: { children: ReactNode }) {
   const [database] = useState(getDb);
 
   useEffect(() => {
-    void database.connect(new SupabaseConnector());
+    const connector = new SupabaseConnector();
+    const connect = () => void database.connect(connector);
+    connect();
+
+    // Back online: reconnect now (which also uploads waiting changes) instead
+    // of waiting for PowerSync's retry loop.
+    window.addEventListener("online", connect);
 
     const { data } = supabase.auth.onAuthStateChange((event) => {
       // Signing out clears the copy on the phone (F8).
       if (event === "SIGNED_OUT") void database.disconnectAndClear();
     });
-    return () => data.subscription.unsubscribe();
+    return () => {
+      window.removeEventListener("online", connect);
+      data.subscription.unsubscribe();
+    };
   }, [database]);
 
   return <PowerSyncContext.Provider value={database}>{children}</PowerSyncContext.Provider>;
