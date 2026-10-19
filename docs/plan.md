@@ -12,7 +12,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | # | Milestone | Features | Status | Finished |
 |---|---|---|---|---|
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
-| M1 | Offline spike on her iPhone | F8 (proof) | In progress | |
+| M1 | Offline spike on an iPhone | F8 (proof) | In progress | |
 | M2 | Full data model | All (data) | Not started | |
 | M3 | Tokens and components | F9 (look) | Not started | |
 | M4 | Calculation engine | F3, F5, F6, F7 (maths) | Not started | |
@@ -59,7 +59,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 ---
 
-## M1 — Offline spike on her iPhone
+## M1 — Offline spike on an iPhone (Keside's)
 
 **Goal:** prove the riskiest part of the stack, offline add-and-sync on a real iPhone, before building on it. Code here is allowed to be rough; M2 replaces the schema.
 
@@ -91,16 +91,16 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Font check (PRD §11)**
 - [x] Noto Sans via `next/font` (latin + latin-ext)
-- [ ] ₦ and tabular figures render on her iPhone
+- [ ] ₦ and tabular figures render on the iPhone (her phone is checked in M11)
 
 **Deploy and test**
 - [ ] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
 - [ ] Deployed to Vercel
-- [ ] Installed from Safari on her iPhone; opens full screen
+- [ ] Installed from Safari on Keside's iPhone; opens full screen
 - [x] Desktop Chrome: offline add → back online → row in Supabase with no refresh (reconnects on the `online` event)
 - [ ] Airplane mode → add an ingredient → reconnect → row appears in Supabase
 
-**Done when:** installed from Safari, she adds an ingredient in airplane mode, and it appears in Supabase after reconnecting.
+**Done when:** installed from Safari on Keside's iPhone, an ingredient added in airplane mode appears in Supabase after reconnecting.
 
 **Notes**
 - 19 Oct 2026: code done; offline add-and-sync passes in desktop Chrome. Fixed: PowerSync didn't reconnect until a refresh, so the app now reconnects on the browser's `online` event. Waiting on Vercel and the iPhone test.

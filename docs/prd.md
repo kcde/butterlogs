@@ -618,7 +618,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check).
 | # | Milestone | Done when |
 |---|---|---|
 | M0 | **Accounts** (Keside): GitHub repo, Supabase, PowerSync, Vercel, Sentry. Docs copied into `docs/` | Keys in `.env.local`; both artifact links open in Claude Code |
-| M1 | **Offline spike on her iPhone.** Next.js + Serwist + Supabase email login + an `ingredients` table with RLS + PowerSync | Installed from Safari, she adds an ingredient in airplane mode, and it appears in Supabase after reconnecting |
+| M1 | **Offline spike on an iPhone (Keside's).** Next.js + Serwist + Supabase email login + an `ingredients` table with RLS + PowerSync | Installed from Safari, an ingredient added in airplane mode appears in Supabase after reconnecting |
 | M2 | **Full data model:** all tables, composite keys, triggers, `create_business`, RLS, publication, sync streams | RLS test with two businesses passes (each sees only its own rows, directly and through PowerSync); a price change writes a history row |
 | M3 | **Tokens and components:** `tokens.css` from `tokens.json`; all 38 components from their README, `index.d.ts` and `bundle.css`; a `/dev/components` page | Each component matches its design-system preview in light and dark; axe passes |
 | M4 | **Calculation engine** (`lib/calc`, `lib/format`, `lib/units`) | All section 9 fixtures pass; full coverage of conversions, missing vs zero, sub-recipes, loops, pricing |
@@ -700,7 +700,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check).
 | App icon and logo | To design. The name is set in Noto Sans Bold until then |
 | Highlight old prices | Not in the MVP. Later: "updated" turns red after a set time |
 | Swipe down to close sheets | Not in the MVP (close button and tapping outside). Add Vaul if she misses it |
-| Noto Sans ₦ and tabular figures | Check on her iPhone in M1 |
+| Noto Sans ₦ and tabular figures | Check on an iPhone in M1; again on her phone in M11 |
 
 ---
 
