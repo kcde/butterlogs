@@ -174,7 +174,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 **Goal:** the design system's foundation in code, and a new user going from first open to an empty Recipes screen with her business set up, on a real phone.
 
-**PRD:** F1, F7 (default), F9, §4 (money format). **Screens:** Welcome, SignUp, LogIn, ForgotPassword, Setup, InstallGuide, EmptyRecipes, TabBar.
+**PRD:** F1, F7 (default), F9, §4 (money format). **Screens:** Welcome, Setup, InstallGuide, EmptyRecipes, TabBar, and the email and code screens built from the sign-in pattern (SignUp and LogIn were drawn for passwords; ForgotPassword is not built).
 
 **Foundation** (sources: design system `tokens.json`, `components/index.d.ts`, `components/bundle.css`, `building-in-code.md`)
 - [ ] Script that generates `src/styles/tokens.css` from `tokens.json` (light on `:root`, dark in `prefers-color-scheme: dark`, `--money: var(--ink)`); an npm script to rerun it
@@ -190,18 +190,21 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [ ] `format.ts`: money in the business currency, whole units, from minor units
 - [ ] Pricing: markup, margin (must be under 100%), fixed profit, set price, none; profit, margin and markup always derived. §9 fixture: the four pricing methods at ₦10,000 (Setup's live example uses it)
 
-**Auth**
-- [ ] *Welcome*: Sign up / Log in
-- [ ] *SignUp*: name, email, password (8+ characters, show/hide); name saved as `display_name` in auth metadata
-- [ ] *LogIn*: email + password; link to Forgot password
-- [ ] *ForgotPassword*: sends the reset email (needs internet)
-- [ ] "Set a new password" page opened from the email link, in the browser *(no mockup: see Open questions)*
-- [ ] Stays logged in offline; first sign-in needs internet (clear message when offline)
+**Accounts (Keside)**
+- [ ] Custom SMTP for Supabase Auth (e.g. Resend), so codes aren't limited to a few emails an hour
+- [ ] Supabase email templates send the 6-digit code (`{{ .Token }}`), not a link
+
+**Auth** (one-time email code, PRD F1)
+- [ ] *Welcome*: Get started (sign up) / I already have an account (log in)
+- [ ] Sign up: name + email → code; name saved as `display_name` in auth metadata
+- [ ] Log in: email → code; an email with no account says so and offers sign up
+- [ ] Code screen: 6-digit entry, "Resend code" after 60 seconds, plain-words errors for a wrong or expired code
+- [ ] Stays logged in offline; signing in needs internet (clear message when offline)
 - [ ] Forms with React Hook Form + Zod
 - [ ] Spike log-in page and placeholder home removed
 
 **Setup**
-- [ ] *Setup*: business name, currency (list, likely one first), default pricing method + value (Markup 50% preselected), live example price
+- [ ] *Setup*: business name, currency (Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira), default pricing method + value (Markup 50% preselected), live example price
 - [ ] Calls `create_business` (online only); PowerSync connects afterwards
 
 **Shell**
@@ -210,7 +213,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [ ] *InstallGuide* sheet offered once after setup (remember it was shown)
 - [ ] *EmptyRecipes*: main button is "Add ingredients"
 
-**Done when:** on Keside's iPhone, a new user signs up, sets up her business and reaches the empty Recipes screen, with five overhead items in the database; ₦ and tabular figures render.
+**Done when:** on Keside's iPhone, a new user signs up with an email code, sets up her business and reaches the empty Recipes screen, with five overhead items in the database; ₦ and tabular figures render.
 
 **Notes**
 
@@ -353,9 +356,8 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **Components** (first needed here): ListGroup, Skeleton
 
 **Settings**
-- [ ] *Settings*: Business (name, currency, default pricing) · Recipes (overhead items, categories) · App (install on iPhone) · Account (email, change password, sign out)
+- [ ] *Settings*: Business (name, currency, default pricing) · Recipes (overhead items, categories) · App (install on iPhone) · Account (email, sign out; no change password, so the mockup's row is left out)
 - [ ] Changing currency changes display only; amounts never convert
-- [ ] Change password *(no mockup: see Open questions)*
 
 **Lists**
 - [ ] *OverheadItems*: add, rename, delete, recipe count per row; delete-in-use warns with the recipe list; lines stay as "(deleted)" and still count
@@ -454,7 +456,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 | Milestone | Screens |
 |---|---|
-| M3 | Welcome, SignUp, LogIn, ForgotPassword, Setup, InstallGuide, EmptyRecipes, TabBar |
+| M3 | Welcome, Setup, InstallGuide, EmptyRecipes, TabBar; email and code screens in place of SignUp and LogIn (ForgotPassword not built) |
 | M4 | Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients |
 | M5 | NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, Main, RecipesDark |
 | M6 | Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeSaved |
@@ -482,7 +484,7 @@ Raise each before the milestone that needs it. Answers go into the PRD.
 |---|---|---|
 | 1 | ~~M1 spike RLS: tie rows to the logged-in user until M2 brings in businesses?~~ Yes (19 Oct) | M1 |
 | 2 | ~~Add the Supabase CLI for migrations (`supabase/migrations/`)?~~ Yes, added in M1 (19 Oct) | M2 |
-| 3 | The "set a new password" page has no mockup. Build it from the sign-in screen pattern? | M3 |
-| 4 | Which currencies go in the Setup list, and how is "the likely one first" chosen? | M3 |
-| 5 | Money is stored in minor units (kobo). For a currency with no minor unit (e.g. JPY), do we still store ×100? | M3 |
-| 6 | "Change password" in Settings has no mockup. Sheet, or its own screen? | M8 |
+| 3 | ~~The "set a new password" page has no mockup.~~ No passwords: sign-in uses one-time email codes, screens built from the sign-in pattern (19 Oct) | M3 |
+| 4 | ~~Which currencies go in the Setup list, and which first?~~ Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira (19 Oct) | M3 |
+| 5 | ~~For a currency with no minor unit, do we still store ×100?~~ Yes, always ×100 (19 Oct) | M3 |
+| 6 | ~~"Change password" in Settings has no mockup.~~ Not needed: no passwords (19 Oct) | M8 |

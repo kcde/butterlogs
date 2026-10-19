@@ -36,7 +36,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 ## Stack
 
 - Next.js on Vercel, made installable with Serwist
-- Supabase: Postgres, email + password auth, Row Level Security
+- Supabase: Postgres, email one-time-code auth (no passwords), Row Level Security
 - PowerSync for offline sync (Sync Streams, edition 3)
 - CSS Modules + `styles/tokens.css`, generated from the design system's `tokens.json`
   - No Tailwind, no component libraries

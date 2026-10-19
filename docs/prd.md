@@ -71,7 +71,7 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 
 | # | Feature | Main screens |
 |---|---|---|
-| F1 | Account and business | Welcome, SignUp, LogIn, ForgotPassword, Setup |
+| F1 | Account and business | Welcome, sign-in screens (email, code), Setup |
 | F2 | Overhead items | OverheadItems, NewRecipe3, RecipeCosts |
 | F3 | Ingredients and per-piece supplies | Ingredients, IngredientSheet, DeleteIngredient, EmptyIngredients |
 | F4 | Recipe categories | Categories, CategoryPicker, Main (chips) |
@@ -87,13 +87,16 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 
 ### F1. Account and business
 
-- **Sign up and log in with email + password.**
-  - No magic links: on iPhone they open in Safari instead of the installed app.
-  - Sign-up asks for her name, email and password (at least 8 characters, with a show/hide toggle).
-- **Password reset by email (needs internet).** The link opens a small "set a new password" page of the web app in her browser. She then returns to the app and logs in.
+- **Sign up and log in with a one-time email code (needs internet).** No passwords, so there is no password reset or change.
+  - She types her email; Supabase emails her a 6-digit code; she types it into the app. She never leaves the app.
+  - Sign up asks for her name and email; the name is saved as `display_name` in Supabase Auth's user metadata. Log in asks for her email only.
+  - "Resend code" after 60 seconds. A wrong or expired code says so in plain words.
+  - No magic links: on iPhone they open in Safari, which keeps a separate login from the installed app. No Google sign-in in the MVP.
+  - **Screens:** the SignUp, LogIn and ForgotPassword mockups were drawn for passwords. The email and code screens are built from the sign-in screen pattern in the design system (`screen-patterns.md`), using its components. ForgotPassword is not built.
+  - **Email delivery:** Supabase sends the codes through a custom SMTP provider (e.g. Resend). Its built-in sender allows only a few emails an hour.
 - **A business is created at setup.** All data belongs to the business, not the person. The *Setup* screen asks for:
   - business name
-  - currency (from a list, the likely one first)
+  - currency: Nigerian Naira (₦), US Dollar ($), British Pound (£), Euro (€). The one matching the phone's region is first and preselected (Nigeria → Naira, US → Dollar, UK → Pound, eurozone → Euro); otherwise Naira.
   - default pricing method and value (Markup 50% preselected)
 - **Setup also creates five starter overhead items:** Gas, Electricity, Transport, Labour, Packaging.
 - **One login per business** in the MVP. The data model allows staff logins later without a rebuild.
@@ -311,7 +314,7 @@ Each recipe has one method (or none); the business has a default.
   - Business: name, currency, default pricing
   - Recipes: overhead items, categories
   - App: install on iPhone
-  - Account: email, change password, sign out
+  - Account: email, sign out (no change password: sign-in uses email codes; the Settings mockup's row is left out)
 - **Install guide** (*InstallGuide.dc.html*): offered once after setup; always reachable from Settings.
 - **Empty states:**
   - Recipes empty → the main button is "Add ingredients", because recipes need prices first.
@@ -371,7 +374,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 | Layer | Choice |
 |---|---|
 | App | Next.js, installable PWA via Serwist, hosted on Vercel |
-| Database, login | Supabase: Postgres, email + password auth, Row Level Security |
+| Database, login | Supabase: Postgres, email one-time-code auth, Row Level Security |
 | Offline sync | PowerSync: local SQLite copy on the phone, synced with Supabase |
 | Styling | CSS Modules + one global `tokens.css` generated from the design system's `tokens.json`. No Tailwind, no component library |
 | UI primitives | Native `<dialog>`, `<select>` and form elements; lucide-react icons; Noto Sans via `next/font` (latin + latin-ext, for ₦) |
@@ -400,7 +403,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 1. **`uuid` primary key named `id`, generated on the phone.**
 2. **Every row carries `business_id`.** Sync and row-level security both filter on it.
 3. **The app checks first; the server only enforces what can't fail.** A rejected offline change would otherwise jam the upload queue. Unique names and loop checks are app-side.
-4. **Money in whole kobo, as `bigint`.** Never `numeric`: PowerSync sends it to the phone as text.
+4. **Money in minor units (whole kobo for Naira), as `bigint`.** Never `numeric`: PowerSync sends it to the phone as text. Every currency is stored × 100, including any without a minor unit, so changing the currency never changes the stored numbers.
 5. **Amounts, sizes and percentages as `double precision`.**
 6. **Totals are never stored.**
 7. **Soft deletes** (`deleted_at`) for ingredients, overhead items and recipes. Real deletes for categories, sections and lines.
@@ -622,7 +625,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | M0 | **Accounts** (Keside): GitHub repo, Supabase, PowerSync, Vercel, Sentry. Docs copied into `docs/` | Keys in `.env.local`; both artifact links open in Claude Code |
 | M1 | **Offline spike on an iPhone (Keside's).** Next.js + Serwist + Supabase email login + an `ingredients` table with RLS + PowerSync | Installed from Safari, an ingredient added in airplane mode appears in Supabase after reconnecting |
 | M2 | **Full data model:** all tables, composite keys, triggers, `create_business`, RLS, publication, sync streams | RLS test with two businesses passes (each sees only its own rows, directly and through PowerSync); a price change writes a history row |
-| M3 | **Foundation and getting started:** `tokens.css` from `tokens.json`, global styles, the components these screens use, money format and pricing maths; Welcome, Sign up, Log in, Forgot password + reset page, Setup, Install guide, empty Recipes, tab bar | On Keside's iPhone, a new user reaches the empty Recipes screen with five overhead items; ₦ and tabular figures render |
+| M3 | **Foundation and getting started:** `tokens.css` from `tokens.json`, global styles, the components these screens use, money format and pricing maths; Welcome, sign up and log in with an email code, Setup, Install guide, empty Recipes, tab bar | On Keside's iPhone, a new user signs up with an email code and reaches the empty Recipes screen with five overhead items; ₦ and tabular figures render |
 | M4 | **Ingredients:** units and cost-per-unit maths; list, search, sheet (add/edit), delete-in-use warning, empty state | On Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g"; missing and ₦0 behave differently |
 | M5 | **Create recipes:** line, sub-recipe, overhead and total maths, loop check; new recipe steps 1–3, category sheet, add-ingredients sheet; Recipes list with chips | On Keside's iPhone, Vanilla Cake made offline shows ₦10,287 on its card and syncs |
 | M6 | **Recipe screen (the calculator):** scaling maths; scale bar, Ingredients/Costs, sub-recipe inline, stat tiles, incomplete banner, saved toast | On Keside's iPhone, the Vanilla Cake fixtures show on screen; editing overhead doesn't change the saved recipe |
@@ -670,7 +673,9 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Topic | Decision |
 |---|---|
 | Name | Butterlogs |
-| Login | Email + password; no magic links |
+| Login | One-time email code (changed 19 Oct 2026 from email + password). No magic links (they open in Safari, not the installed app); no Google sign-in in the MVP |
+| Currencies | Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira |
+| Money in minor units | Always × 100, whatever the currency |
 | Offline | Full offline (PowerSync), from day one |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
 | Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |
