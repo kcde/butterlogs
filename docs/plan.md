@@ -11,7 +11,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 
 | # | Milestone | Features | Status | Finished |
 |---|---|---|---|---|
-| M0 | Accounts and project setup | — | In progress | |
+| M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
 | M1 | Offline spike on her iPhone | F8 (proof) | Not started | |
 | M2 | Full data model | All (data) | Not started | |
 | M3 | Tokens and components | F9 (look) | Not started | |
@@ -45,16 +45,17 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Accounts (Keside)**
 - [x] GitHub repo pushed
-- [ ] Supabase project (note the region: close to Nigeria)
-- [ ] PowerSync instance, connected to the Supabase project
-- [ ] Vercel project linked to the GitHub repo
-- [ ] Sentry project (Next.js)
-- [ ] Keys in `.env.local` (see `.env.example`), and the same keys in Vercel
+- [x] Supabase project (note the region: close to Nigeria)
+- [x] PowerSync instance, connected to the Supabase project (powersync_role, publication, Supabase auth)
+- [ ] Vercel project linked to the GitHub repo (moved to M1: needed for the iPhone install)
+- [x] Sentry project (Next.js), org `keside`, project `butterlogs`; test error received
+- [x] Keys in `.env.local` (see `.env.example`); Vercel copies go in with the Vercel project in M1
 
 **Done when:** keys are in `.env.local`, and both artifact links open in Claude Code.
 
 **Notes**
 - 17 Oct 2026: project set up; typecheck, lint, tests and build pass. Waiting on accounts.
+- 19 Oct 2026: Supabase, PowerSync and Sentry connected. Sentry's wizard also set up the SDK (pulled forward from M11); Session Replay removed, DSN read from `NEXT_PUBLIC_SENTRY_DSN`.
 
 ---
 
@@ -78,6 +79,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **PWA**
 - [ ] Serwist service worker with `@serwist/turbopack`; app shell cached so it opens offline
+- [ ] Service worker never caches Sentry's `/monitoring` tunnel route
 - [ ] Web manifest: name, standalone display, `theme-color` light `#ffffff` / dark `#0c0a09`, placeholder icon
 - [ ] `viewport-fit=cover`
 - [ ] Production build creates and registers the service worker. If Serwist fails under Turbopack: switch to `@serwist/next` + webpack and update the PRD decisions log
@@ -90,6 +92,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [ ] Noto Sans via `next/font` (latin + latin-ext); ₦ and tabular figures render on her iPhone
 
 **Deploy and test**
+- [ ] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
 - [ ] Deployed to Vercel
 - [ ] Installed from Safari on her iPhone; opens full screen
 - [ ] Airplane mode → add an ingredient → reconnect → row appears in Supabase
@@ -127,7 +130,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 - [ ] `ingredient_price_history`: no app access
 
 **PowerSync**
-- [ ] Publication lists every synced table (all except price history)
+- [ ] Publication lists every synced table (all except price history). M0 created it `FOR ALL TABLES`: drop and recreate it with the explicit list
 - [ ] Sync stream from §6, with the `with:` block for the user's businesses (check syntax against PowerSync's "Writing queries" docs)
 - [ ] Full client schema in `src/lib/db/` (uuid/text/timestamptz → text, bigint → integer, double → real)
 - [ ] Upload connector: temporary errors retry; permanent errors (rejected data, RLS) drop the change. Sentry reporting is wired in M11; the message to her is in M9
@@ -386,7 +389,9 @@ Rules: `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only b
 
 **PRD:** §5 hosting, F6, F8, F9, §11.
 
-- [ ] Sentry: client and server errors; permanently rejected uploads reported
+- [x] Sentry SDK: client, server and edge errors, global error page (done early, in M0)
+- [ ] Permanently rejected uploads reported to Sentry
+- [ ] Source maps upload on Vercel builds (`SENTRY_AUTH_TOKEN` in Vercel); production stack traces readable
 - [ ] Daily keep-alive (Vercel cron or GitHub Action) for Supabase and PowerSync
 - [ ] Playwright flows: sign up → setup → ingredient → recipe → scale
 - [ ] Playwright offline tests: add and edit offline, then sync
