@@ -15,7 +15,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M0 | Accounts and project setup | — | Done | 19 Oct 2026 |
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
-| M3 | Foundation and getting started | F1, F7, F9 | In progress | |
+| M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
 | M4 | Ingredients | F3 | Not started | |
 | M5 | Create recipes | F2, F4, F5, F7 | Not started | |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
@@ -91,7 +91,7 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 **Font check (PRD §11)**
 - [x] Noto Sans via `next/font` (latin + latin-ext)
-- [ ] ₦ and tabular figures render on the iPhone: not confirmed in M1; carried to M3, which ends with a check on Keside's iPhone
+- [x] ₦ and tabular figures render on the iPhone: not confirmed in M1; confirmed in M3 on Keside's iPhone (20 Oct)
 
 **Deploy and test**
 - [x] Vercel project linked to the repo, with the `.env.local` keys (except `SUPABASE_SECRET_KEY`)
@@ -218,12 +218,13 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [x] Service worker: every app page precached; Supabase, PowerSync and Sentry requests bypass it; PowerSync's worker scripts are served without their cached address (otherwise WebKit lost Turbopack's settings and the app showed a blank screen on every reopen)
 
 **Check**
-- [ ] On Keside's iPhone: sign up with a real email code, Setup, Recipes; ₦ and tabular figures; airplane mode and reopen
+- [x] On Keside's iPhone: sign up with a real email code, Setup, Recipes; ₦ and tabular figures; airplane mode and reopen
 
 **Done when:** on Keside's iPhone, a new user signs up with an email code, sets up her business and reaches the empty Recipes screen, with five overhead items in the database; ₦ and tabular figures render.
 
 **Notes**
 - 19 Oct 2026: built and passing typecheck, lint, unit tests (100% of the pure modules) and the Playwright flows in light and dark. The flows found three real problems, all fixed: the Supabase project sent 8-digit codes (set to 6); the app showed a blank screen on every reopen in WebKit (service worker vs Turbopack's worker settings); and opening offline after an hour waited up to 30 s on a token refresh. Decided along the way: no default amount for Fixed profit or Set price at setup, and a six-box code screen. Waiting on the iPhone check.
+- 20 Oct 2026: done. On Keside's iPhone: sign up with a real code from Resend, Setup, empty Recipes, ₦ and tabular figures, and reopening in airplane mode all work. Known: a short blank screen while the local database opens on each launch (grey placeholders are planned for M8; could be brought forward). Next: M4, ingredients.
 
 ---
 
