@@ -385,9 +385,10 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 
 **Notes for the build**
 - **Next.js 16 builds with Turbopack.**
-  - Turbopack bundles PowerSync's worker and SQLite engine itself (as in PowerSync's Next.js example); nothing is copied to `public/`. The service worker precaches the SQLite `.wasm` so the database opens offline.
+  - Turbopack bundles PowerSync's worker and SQLite engine itself (as in PowerSync's Next.js example); nothing is copied to `public/`. The service worker precaches both SQLite `.wasm` builds so the database opens offline.
   - If Serwist gives trouble under Turbopack, build with webpack.
 - **PowerSync runs only on the client.** Keep it in a client provider; server-rendered pages get no data.
+- **The phone keeps PowerSync's database in OPFS** (`OPFSCoopSyncVFS`), falling back to IndexedDB only where OPFS isn't available (Safari private browsing, Playwright's WebKit). IndexedDB storage needs SQLite's large "Asyncify" build, which iOS 26.0–26.4 runs out of memory compiling: the page is killed and reloads while it sits idle ([WebKit bug 309251](https://bugs.webkit.org/show_bug.cgi?id=309251), fixed in iOS 26.5). Don't switch back to PowerSync's default.
 - **The app's files** (component layout, token setup, conventions) follow the design system's `building-in-code.md`.
 - **Service worker:** Supabase, PowerSync and Sentry requests bypass it. PowerSync's worker scripts are served from the precache but without their cached address: Turbopack passes the workers' settings in the script address, and WebKit (iPhone) would otherwise lose them and PowerSync wouldn't open on reopening the app.
 
@@ -681,6 +682,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Email sender | Resend via Supabase custom SMTP, on Keside's domain (19 Oct 2026) |
 | Default pricing at setup | Method for all four; a default % only for Markup and Margin. Fixed profit and Set price amounts are per recipe (19 Oct 2026) |
 | Offline | Full offline (PowerSync), from day one |
+| Phone storage | OPFS, with IndexedDB as the fallback (25 Oct 2026): with IndexedDB, iOS 26 reloaded the page every so often while idle |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
 | Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |
 | PWA package | `@serwist/turbopack` (keeps the default Turbopack build); fall back to `@serwist/next` + webpack if it fails the M1 offline test |

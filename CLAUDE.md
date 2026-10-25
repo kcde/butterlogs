@@ -76,6 +76,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 
 **Where code runs**
 - PowerSync runs on the client only.
+- PowerSync keeps its database in OPFS, with IndexedDB only as a fallback (`src/lib/db/storage.ts`). Don't switch back to the default: it makes iOS 26 reload the page while idle.
 - Calculations live in `lib/calc` as pure functions, and every change to them runs the PRD section 9 fixtures.
 
 **Display rounding**
@@ -89,7 +90,7 @@ npm run build       # production build (Turbopack)
 npm run typecheck   # tsc --noEmit
 npm run lint        # ESLint
 npm test            # Vitest, src/**/*.test.ts
-npm run e2e         # Playwright, e2e/, 390 × 844 light + dark (WebKit), against a production build on port 3100; throwaway users
+npm run e2e         # Playwright, e2e/, 390 × 844 light + dark (WebKit; storage.spec.ts runs in Chromium, which has OPFS), against a production build on port 3100; throwaway users
 npm run tokens      # regenerate src/styles/tokens.css from design/tokens.json
 npm run test:db     # Vitest, tests/db/: RLS, keys, triggers and PowerSync against the live project, with throwaway users (needs .env.local)
 ```
