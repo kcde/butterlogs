@@ -2,6 +2,7 @@
 
 import { PowerSyncContext } from "@powersync/react";
 import { PowerSyncDatabase } from "@powersync/web";
+import * as Sentry from "@sentry/nextjs";
 import { type ReactNode, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { SupabaseConnector } from "./connector";
@@ -18,6 +19,20 @@ function getDb() {
   return db;
 }
 
+// TEMPORARY (fix-idle-crash): `?nosync=1` turns syncing off on this phone
+// (the database still opens) until `?nosync=0`, to test whether syncing is
+// what refreshes the page while it sits idle. Remove before merging.
+function syncTurnedOff() {
+  try {
+    const param = new URLSearchParams(location.search).get("nosync");
+    if (param === "1") localStorage.setItem("debug-nosync", "1");
+    if (param === "0") localStorage.removeItem("debug-nosync");
+    return localStorage.getItem("debug-nosync") === "1";
+  } catch {
+    return false;
+  }
+}
+
 // PowerSync runs on the client only: mount this only in the browser, after
 // the session is known (never during server rendering).
 export function PowerSyncProvider({ children }: { children: ReactNode }) {
@@ -25,7 +40,11 @@ export function PowerSyncProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const connector = new SupabaseConnector();
-    const connect = () => void database.connect(connector);
+    const sync = !syncTurnedOff();
+    Sentry.setTag("nosync", !sync);
+    const connect = () => {
+      if (sync) void database.connect(connector);
+    };
     connect();
 
     // Back online: reconnect now (which also uploads waiting changes) instead
