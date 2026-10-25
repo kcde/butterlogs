@@ -20,11 +20,13 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
     "/ingredients",
     "/settings",
   ].map((url) => ({ url, revision })),
-  // Serwist's defaults plus fonts (Noto Sans) and the SQLite engine PowerSync's
-  // default storage (IDBBatchAtomicVFS) loads. Without them the app can't
-  // render or open its database offline.
+  // Serwist's defaults plus fonts (Noto Sans) and both SQLite engines PowerSync
+  // loads: wa-sqlite for OPFS storage, wa-sqlite-async for the IndexedDB
+  // fallback (lib/db/storage.ts). Without them the app can't render or open
+  // its database offline.
   globPatterns: [
     ".next/static/**/*.{js,css,html,ico,png,svg,webp,json,webmanifest,woff2}",
+    ".next/static/media/wa-sqlite.*.wasm",
     ".next/static/media/wa-sqlite-async.*.wasm",
     "public/**/*",
   ],
