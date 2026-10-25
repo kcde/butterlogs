@@ -25,13 +25,20 @@ export default function IdleTestPage() {
 
     if (wanted.includes("db")) {
       void (async () => {
-        const { PowerSyncDatabase } = await import("@powersync/web");
+        const { PowerSyncDatabase, WASQLiteVFS } = await import("@powersync/web");
         const { AppSchema } = await import("@/lib/db/schema");
-        // Its own file, so it never touches the app's database.
-        const db = new PowerSyncDatabase({ schema: AppSchema, database: { dbFilename: "idle-test.db" } });
+        // ?vfs=opfs: the OPFS storage, which uses the smaller (non-Asyncify)
+        // SQLite build. Each has its own file, so the app's database is never touched.
+        const opfs = new URLSearchParams(location.search).get("vfs") === "opfs";
+        const db = new PowerSyncDatabase({
+          schema: AppSchema,
+          database: opfs
+            ? { dbFilename: "idle-test-opfs.db", vfs: WASQLiteVFS.OPFSCoopSyncVFS }
+            : { dbFilename: "idle-test.db" },
+        });
         await db.init();
         await db.get("SELECT count(*) AS n FROM businesses");
-        note("Database open");
+        note(`Database open (${opfs ? "OPFS" : "IndexedDB"} storage)`);
       })().catch((error) => note(`Database failed: ${String(error)}`));
     }
 
