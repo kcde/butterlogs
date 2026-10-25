@@ -1,0 +1,58 @@
+/* Ingredients.dc.html and IngredientSheet.dc.html: 16px between the title,
+   search and cards; 12px between cards. */
+.search {
+  margin-top: var(--space-4);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: 0;
+  list-style: none;
+}
+
+.none {
+  margin-top: var(--space-6);
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+/* The sheet's fields, 16px apart, with pack size and unit side by side. */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.caption {
+  margin: var(--space-3) var(--space-1) 0;
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+.problem {
+  font: var(--type-meta);
+  color: var(--warning);
+  text-align: center;
+}
+
+/* "Delete ingredient": red text under Save, as in the mockup. */
+.delete {
+  min-height: var(--tap-target);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--warning);
+  font: var(--type-body-strong);
+  font-size: 15px;
+  cursor: pointer;
+}

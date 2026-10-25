@@ -144,13 +144,15 @@ One shared list of everything she buys. Every recipe reads its prices from here.
   - ₦1,000 for 50 bags → ₦20 a bag.
   - The ingredient sheet shows the result as "Works out to ₦1.20 per g".
 - **No conversion between kinds:** cups of flour ↔ grams is not supported.
-- **Changing the measuring unit is allowed within the same kind.** Every recipe line for that ingredient is converted at the same time, so costs don't change.
+- **Changing the measuring unit is allowed within the same kind.** Every recipe line for that ingredient is converted at the same time, so costs don't change. When editing, the sheet only offers units of the same kind.
 - **Missing price:**
   - The ingredient shows "add price".
   - Every recipe using it shows the line as missing, and its totals as incomplete.
 - **Price history is kept automatically** on the server. It isn't shown in the MVP.
 - **Per-piece supplies** (ziplock bags, liners, a box per piece) are ingredients measured in pcs, so they scale with the recipe.
-- **Search by name.**
+- **The list is A to Z by name** (agreed 25 Oct 2026). Each card shows the cost per unit and "12.5 kg · ₦15,000 · updated 2 weeks ago".
+- **Search by name**, ignoring capitals and accents.
+- **Deleting an ingredient no recipe uses:** the app asks first ("Delete Flour?", agreed 25 Oct 2026).
 - **Deleting an ingredient that recipes use:**
   - The app warns and lists the recipes ("Flour is in 14 recipes").
   - If she goes ahead, those lines show "Flour was deleted" and count as missing, so totals are marked incomplete.
@@ -357,7 +359,8 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 | What | Rule | Example |
 |---|---|---|
 | Money | Whole units, business currency | ₦15,430.93 → "₦15,431" |
-| Cost per unit | 2 decimals | "₦1.20 / g", "₦9.98/g" |
+| Cost per unit | 2 decimals; a whole amount drops ".00" (agreed 25 Oct 2026) | "₦1.20 / g", "₦9.98/g", "₦40 / g", "₦300 / pc" |
+| Pack size | As typed, up to 2 decimals | "12.5 kg", "1,000 g", "1 pc" |
 | Amounts 10 or more | Whole number | 833.33 g → "833 g" |
 | Amounts under 10 | Up to 2 decimals | "2.67 g", "1.5 g" |
 | Pieces | Up to 2 decimals | "1.6", "0.5" |
@@ -682,6 +685,9 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Email sender | Resend via Supabase custom SMTP, on Keside's domain (19 Oct 2026) |
 | Default pricing at setup | Method for all four; a default % only for Markup and Margin. Fixed profit and Set price amounts are per recipe (19 Oct 2026) |
 | Offline | Full offline (PowerSync), from day one |
+| Cost per unit on screen | 2 decimals, but a whole amount drops ".00": "₦1.20 / g", "₦40 / g" (25 Oct 2026; the PRD said 2 decimals, the mockups showed whole prices) |
+| Ingredient list order | A to Z by name (25 Oct 2026) |
+| Deleting an unused ingredient | Asks first, like deleting a recipe (25 Oct 2026) |
 | Phone storage | OPFS, with IndexedDB as the fallback (25 Oct 2026): with IndexedDB, iOS 26 reloaded the page every so often while idle |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
 | Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |

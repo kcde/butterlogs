@@ -235,7 +235,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 **PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients.
 
-**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card
+**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card (confirmed against the mockups in plan mode, 25 Oct)
 
 **Maths**
 - [x] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
@@ -246,19 +246,20 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [x] `search.ts`: search by name ignoring capitals and accents; A to Z order
 
 **Screens**
-- [ ] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add
-- [ ] *EmptyIngredients*: "Add your first ingredient"
-- [ ] *IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes; "Works out to ₦1.20 per g"; "Price last updated"
-- [ ] Validation in the app: name unique among non-deleted ingredients ignoring capitals; pack size unit must be the same kind as the unit
-- [ ] Empty price = missing; ₦0 saves as a real price
-- [ ] `price_updated_at` set when price, size or size unit changes
-- [ ] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (tested now; seen on screen from M5)
-- [ ] *DeleteIngredient*: soft delete; when in use, warns with the recipe list ("Flour is in 14 recipes")
-- [ ] Money entered in whole currency units and stored in minor units
+- [x] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add (A to Z)
+- [x] *EmptyIngredients*: "Add your first ingredient"
+- [x] *IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes; "Works out to ₦1.20 per g"; "Price last updated"
+- [x] Validation in the app: name unique among non-deleted ingredients ignoring capitals; pack size unit must be the same kind as the unit
+- [x] Empty price = missing; ₦0 saves as a real price
+- [x] `price_updated_at` set when price, size or size unit changes
+- [x] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (tested now; seen on screen from M5)
+- [x] *DeleteIngredient*: soft delete; when in use, warns with the recipe list ("Flour is in 14 recipes"); when unused, asks first
+- [x] Money entered in whole currency units and stored in minor units
 
 **Done when:** on Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
 
 **Notes**
+- 25 Oct 2026: built and passing typecheck, lint, unit tests (100% of `src/lib`, plus the phone's ingredient writes against a local PowerSync database) and the Playwright flows in light and dark with axe: add, missing vs ₦0, unique names, search, edit, a unit change converting a recipe line on the server, both delete dialogs, and adding offline. Agreed in plan mode: cost per unit drops ".00" on whole amounts, the list is A to Z, and deleting an unused ingredient asks first. Small calls: the card's detail line has no "bag" (no field holds it); litres show as "L"; the ₦ sits inside the price box. Design system gaps: TextField has no `prefix` prop and Card's `as="a"` has no `href`; both are noted in the code. BottomSheet now follows `visualViewport` so a sheet with fields stays above the iPhone keyboard. Waiting on the iPhone check (keyboard over the sheet, and whether a focus ring shows on the sheet's close button when it opens).
 
 ---
 
@@ -271,6 +272,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **Components** (first needed here): StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast
 
 **Maths**
+- [ ] `format.ts`: recipe amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2) (moved from M4: the first screens that show amounts are here)
 - [ ] Ingredient line cost = amount × cost per unit
 - [ ] Sub-recipe line cost = amount × (sub-recipe ingredient cost ÷ its yield in g or pcs); missing if the sub-recipe is deleted or has any missing line; ingredients only (no overhead or markup carried in)
 - [ ] Recipe ingredient total (every line, including sub-recipe lines) and an incomplete flag with a count of missing lines

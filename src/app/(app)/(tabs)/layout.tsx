@@ -5,6 +5,7 @@ import { type ReactNode, useEffect } from "react";
 import { TabBar } from "@/components/TabBar";
 import { useBusiness } from "@/lib/db/useBusiness";
 import { useUser } from "../user";
+import { BusinessContext } from "./business";
 import styles from "./tabs.module.css";
 
 // The tab screens: Recipes, Ingredients, Settings, with the floating tab bar.
@@ -13,7 +14,7 @@ export default function TabsLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const user = useUser();
-  const { state } = useBusiness(user.id);
+  const { state, business } = useBusiness(user.id);
 
   useEffect(() => {
     if (state === "none") router.replace("/setup");
@@ -28,9 +29,9 @@ export default function TabsLayout({ children }: { children: ReactNode }) {
       ? "settings"
       : "recipes";
   return (
-    <>
+    <BusinessContext value={business}>
       <main className={styles.screen}>{children}</main>
       <TabBar active={active} />
-    </>
+    </BusinessContext>
   );
 }

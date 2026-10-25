@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page } from "@playwright/test";
-import { admin, createTestUser, must } from "../tests/db/helpers";
+import { admin, createTestUser, must, type TestUser } from "../tests/db/helpers";
 
 /** No accessibility violations on the screen as it is now. */
 export async function expectAccessible(page: Page) {
@@ -54,9 +54,10 @@ export async function logIn(page: Page) {
  * A user who already has a business, signed in by putting her login on the
  * phone directly (as the code screen would), so the service worker can run:
  * requests made once it controls the page can't be caught by page.route.
+ * Pass a user to sign in one already prepared (e.g. with seed()).
  */
-export async function signInDirectly(page: Page) {
-  const user = await createTestUser();
+export async function signInDirectly(page: Page, prepared?: TestUser) {
+  const user = prepared ?? (await createTestUser());
   const { data } = await user.client.auth.getSession();
   const key = `sb-${new URL(process.env.NEXT_PUBLIC_SUPABASE_URL!).hostname.split(".")[0]}-auth-token`;
   await page.addInitScript(
