@@ -3,10 +3,15 @@
    read page variables in every Safari). */
 .dialog {
   position: fixed;
-  inset: 0;
+  /* The visible part of the screen: smaller while the iPhone keyboard is up
+     (set from visualViewport in BottomSheet.tsx). */
+  top: var(--visible-top, 0);
+  right: 0;
+  bottom: auto;
+  left: 0;
   width: 100%;
   max-width: none;
-  height: 100%;
+  height: var(--visible-height, 100%);
   max-height: none;
   margin: 0;
   padding: 0;

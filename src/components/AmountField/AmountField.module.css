@@ -1,0 +1,89 @@
+/* Ported from ba-field, ba-inputgroup and ba-unit in the design system's bundle.css. */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.label,
+.help {
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+.group {
+  display: flex;
+  height: var(--field-height);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-input);
+  background: var(--input);
+  overflow: hidden;
+}
+
+.group:focus-within {
+  border-color: var(--caramel);
+}
+
+.input {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0 0 0 var(--space-4);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.input:focus,
+.input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+/* The unit chip: the select fills it, with its own chevron. */
+.unit {
+  position: relative;
+  display: flex;
+  flex: none;
+  margin: 6px;
+  border-radius: var(--radius-sm);
+  background: var(--raised);
+  box-shadow: var(--shadow-sm);
+}
+
+.unit select {
+  height: 100%;
+  padding: 0 calc(var(--space-3) + 20px) 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 600;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.unit select:focus {
+  outline: none;
+}
+
+.unit svg {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  width: 16px;
+  height: 16px;
+  stroke-width: 1.5;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.error .group {
+  border-color: var(--warning);
+}
+
+.error .help {
+  color: var(--warning);
+}

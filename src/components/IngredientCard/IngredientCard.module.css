@@ -1,0 +1,50 @@
+/* Ported from ba-card, ba-card-head, ba-card-title, ba-price, ba-missing and ba-meta in the design system's bundle.css. */
+.card {
+  composes: card from "../Card/Card.module.css";
+  display: block;
+  width: 100%;
+  border: 0;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.name {
+  font: var(--type-section);
+}
+
+.price {
+  font: var(--type-section);
+  color: var(--money);
+  white-space: nowrap;
+}
+
+.missing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font: var(--type-meta);
+  font-weight: 600;
+  color: var(--warning);
+  white-space: nowrap;
+}
+
+.missing svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.meta {
+  display: block;
+  margin-top: var(--space-1);
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}
