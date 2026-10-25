@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { convert, isUnit, UNITS, unitKind, unitLabel, unitsOfKind } from "./units";
+import { baseSize, convert, isUnit, UNITS, unitKind, unitLabel, unitsOfKind } from "./units";
 
 describe("units", () => {
   it("has the eleven units of PRD F3, as the design system's codes", () => {
@@ -37,6 +37,12 @@ describe("convert (PRD §4)", () => {
     [50, "pcs", "pcs", 50],
   ] as const)("%s %s in %s = %s", (amount, from, to, expected) => {
     expect(convert(amount, from, to)).toBeCloseTo(expected, 10);
+  });
+
+  it("knows each unit's size in its kind's base unit", () => {
+    expect(baseSize("kg")).toBe(1000);
+    expect(baseSize("cup")).toBe(236.588);
+    expect(baseSize("pcs")).toBe(1);
   });
 
   it("works in either direction, at full precision", () => {

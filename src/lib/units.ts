@@ -39,10 +39,15 @@ export function unitsOfKind(kind: UnitKind): Unit[] {
   return UNITS.filter((unit) => UNIT_TABLE[unit].kind === kind);
 }
 
+/** How many of the kind's base unit (g, ml or pcs) one of this unit is: kg → 1000. */
+export function baseSize(unit: Unit) {
+  return UNIT_TABLE[unit].toBase;
+}
+
 /** An amount in another unit of the same kind; null across kinds. Full precision. */
 export function convert(amount: number, from: Unit, to: Unit): number | null {
   if (unitKind(from) !== unitKind(to)) return null;
-  return (amount * UNIT_TABLE[from].toBase) / UNIT_TABLE[to].toBase;
+  return (amount * baseSize(from)) / baseSize(to);
 }
 
 /** What the screen shows: "L" for litres, "fl oz", and "pc" for exactly one piece. */
