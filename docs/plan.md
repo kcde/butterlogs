@@ -16,7 +16,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
 | M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
-| M4 | Ingredients | F3 | Not started | |
+| M4 | Ingredients | F3 | In progress | |
 | M5 | Create recipes | F2, F4, F5, F7 | Not started | |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
 | M7 | Change and delete recipes | F4, F5 | Not started | |
@@ -238,11 +238,12 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card
 
 **Maths**
-- [ ] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
-- [ ] Ingredient cost per unit = pack price ÷ pack size converted to the measuring unit; missing if price or size is empty or the ingredient is deleted; ₦0 is a real price
-- [ ] Unit change on an ingredient converts its recipe line amounts so costs don't change
-- [ ] `format.ts`: cost per unit (2 decimals), amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2), a space before units; missing price never formats as ₦0
-- [ ] §9 fixtures: ₦15,000 / 12.5 kg → ₦1.20 per g; ₦1,000 / 50 pcs; ₦0 vs empty
+- [x] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
+- [x] Ingredient cost per unit = pack price ÷ pack size converted to the measuring unit; missing if price or size is empty or the ingredient is deleted; ₦0 is a real price
+- [x] Unit change on an ingredient converts its recipe line amounts so costs don't change (the maths; the database side is under Screens)
+- [x] `format.ts`: cost per unit (2 decimals, whole amounts without ".00"), pack sizes (up to 2 decimals), "updated … ago", a space before units; missing price never formats as ₦0. Recipe amounts (≥10 whole; <10 up to 2 decimals; pieces) moved to M5, where the first screen shows them
+- [x] §9 fixtures: ₦15,000 / 12.5 kg → ₦1.20 per g; ₦1,000 / 50 pcs; ₦0 vs empty
+- [x] `search.ts`: search by name ignoring capitals and accents; A to Z order
 
 **Screens**
 - [ ] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add
