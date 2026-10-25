@@ -20,6 +20,7 @@ import { useCurrentBusiness } from "../business";
 import { SyncPill } from "../SyncPill";
 import { IngredientSheet } from "./IngredientSheet";
 import styles from "./ingredients.module.css";
+import { RestockSheet, type RestockTarget } from "./RestockSheet";
 
 /** "₦1.20 / g", or null for a missing price. */
 function unitCost(ingredient: IngredientRow, currency: CurrencyCode) {
@@ -43,8 +44,9 @@ function meta(ingredient: IngredientRow, currency: CurrencyCode, now: Date) {
 }
 
 // One sheet session: a new ingredient (null) or the one being edited. `id`
-// gives each session a fresh form.
+// gives each session fresh forms.
 type Session = { id: number; ingredient: IngredientRow | null };
+type Step = { name: "details" } | { name: "restock"; target: RestockTarget } | { name: "delete" };
 
 // Ingredients.dc.html, IngredientsDark.dc.html and EmptyIngredients.dc.html.
 export default function IngredientsPage() {
@@ -54,14 +56,14 @@ export default function IngredientsPage() {
   const { ingredients, isLoading } = useIngredients(business.id);
   const [query, setQuery] = useState("");
   const [session, setSession] = useState<Session | null>(null);
-  const [step, setStep] = useState<"sheet" | "delete">("sheet");
+  const [step, setStep] = useState<Step>({ name: "details" });
   const editing = session?.ingredient ?? null;
   const usedIn = useRecipesUsing(editing?.id ?? null);
   const now = new Date();
 
   function open(ingredient: IngredientRow | null) {
     setSession({ id: (session?.id ?? 0) + 1, ingredient });
-    setStep("sheet");
+    setStep({ name: "details" });
   }
 
   async function confirmDelete() {
@@ -84,7 +86,7 @@ export default function IngredientsPage() {
         <EmptyState
           icon={<Package />}
           title="No ingredients yet"
-          body="Add what you buy and what you paid for the pack. We work out the cost per gram or per piece."
+          body="Add what you buy and what you paid for it. We work out the cost per gram or per piece."
           primaryAction={{ label: "Add your first ingredient", onClick: () => open(null) }}
           footnote="Cake boxes, bags and liners count too. Add them in pieces (pcs)."
         />
@@ -116,22 +118,28 @@ export default function IngredientsPage() {
       {session && (
         <IngredientSheet
           key={session.id}
-          open={step === "sheet"}
+          open={step.name === "details"}
           ingredient={session.ingredient}
           ingredients={ingredients}
           usedIn={usedIn.length}
           businessId={business.id}
           currency={currency}
           onClose={() => setSession(null)}
-          onDelete={() => setStep("delete")}
+          onRestock={(target) => setStep({ name: "restock", target })}
+          onDelete={() => setStep({ name: "delete" })}
         />
+      )}
+
+      {/* Closing Restock ends the session, wherever it was opened from. */}
+      {session && step.name === "restock" && (
+        <RestockSheet key={session.id} open target={step.target} currency={currency} onClose={() => setSession(null)} />
       )}
 
       {/* DeleteIngredient.dc.html. Keep goes back to the sheet, edits and all. */}
       {editing &&
         (usedIn.length > 0 ? (
           <ConfirmDialog
-            open={step === "delete"}
+            open={step.name === "delete"}
             icon="alert"
             title={`${name} is in ${usedIn.length} recipe${usedIn.length === 1 ? "" : "s"}`}
             body="If you delete it, those recipes will show it as missing and their totals will be incomplete."
@@ -140,18 +148,18 @@ export default function IngredientsPage() {
             cancelLabel={`Keep ${name}`}
             layout="stack"
             onConfirm={() => void confirmDelete()}
-            onCancel={() => setStep("sheet")}
+            onCancel={() => setStep({ name: "details" })}
           />
         ) : (
           <ConfirmDialog
-            open={step === "delete"}
+            open={step.name === "delete"}
             icon="trash"
             title={`Delete ${name}?`}
             body="This can’t be undone. No recipes use it."
             confirmLabel="Delete"
             cancelLabel="Cancel"
             onConfirm={() => void confirmDelete()}
-            onCancel={() => setStep("sheet")}
+            onCancel={() => setStep({ name: "details" })}
           />
         ))}
     </>

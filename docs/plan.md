@@ -233,7 +233,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 **Goal:** she can manage her full ingredient list, offline.
 
-**PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients.
+**PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, Restock (no mockup), DeleteIngredient, EmptyIngredients.
 
 **Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card (confirmed against the mockups in plan mode, 25 Oct)
 
@@ -248,18 +248,21 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **Screens**
 - [x] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add (A to Z)
 - [x] *EmptyIngredients*: "Add your first ingredient"
-- [x] *IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes; "Works out to ₦1.20 per g"; "Price last updated"
-- [x] Validation in the app: name unique among non-deleted ingredients ignoring capitals; pack size unit must be the same kind as the unit
-- [x] Empty price = missing; ₦0 saves as a real price
-- [x] `price_updated_at` set when price, size or size unit changes
+- [x] ~~*IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes~~ (split into the two sheets below, 25 Oct)
+- [x] *IngredientSheet* (add and edit): name, "I measure it in", notes; "Works out to ₦1.20 per g"; "Last bought 12.5 kg for ₦15,000, 2 weeks ago · Used in 14 recipes"; Restock button (edits saved first)
+- [x] *Restock* (no mockup): "Amount bought" + unit (same kind as "I measure it in"), "Price paid", both required; starts with the last amount and unit and an empty price; "Works out to"; opens straight after saving a new ingredient
+- [x] Validation in the app: name unique among non-deleted ingredients ignoring capitals
+- [x] Never restocked = missing; ₦0 saves as a real price
+- [x] `price_updated_at` set on every restock, even at the same price
 - [x] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (tested now; seen on screen from M5)
 - [x] *DeleteIngredient*: soft delete; when in use, warns with the recipe list ("Flour is in 14 recipes"); when unused, asks first
 - [x] Money entered in whole currency units and stored in minor units
 
-**Done when:** on Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
+**Done when:** on Keside's iPhone, offline, Flour restocked at ₦15,000 for 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
 
 **Notes**
 - 25 Oct 2026: built and passing typecheck, lint, unit tests (100% of `src/lib`, plus the phone's ingredient writes against a local PowerSync database) and the Playwright flows in light and dark with axe: add, missing vs ₦0, unique names, search, edit, a unit change converting a recipe line on the server, both delete dialogs, and adding offline. Agreed in plan mode: cost per unit drops ".00" on whole amounts, the list is A to Z, and deleting an unused ingredient asks first. Small calls: the card's detail line has no "bag" (no field holds it); litres show as "L"; the ₦ sits inside the price box. Design system gaps: TextField has no `prefix` prop and Card's `as="a"` has no `href`; both are noted in the code. BottomSheet now follows `visualViewport` so a sheet with fields stays above the iPhone keyboard. Waiting on the iPhone check (keyboard over the sheet, and whether a focus ring shows on the sheet's close button when it opens).
+- 25 Oct 2026: split adding from pricing, after Keside found the one sheet confusing ("I measure it in" next to "Pack size" read like "price per…", and a new purchase meant overwriting the ingredient). Adding an ingredient asks only its name, "I measure it in" and notes; what she paid goes through **Restock** ("Amount bought", "Price paid"), which opens straight after a new ingredient is saved and from the ingredient's sheet. No "pack" on screen, since not everything comes in a pack. No schema change: the `pack_` columns hold the last restock. Agreed in plan mode: tapping a card opens the ingredient (with a Restock button); Restock starts from the last amount with the price empty. The *IngredientSheet* mockup no longer matches on fields, and Restock has no mockup; it's built from the same parts, and the e2e screenshots are the reference. Waiting on the iPhone check.
 
 ---
 

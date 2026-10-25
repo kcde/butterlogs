@@ -3,7 +3,7 @@
 import { useQuery } from "@powersync/react";
 import type { AbstractPowerSyncDatabase } from "@powersync/web";
 import { useMemo } from "react";
-import { type IngredientValues, priceChanged } from "@/lib/ingredients";
+import type { IngredientValues, RestockValues } from "@/lib/ingredients";
 import { sortByName } from "@/lib/search";
 import { baseSize, isUnit, unitKind } from "@/lib/units";
 import type { Ingredient } from "./schema";
@@ -38,9 +38,9 @@ export function useRecipesUsing(ingredientId: string | null) {
 }
 
 /**
- * Adds an ingredient, or saves changes to one, in one transaction (PRD F3):
- * - "Price updated" is set when a new one has a price or size, or when the
- *   price, size or size unit changes.
+ * Adds an ingredient, or saves changes to one, in one transaction (PRD F3).
+ * Only its own details: the price comes from restockIngredient.
+ * - A new one has no price yet ("add price").
  * - Changing the measuring unit (same kind) converts every recipe line for it,
  *   so no cost changes.
  * Returns the ingredient's id.
@@ -55,28 +55,26 @@ export async function saveIngredient(
   },
 ) {
   const timestamp = now.toISOString();
-  const { name, unit, pack_price_minor, pack_size, pack_size_unit, notes } = values;
+  const { name, unit, notes } = values;
 
   return db.writeTransaction(async (tx) => {
     if (!existing) {
       const id = crypto.randomUUID();
-      const priced = pack_price_minor !== null || pack_size !== null;
       await tx.execute(
-        `INSERT INTO ingredients (id, business_id, name, unit, pack_price_minor, pack_size, pack_size_unit, notes,
-           price_updated_at, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [id, businessId, name, unit, pack_price_minor, pack_size, pack_size_unit, notes, priced ? timestamp : null, timestamp, timestamp],
+        `INSERT INTO ingredients (id, business_id, name, unit, notes, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [id, businessId, name, unit, notes, timestamp, timestamp],
       );
       return id;
     }
 
-    const priceUpdatedAt = priceChanged(existing, values) ? timestamp : existing.price_updated_at;
-    await tx.execute(
-      `UPDATE ingredients SET name = ?, unit = ?, pack_price_minor = ?, pack_size = ?, pack_size_unit = ?, notes = ?,
-         price_updated_at = ?, updated_at = ?
-       WHERE id = ?`,
-      [name, unit, pack_price_minor, pack_size, pack_size_unit, notes, priceUpdatedAt, timestamp, existing.id],
-    );
+    await tx.execute("UPDATE ingredients SET name = ?, unit = ?, notes = ?, updated_at = ? WHERE id = ?", [
+      name,
+      unit,
+      notes,
+      timestamp,
+      existing.id,
+    ]);
 
     // Same order of operations as convert(): 350 g → 350 × 1 ÷ 1000 = 0.35 kg exactly.
     const from = existing.unit;
@@ -90,6 +88,23 @@ export async function saveIngredient(
     }
     return existing.id;
   });
+}
+
+/**
+ * Records what she just bought (PRD F3, Restock): the amount, its unit and the
+ * price replace the last restock, and "Price updated" moves to now even when
+ * the numbers are the same.
+ */
+export async function restockIngredient(
+  db: AbstractPowerSyncDatabase,
+  { id, values, now = new Date() }: { id: string; values: RestockValues; now?: Date },
+) {
+  const timestamp = now.toISOString();
+  await db.execute(
+    `UPDATE ingredients SET pack_price_minor = ?, pack_size = ?, pack_size_unit = ?, price_updated_at = ?, updated_at = ?
+     WHERE id = ?`,
+    [values.pack_price_minor, values.pack_size, values.pack_size_unit, timestamp, timestamp, id],
+  );
 }
 
 /** Soft delete (PRD §6): recipes still find it, and show it as deleted. */

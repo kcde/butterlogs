@@ -19,23 +19,22 @@
   text-align: center;
 }
 
-/* The sheet's fields, 16px apart, with pack size and unit side by side. */
+/* The sheets' fields, 16px apart. */
 .fields {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-3);
-}
-
 .caption {
   margin: var(--space-3) var(--space-1) 0;
   font: var(--type-label);
   color: var(--ink-muted);
+}
+
+/* Restock on the ingredient sheet: 16px under the caption, as Save sits under the result in the mockup. */
+.restock {
+  margin-top: var(--space-4);
 }
 
 .problem {

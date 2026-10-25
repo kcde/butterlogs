@@ -73,7 +73,7 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 |---|---|---|
 | F1 | Account and business | Welcome, sign-in screens (email, code), Setup |
 | F2 | Overhead items | OverheadItems, NewRecipe3, RecipeCosts |
-| F3 | Ingredients and per-piece supplies | Ingredients, IngredientSheet, DeleteIngredient, EmptyIngredients |
+| F3 | Ingredients and per-piece supplies | Ingredients, IngredientSheet, Restock (no mockup), DeleteIngredient, EmptyIngredients |
 | F4 | Recipe categories | Categories, CategoryPicker, Main (chips) |
 | F5 | Recipes: create, edit, delete | NewRecipe1–3, AddIngredients, EditRecipe, RecipeMenu, DeleteRecipe, DeleteRecipeInUse, DiscardChanges, RecipeSaved |
 | F6 | Scaling calculator | Recipe, RecipeCosts, RecipeSub, CookieRecipe |
@@ -129,26 +129,43 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 
 One shared list of everything she buys. Every recipe reads its prices from here.
 
+Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oct 2026). The ingredient is only about the ingredient. Its price comes from **Restock**, which records what she last bought.
+
+**The ingredient** (*IngredientSheet*: "New ingredient" or "Edit ingredient")
+
 | Field | Example | Rules |
 |---|---|---|
 | Name | Flour | Unique among non-deleted ingredients, ignoring capitals (checked by the app) |
-| Unit she measures in | g | g, kg, oz, lb, ml, l, fl oz, tsp, tbsp, cup, pcs |
-| Pack price | ₦15,000 | What she paid for one pack. Empty = missing; ₦0 = genuinely free (water) |
-| Pack size | 12.5 | |
-| Pack size unit | kg | Must be the same kind as the measuring unit (weight, volume or pieces) |
+| I measure it in | g | g, kg, oz, lb, ml, l, fl oz, tsp, tbsp, cup, pcs: how her recipes count it |
 | Notes | Bulk bag | Optional |
-| Price last updated | 2 weeks ago | Set automatically when price, size or size unit changes |
 
-- **Cost per unit is calculated, never typed:** pack price ÷ pack size, converted into the measuring unit.
+**Restock** (title "Restock — Flour")
+
+| Field | Example | Stored as | Rules |
+|---|---|---|---|
+| Amount bought | 12.5 | `pack_size` | Required, above 0 |
+| Amount bought unit | kg | `pack_size_unit` | Only units of the same kind as "I measure it in" are offered |
+| Price paid | ₦15,000 | `pack_price_minor` | Required; ₦0 = genuinely free (water) |
+| Price last updated | 2 weeks ago | `price_updated_at` | Set to now on every restock, even at the same price |
+
+- **The flow:**
+  - Saving a new ingredient opens Restock straight away. Closing it leaves the price missing ("add price").
+  - Tapping an ingredient opens its sheet. It shows "Works out to", "Last bought 12.5 kg for ₦15,000, 2 weeks ago · Used in 14 recipes", and a **Restock** button. Unsaved edits are saved before Restock opens.
+  - Restock starts with the last amount and unit (she usually buys the same bag), and Price paid is always empty. The first time, the amount is empty and the unit is the one she measures in.
+  - Saving or closing Restock goes back to the list.
+  - The ingredient sheet never changes the price.
+- **No "pack" on screen:** not everything is bought in a pack. The columns keep their `pack_` names.
+- **Cost per unit is calculated, never typed:** price paid ÷ amount bought, converted into the measuring unit.
   - ₦15,000 for 12.5 kg, measured in g → ₦1.20 per g.
+  - A full bag next time: ₦56,000 for 50 kg → ₦1.12 per g.
   - ₦1,000 for 50 bags → ₦20 a bag.
-  - The ingredient sheet shows the result as "Works out to ₦1.20 per g".
+  - Restock and the ingredient sheet show the result as "Works out to ₦1.20 per g".
 - **No conversion between kinds:** cups of flour ↔ grams is not supported.
 - **Changing the measuring unit is allowed within the same kind.** Every recipe line for that ingredient is converted at the same time, so costs don't change. When editing, the sheet only offers units of the same kind.
-- **Missing price:**
+- **Missing price** (never restocked):
   - The ingredient shows "add price".
   - Every recipe using it shows the line as missing, and its totals as incomplete.
-- **Price history is kept automatically** on the server. It isn't shown in the MVP.
+- **Price history is kept automatically** on the server. It isn't shown in the MVP. It records changed values only, so a restock at the same price isn't a new history row.
 - **Per-piece supplies** (ziplock bags, liners, a box per piece) are ingredients measured in pcs, so they scale with the recipe.
 - **The list is A to Z by name** (agreed 25 Oct 2026). Each card shows the cost per unit and "12.5 kg · ₦15,000 · updated 2 weeks ago".
 - **Search by name**, ignoring capitals and accents.
@@ -158,9 +175,9 @@ One shared list of everything she buys. Every recipe reads its prices from here.
   - If she goes ahead, those lines show "Flour was deleted" and count as missing, so totals are marked incomplete.
 
 **Acceptance**
-- Changing a price updates the cost of every recipe that uses it.
-- A pack size in a bigger unit of the same kind (kg for an ingredient measured in g) gives the right cost per unit.
-- A pack size unit of a different kind can't be saved.
+- Restocking at a new price updates the cost of every recipe that uses it.
+- An amount bought in a bigger unit of the same kind (kg for an ingredient measured in g) gives the right cost per unit.
+- Restock only offers units of the same kind as "I measure it in".
 - Deleting an ingredient in use warns with the recipe list first.
 
 ### F4. Recipe categories
@@ -341,7 +358,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 
 ### Costing
 
-- **Ingredient cost per unit** = pack price ÷ (pack size converted to the measuring unit).
+- **Ingredient cost per unit** = price paid ÷ (amount bought converted to the measuring unit), from the last restock.
 - **Ingredient line cost** = amount × cost per unit.
   - Missing if price or size is empty, or the ingredient is deleted.
 - **Sub-recipe line cost** = amount × (sub-recipe ingredient cost ÷ its yield in grams or pieces).
@@ -360,7 +377,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 |---|---|---|
 | Money | Whole units, business currency | ₦15,430.93 → "₦15,431" |
 | Cost per unit | 2 decimals; a whole amount drops ".00" (agreed 25 Oct 2026) | "₦1.20 / g", "₦9.98/g", "₦40 / g", "₦300 / pc" |
-| Pack size | As typed, up to 2 decimals | "12.5 kg", "1,000 g", "1 pc" |
+| Amount bought | As typed, up to 2 decimals | "12.5 kg", "1,000 g", "1 pc" |
 | Amounts 10 or more | Whole number | 833.33 g → "833 g" |
 | Amounts under 10 | Up to 2 decimals | "2.67 g", "1.5 g" |
 | Pieces | Up to 2 decimals | "1.6", "0.5" |
@@ -486,11 +503,11 @@ A real delete. `recipes.category_id` uses `ON DELETE SET NULL (category_id)` (th
 | id, business_id | uuid | |
 | name | text | |
 | unit | text | g … pcs |
-| pack_price_minor | bigint | Empty = missing |
-| pack_size | double precision | Empty = missing |
-| pack_size_unit | text | |
+| pack_price_minor | bigint | Last restock's price paid. Empty = missing |
+| pack_size | double precision | Last restock's amount bought. Empty = missing |
+| pack_size_unit | text | Last restock's unit |
 | notes | text | |
-| price_updated_at | timestamptz | Set by the app |
+| price_updated_at | timestamptz | Set by the app on every restock |
 | deleted_at | timestamptz | |
 | created_at, updated_at | timestamptz | |
 
@@ -632,7 +649,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | M1 | **Offline spike on an iPhone (Keside's).** Next.js + Serwist + Supabase email login + an `ingredients` table with RLS + PowerSync | Installed from Safari, an ingredient added in airplane mode appears in Supabase after reconnecting |
 | M2 | **Full data model:** all tables, composite keys, triggers, `create_business`, RLS, publication, sync streams | RLS test with two businesses passes (each sees only its own rows, directly and through PowerSync); a price change writes a history row |
 | M3 | **Foundation and getting started:** `tokens.css` from `tokens.json`, global styles, the components these screens use, money format and pricing maths; Welcome, sign up and log in with an email code, Setup, Install guide, empty Recipes, tab bar | On Keside's iPhone, a new user signs up with an email code and reaches the empty Recipes screen with five overhead items; ₦ and tabular figures render |
-| M4 | **Ingredients:** units and cost-per-unit maths; list, search, sheet (add/edit), delete-in-use warning, empty state | On Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g"; missing and ₦0 behave differently |
+| M4 | **Ingredients:** units and cost-per-unit maths; list, search, ingredient sheet (add/edit), Restock, delete-in-use warning, empty state | On Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g"; missing and ₦0 behave differently |
 | M5 | **Create recipes:** line, sub-recipe, overhead and total maths, loop check; new recipe steps 1–3, category sheet, add-ingredients sheet; Recipes list with chips | On Keside's iPhone, Vanilla Cake made offline shows ₦10,287 on its card and syncs |
 | M6 | **Recipe screen (the calculator):** scaling maths; scale bar, Ingredients/Costs, sub-recipe inline, stat tiles, incomplete banner, saved toast | On Keside's iPhone, the Vanilla Cake fixtures show on screen; editing overhead doesn't change the saved recipe |
 | M7 | **Change and delete recipes:** "…" menu, Edit recipe with Discard, delete flows | An edit made offline syncs; deleting a sub-recipe in use marks its users incomplete |
@@ -688,6 +705,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Cost per unit on screen | 2 decimals, but a whole amount drops ".00": "₦1.20 / g", "₦40 / g" (25 Oct 2026; the PRD said 2 decimals, the mockups showed whole prices) |
 | Ingredient list order | A to Z by name (25 Oct 2026) |
 | Deleting an unused ingredient | Asks first, like deleting a recipe (25 Oct 2026) |
+| Ingredient prices | Entered through Restock, not the ingredient sheet; no "pack" on screen (25 Oct 2026): one sheet with pack price, pack size and "I measure it in" side by side was confusing, and recording a purchase felt like editing the ingredient |
 | Phone storage | OPFS, with IndexedDB as the fallback (25 Oct 2026): with IndexedDB, iOS 26 reloaded the page every so often while idle |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
 | Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |

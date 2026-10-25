@@ -1,27 +1,35 @@
-// The ingredient form's rules (PRD F3): checked in the app, never by the
-// server (PRD §6 rule 3).
+// The ingredient and restock forms' rules (PRD F3): checked in the app, never
+// by the server (PRD §6 rule 3).
 
 import { parseNumber, toMinor } from "./parse";
 import type { Unit } from "./units";
 
-/** What the ingredient sheet holds: text as typed, units as codes. */
+/** What the ingredient sheet holds: text as typed, the unit as a code. */
 export interface IngredientForm {
   name: string;
   unit: Unit;
-  packPrice: string;
-  packSize: string;
-  packSizeUnit: Unit;
   notes: string;
 }
 
-/** A row's editable values, as stored. Empty price or size = missing. */
+/** The ingredient's own values, as stored. Its price comes from restocking. */
 export interface IngredientValues {
   name: string;
   unit: Unit;
-  pack_price_minor: number | null;
-  pack_size: number | null;
-  pack_size_unit: Unit;
   notes: string | null;
+}
+
+/** What the restock sheet holds: "Amount bought" and "Price paid", as typed. */
+export interface RestockForm {
+  amount: string;
+  amountUnit: Unit;
+  price: string;
+}
+
+/** A restock as stored: the row's price columns hold the last one. */
+export interface RestockValues {
+  pack_price_minor: number;
+  pack_size: number;
+  pack_size_unit: Unit;
 }
 
 const key = (name: string) => name.trim().toLocaleLowerCase("en");
@@ -36,27 +44,19 @@ export function nameTaken<T extends { id: string; name: string | null }>(name: s
   return others.find((other) => other.id !== selfId && key(other.name ?? "") === wanted) ?? null;
 }
 
-/** The form as row values: the name trimmed, the price in minor units, empty fields as null. Assumes the form passed validation. */
+/** The form as row values: text trimmed, empty notes as null. Assumes the form passed validation. */
 export function ingredientValues(form: IngredientForm): IngredientValues {
-  const price = parseNumber(form.packPrice);
   const notes = form.notes.trim();
-  return {
-    name: form.name.trim(),
-    unit: form.unit,
-    pack_price_minor: price === null ? null : toMinor(price),
-    pack_size: parseNumber(form.packSize),
-    pack_size_unit: form.packSizeUnit,
-    notes: notes === "" ? null : notes,
-  };
+  return { name: form.name.trim(), unit: form.unit, notes: notes === "" ? null : notes };
 }
 
-type PriceFields = Pick<IngredientValues, "pack_price_minor" | "pack_size"> & { pack_size_unit: string | null };
-
-/** True when the price, size or size unit differs: what moves "Price updated" (PRD F3). */
-export function priceChanged(before: PriceFields, after: PriceFields) {
-  return (
-    before.pack_price_minor !== after.pack_price_minor ||
-    before.pack_size !== after.pack_size ||
-    before.pack_size_unit !== after.pack_size_unit
-  );
+/**
+ * The restock as row values, the price in minor units (₦0 stays 0), or null
+ * while the amount isn't above 0 or the price isn't a number.
+ */
+export function restockValues(form: RestockForm): RestockValues | null {
+  const price = parseNumber(form.price);
+  const amount = parseNumber(form.amount);
+  if (price === null || amount === null || amount <= 0) return null;
+  return { pack_price_minor: toMinor(price), pack_size: amount, pack_size_unit: form.amountUnit };
 }

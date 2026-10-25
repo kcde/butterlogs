@@ -4,8 +4,8 @@ import { join } from "node:path";
 import { PowerSyncDatabase } from "@powersync/node";
 import type { AbstractPowerSyncDatabase } from "@powersync/web";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
-import type { IngredientValues } from "@/lib/ingredients";
-import { deleteIngredient, type IngredientRow, recipesUsing, saveIngredient } from "./ingredients";
+import type { IngredientValues, RestockValues } from "@/lib/ingredients";
+import { deleteIngredient, type IngredientRow, recipesUsing, restockIngredient, saveIngredient } from "./ingredients";
 import { AppSchema } from "./schema";
 
 // A database on this machine only (never connected), with the app's schema:
@@ -20,14 +20,8 @@ let powersync: PowerSyncDatabase;
 // The node database implements the same interface the web one does.
 let db: AbstractPowerSyncDatabase;
 
-const flour: IngredientValues = {
-  name: "Flour",
-  unit: "g",
-  pack_price_minor: 1_500_000,
-  pack_size: 12.5,
-  pack_size_unit: "kg",
-  notes: null,
-};
+const flour: IngredientValues = { name: "Flour", unit: "g", notes: null };
+const quarterBag: RestockValues = { pack_price_minor: 1_500_000, pack_size: 12.5, pack_size_unit: "kg" };
 
 const ingredient = (id: string) => db.get<IngredientRow>("SELECT * FROM ingredients WHERE id = ?", [id]);
 
@@ -70,35 +64,21 @@ afterAll(async () => {
 });
 
 describe("saveIngredient: adding", () => {
-  it("stores the row in the business with a phone-made id and the price time", async () => {
+  it("stores the row in the business with a phone-made id and no price yet", async () => {
     const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: flour, now: JAN });
     expect(id).toMatch(/^[0-9a-f-]{36}$/);
     expect(await ingredient(id)).toMatchObject({
       business_id: BUSINESS,
       name: "Flour",
       unit: "g",
-      pack_price_minor: 1_500_000,
-      pack_size: 12.5,
-      pack_size_unit: "kg",
+      pack_price_minor: null,
+      pack_size: null,
+      pack_size_unit: null,
       notes: null,
-      price_updated_at: JAN.toISOString(),
+      price_updated_at: null,
       created_at: JAN.toISOString(),
       deleted_at: null,
     });
-  });
-
-  it("leaves 'Price updated' empty when there's no price or size", async () => {
-    const id = await saveIngredient(db, {
-      businessId: BUSINESS,
-      existing: null,
-      values: { ...flour, name: "Egg white", pack_price_minor: null, pack_size: null },
-    });
-    expect((await ingredient(id)).price_updated_at).toBeNull();
-  });
-
-  it("keeps ₦0 as a real price", async () => {
-    const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: { ...flour, pack_price_minor: 0 } });
-    expect((await ingredient(id)).pack_price_minor).toBe(0);
   });
 
   it("queues the new row for upload", async () => {
@@ -110,8 +90,9 @@ describe("saveIngredient: adding", () => {
 });
 
 describe("saveIngredient: editing", () => {
-  it("moves 'Price updated' only when the price, size or size unit changes", async () => {
+  it("saves the name, unit and notes and leaves the price alone", async () => {
     const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: flour, now: JAN });
+    await restockIngredient(db, { id, values: quarterBag, now: JAN });
 
     await saveIngredient(db, {
       businessId: BUSINESS,
@@ -119,19 +100,20 @@ describe("saveIngredient: editing", () => {
       values: { ...flour, name: "Plain flour", notes: "Bulk bag" },
       now: FEB,
     });
-    expect(await ingredient(id)).toMatchObject({ name: "Plain flour", notes: "Bulk bag", price_updated_at: JAN.toISOString() });
-
-    await saveIngredient(db, {
-      businessId: BUSINESS,
-      existing: await ingredient(id),
-      values: { ...flour, pack_price_minor: 1_600_000 },
-      now: FEB,
+    expect(await ingredient(id)).toMatchObject({
+      name: "Plain flour",
+      notes: "Bulk bag",
+      pack_price_minor: 1_500_000,
+      pack_size: 12.5,
+      pack_size_unit: "kg",
+      price_updated_at: JAN.toISOString(),
+      updated_at: FEB.toISOString(),
     });
-    expect(await ingredient(id)).toMatchObject({ pack_price_minor: 1_600_000, price_updated_at: FEB.toISOString() });
   });
 
   it("converts every recipe line for it when the measuring unit changes, and no others", async () => {
     const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: flour, now: JAN });
+    await restockIngredient(db, { id, values: quarterBag, now: JAN });
     const sugar = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: { ...flour, name: "Sugar" } });
     const cake = await addRecipe("Vanilla Cake");
     await addLine(cake, id, 350);
@@ -157,6 +139,40 @@ describe("saveIngredient: editing", () => {
     await addLine(await addRecipe("Vanilla Cake"), id, 350);
     await saveIngredient(db, { businessId: BUSINESS, existing: await ingredient(id), values: { ...flour, name: "Flour (bulk)" } });
     expect((await db.get<{ amount: number }>("SELECT amount FROM recipe_lines")).amount).toBe(350);
+  });
+});
+
+describe("restockIngredient", () => {
+  it("stores the amount, its unit and the price, and moves 'Price updated' every time", async () => {
+    const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: flour, now: JAN });
+
+    await restockIngredient(db, { id, values: quarterBag, now: JAN });
+    expect(await ingredient(id)).toMatchObject({ ...quarterBag, price_updated_at: JAN.toISOString() });
+
+    // The same bag at the same price: she confirmed it today.
+    await restockIngredient(db, { id, values: quarterBag, now: FEB });
+    expect(await ingredient(id)).toMatchObject({ ...quarterBag, price_updated_at: FEB.toISOString() });
+
+    // A full bag this time.
+    const fullBag: RestockValues = { pack_price_minor: 5_600_000, pack_size: 50, pack_size_unit: "kg" };
+    await restockIngredient(db, { id, values: fullBag, now: FEB });
+    expect(await ingredient(id)).toMatchObject({ ...fullBag, name: "Flour", unit: "g" });
+  });
+
+  it("keeps ₦0 as a real price", async () => {
+    const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: { ...flour, name: "Water", unit: "ml" } });
+    await restockIngredient(db, { id, values: { pack_price_minor: 0, pack_size: 1, pack_size_unit: "l" } });
+    expect((await ingredient(id)).pack_price_minor).toBe(0);
+  });
+
+  it("queues the change for upload", async () => {
+    const id = await saveIngredient(db, { businessId: BUSINESS, existing: null, values: flour });
+    for (let batch = await db.getCrudBatch(1000); batch; batch = await db.getCrudBatch(1000)) await batch.complete();
+
+    await restockIngredient(db, { id, values: quarterBag });
+    const batch = await db.getCrudBatch();
+    expect(batch?.crud.map((entry) => [entry.table, entry.op])).toEqual([["ingredients", "PATCH"]]);
+    await batch?.complete();
   });
 });
 

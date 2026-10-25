@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type IngredientForm, ingredientValues, nameTaken, priceChanged } from "./ingredients";
+import { type IngredientForm, ingredientValues, nameTaken, type RestockForm, restockValues } from "./ingredients";
 
 const list = [
   { id: "1", name: "Flour" },
@@ -31,30 +31,13 @@ describe("nameTaken", () => {
 const form = (overrides: Partial<IngredientForm> = {}): IngredientForm => ({
   name: " Flour ",
   unit: "g",
-  packPrice: "15,000",
-  packSize: "12.5",
-  packSizeUnit: "kg",
   notes: " Bulk bag ",
   ...overrides,
 });
 
 describe("ingredientValues", () => {
-  it("stores money in minor units and trims text", () => {
-    expect(ingredientValues(form())).toEqual({
-      name: "Flour",
-      unit: "g",
-      pack_price_minor: 1_500_000,
-      pack_size: 12.5,
-      pack_size_unit: "kg",
-      notes: "Bulk bag",
-    });
-  });
-
-  it("keeps an empty price or size as missing, but ₦0 as a real price", () => {
-    const missing = ingredientValues(form({ packPrice: "", packSize: " " }));
-    expect(missing.pack_price_minor).toBeNull();
-    expect(missing.pack_size).toBeNull();
-    expect(ingredientValues(form({ packPrice: "0" })).pack_price_minor).toBe(0);
+  it("trims text", () => {
+    expect(ingredientValues(form())).toEqual({ name: "Flour", unit: "g", notes: "Bulk bag" });
   });
 
   it("stores empty notes as null", () => {
@@ -62,17 +45,25 @@ describe("ingredientValues", () => {
   });
 });
 
-describe("priceChanged", () => {
-  const before = { pack_price_minor: 1_500_000, pack_size: 12.5, pack_size_unit: "kg" };
+const restock = (overrides: Partial<RestockForm> = {}): RestockForm => ({
+  amount: "12.5",
+  amountUnit: "kg",
+  price: "15,000",
+  ...overrides,
+});
 
-  it("is true when the price, size or size unit changes", () => {
-    expect(priceChanged(before, { ...before, pack_price_minor: 1_600_000 })).toBe(true);
-    expect(priceChanged(before, { ...before, pack_price_minor: null })).toBe(true);
-    expect(priceChanged(before, { ...before, pack_size: 25 })).toBe(true);
-    expect(priceChanged(before, { ...before, pack_size_unit: "g" })).toBe(true);
+describe("restockValues", () => {
+  it("stores the price in minor units with the amount and its unit", () => {
+    expect(restockValues(restock())).toEqual({ pack_price_minor: 1_500_000, pack_size: 12.5, pack_size_unit: "kg" });
   });
 
-  it("is false when they're all the same", () => {
-    expect(priceChanged(before, { ...before })).toBe(false);
+  it("keeps ₦0 as a real price", () => {
+    expect(restockValues(restock({ price: "0" }))?.pack_price_minor).toBe(0);
+  });
+
+  it("is null until the amount is above 0 and the price is a number", () => {
+    expect(restockValues(restock({ price: "" }))).toBeNull();
+    expect(restockValues(restock({ amount: "" }))).toBeNull();
+    expect(restockValues(restock({ amount: "0" }))).toBeNull();
   });
 });
