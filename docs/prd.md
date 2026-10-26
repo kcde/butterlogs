@@ -143,8 +143,8 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 
 | Field | Example | Stored as | Rules |
 |---|---|---|---|
-| Amount bought | 12.5 | `pack_size` | Required, above 0 |
-| Amount bought unit | kg | `pack_size_unit` | Only units of the same kind as "I measure it in" are offered |
+| Quantity bought | 12.5 | `pack_size` | Required, above 0 |
+| Quantity bought unit | kg | `pack_size_unit` | Only units of the same kind as "I measure it in" are offered |
 | Price paid | ₦15,000 | `pack_price_minor` | Required; ₦0 = genuinely free (water) |
 | Price last updated | 2 weeks ago | `price_updated_at` | Set to now on every restock, even at the same price |
 
@@ -155,7 +155,7 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
   - Saving or closing Restock goes back to the list.
   - The ingredient sheet never changes the price.
 - **No "pack" on screen:** not everything is bought in a pack. The columns keep their `pack_` names.
-- **Cost per unit is calculated, never typed:** price paid ÷ amount bought, converted into the measuring unit.
+- **Cost per unit is calculated, never typed:** price paid ÷ quantity bought, converted into the measuring unit.
   - ₦15,000 for 12.5 kg, measured in g → ₦1.20 per g.
   - A full bag next time: ₦56,000 for 50 kg → ₦1.12 per g.
   - ₦1,000 for 50 bags → ₦20 a bag.
@@ -176,7 +176,7 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 
 **Acceptance**
 - Restocking at a new price updates the cost of every recipe that uses it.
-- An amount bought in a bigger unit of the same kind (kg for an ingredient measured in g) gives the right cost per unit.
+- A quantity bought in a bigger unit of the same kind (kg for an ingredient measured in g) gives the right cost per unit.
 - Restock only offers units of the same kind as "I measure it in".
 - Deleting an ingredient in use warns with the recipe list first.
 
@@ -358,7 +358,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 
 ### Costing
 
-- **Ingredient cost per unit** = price paid ÷ (amount bought converted to the measuring unit), from the last restock.
+- **Ingredient cost per unit** = price paid ÷ (quantity bought converted to the measuring unit), from the last restock.
 - **Ingredient line cost** = amount × cost per unit.
   - Missing if price or size is empty, or the ingredient is deleted.
 - **Sub-recipe line cost** = amount × (sub-recipe ingredient cost ÷ its yield in grams or pieces).
@@ -377,7 +377,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 |---|---|---|
 | Money | Whole units, business currency | ₦15,430.93 → "₦15,431" |
 | Cost per unit | 2 decimals; a whole amount drops ".00" (agreed 25 Oct 2026) | "₦1.20 / g", "₦9.98/g", "₦40 / g", "₦300 / pc" |
-| Amount bought | As typed, up to 2 decimals | "12.5 kg", "1,000 g", "1 pc" |
+| Quantity bought | As typed, up to 2 decimals | "12.5 kg", "1,000 g", "1 pc" |
 | Amounts 10 or more | Whole number | 833.33 g → "833 g" |
 | Amounts under 10 | Up to 2 decimals | "2.67 g", "1.5 g" |
 | Pieces | Up to 2 decimals | "1.6", "0.5" |
@@ -504,7 +504,7 @@ A real delete. `recipes.category_id` uses `ON DELETE SET NULL (category_id)` (th
 | name | text | |
 | unit | text | g … pcs |
 | pack_price_minor | bigint | Last restock's price paid. Empty = missing |
-| pack_size | double precision | Last restock's amount bought. Empty = missing |
+| pack_size | double precision | Last restock's quantity bought. Empty = missing |
 | pack_size_unit | text | Last restock's unit |
 | notes | text | |
 | price_updated_at | timestamptz | Set by the app on every restock |
@@ -706,6 +706,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Ingredient list order | A to Z by name (25 Oct 2026) |
 | Deleting an unused ingredient | Asks first, like deleting a recipe (25 Oct 2026) |
 | Ingredient prices | Entered through Restock, not the ingredient sheet; no "pack" on screen (25 Oct 2026): one sheet with pack price, pack size and "I measure it in" side by side was confusing, and recording a purchase felt like editing the ingredient |
+| "Quantity bought", not "Amount bought" | 26 Oct 2026: in Nigeria "amount" usually means money. The label doesn't repeat the unit, since the unit chip sits in the field |
 | Phone storage | OPFS, with IndexedDB as the fallback (25 Oct 2026): with IndexedDB, iOS 26 reloaded the page every so often while idle |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
 | Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |

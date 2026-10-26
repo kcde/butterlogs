@@ -18,7 +18,7 @@ export interface IngredientValues {
   notes: string | null;
 }
 
-/** What the restock sheet holds: "Amount bought" and "Price paid", as typed. */
+/** What the restock sheet holds: "Quantity bought" and "Price paid", as typed. */
 export interface RestockForm {
   amount: string;
   amountUnit: Unit;

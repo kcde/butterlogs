@@ -27,8 +27,8 @@ async function fillIngredient(page: Page, fields: { name?: string; measure?: str
 
 async function fillRestock(page: Page, fields: { amount?: string; unit?: string; price?: string }) {
   const form = sheet(page);
-  if (fields.amount !== undefined) await form.getByLabel("Amount bought", { exact: true }).fill(fields.amount);
-  if (fields.unit) await form.getByLabel("Amount bought unit").selectOption(fields.unit);
+  if (fields.amount !== undefined) await form.getByLabel("Quantity bought", { exact: true }).fill(fields.amount);
+  if (fields.unit) await form.getByLabel("Quantity bought unit").selectOption(fields.unit);
   if (fields.price !== undefined) await form.getByLabel("Price paid").fill(fields.price);
 }
 
@@ -67,7 +67,7 @@ test("she adds ingredients, restocks them with a price or ₦0 or not at all, th
 
   // Then Restock. PRD §9: ₦15,000 for 12.5 kg, measured in g → ₦1.20 per g.
   await expectRestock(page, "Flour");
-  await expect(sheet(page).getByLabel("Amount bought unit")).toHaveValue("g");
+  await expect(sheet(page).getByLabel("Quantity bought unit")).toHaveValue("g");
   await fillRestock(page, { amount: "12.5", unit: "kg", price: "15,000" });
   await expect(sheet(page)).toContainText("Works out to₦1.20 per g");
   await expectAccessible(page);
@@ -89,7 +89,7 @@ test("she adds ingredients, restocks them with a price or ₦0 or not at all, th
   await fillIngredient(page, { name: "Water", measure: "ml" });
   await sheet(page).getByRole("button", { name: "Save" }).click();
   await expectRestock(page, "Water");
-  await expect(sheet(page).getByLabel("Amount bought unit")).toHaveValue("ml");
+  await expect(sheet(page).getByLabel("Quantity bought unit")).toHaveValue("ml");
   await fillRestock(page, { amount: "1", unit: "l", price: "0" });
   await expect(sheet(page)).toContainText("Works out to₦0 per ml");
   await save(page);
@@ -129,14 +129,14 @@ test("she adds ingredients, restocks them with a price or ₦0 or not at all, th
   // Restock starts from the same bag, with the price empty, and needs both.
   await sheet(page).getByRole("button", { name: "Restock" }).click();
   await expectRestock(page, "Flour");
-  await expect(sheet(page).getByLabel("Amount bought", { exact: true })).toHaveValue("12.5");
-  await expect(sheet(page).getByLabel("Amount bought unit")).toHaveValue("kg");
+  await expect(sheet(page).getByLabel("Quantity bought", { exact: true })).toHaveValue("12.5");
+  await expect(sheet(page).getByLabel("Quantity bought unit")).toHaveValue("kg");
   await expect(sheet(page).getByLabel("Price paid")).toHaveValue("");
-  const units = await sheet(page).getByLabel("Amount bought unit").locator("option").allTextContents();
+  const units = await sheet(page).getByLabel("Quantity bought unit").locator("option").allTextContents();
   expect(units).toEqual(["g", "kg", "oz", "lb"]);
   await fillRestock(page, { amount: "" });
   await sheet(page).getByRole("button", { name: "Save" }).click();
-  await expect(sheet(page).getByText("Type an amount above 0, like 12.5.")).toBeVisible();
+  await expect(sheet(page).getByText("Type a quantity above 0, like 12.5.")).toBeVisible();
   await expect(sheet(page).getByText("Type the price, like 15,000.")).toBeVisible();
 
   // A full bag this time.

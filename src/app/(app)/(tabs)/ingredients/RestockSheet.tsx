@@ -22,7 +22,7 @@ import styles from "./ingredients.module.css";
 
 // Both are needed: the sheet exists to record a price (PRD F3). ₦0 is a real price.
 const schema = z.object({
-  amount: z.string().refine((text) => (parseNumber(text) ?? 0) > 0, "Type an amount above 0, like 12.5."),
+  amount: z.string().refine((text) => (parseNumber(text) ?? 0) > 0, "Type a quantity above 0, like 12.5."),
   amountUnit: z.enum(UNITS),
   price: z.string().refine((text) => parseNumber(text) !== null, "Type the price, like 15,000."),
 });
@@ -116,7 +116,7 @@ export function RestockSheet({ open, target, currency, onClose }: RestockSheetPr
             name="amount"
             render={({ field, fieldState }) => (
               <AmountField
-                label="Amount bought"
+                label="Quantity bought"
                 value={field.value}
                 onChange={field.onChange}
                 onBlur={field.onBlur}
