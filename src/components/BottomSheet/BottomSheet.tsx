@@ -15,6 +15,10 @@ export interface BottomSheetProps {
   footer?: ReactNode;
 }
 
+// When one sheet hands over to another (New ingredient → Restock), the scrim
+// stays dimmed instead of clearing and fading in again.
+let lastClosed = Number.NEGATIVE_INFINITY;
+
 export function BottomSheet({ open, title, onClose, children, footer }: BottomSheetProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -23,8 +27,14 @@ export function BottomSheet({ open, title, onClose, children, footer }: BottomSh
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;
-    if (open && !element.open) element.showModal();
-    if (!open && element.open) element.close();
+    if (open && !element.open) {
+      element.toggleAttribute("data-handoff", performance.now() - lastClosed < 100);
+      element.showModal();
+    }
+    if (!open && element.open) {
+      element.close();
+      lastClosed = performance.now();
+    }
   }, [open]);
 
   // Stay above the iPhone keyboard (building-in-code.md): while open, the

@@ -15,9 +15,20 @@
   max-height: none;
   margin: 0;
   padding: 0;
+  /* Not a scroll container. showModal() focuses the × while the sheet is still
+     below the screen, and a scrollable dialog scrolls to it: the sheet then
+     overshot upwards and jumped back down when the slide ended. */
+  overflow: clip;
   border: 0;
   background: var(--scrim);
   color: var(--ink);
+  /* iOS's sheet curve: quick to start, long gentle stop. The scrim fades in with it. */
+  --sheet-motion: 500ms cubic-bezier(0.32, 0.72, 0, 1);
+  animation: fade-in var(--sheet-motion);
+}
+
+.dialog[data-handoff] {
+  animation: none;
 }
 
 .dialog[open] {
@@ -38,7 +49,7 @@
   border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
   background: var(--raised);
   box-shadow: var(--shadow-float);
-  animation: slide-up 250ms ease-out;
+  animation: slide-up var(--sheet-motion);
 }
 
 .grabber {
@@ -87,7 +98,14 @@
   }
 }
 
+@keyframes fade-in {
+  from {
+    background-color: transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .dialog,
   .sheet {
     animation: none;
   }
