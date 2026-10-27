@@ -1,0 +1,38 @@
+/* Ported from ba-banner in the design system's bundle.css. */
+.banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.banner svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  stroke-width: 2;
+}
+
+.banner p {
+  flex: 1 1 0;
+  padding-top: 2px;
+  font: var(--type-meta);
+  font-weight: 600;
+}
+
+.banner button {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: var(--warning);
+  font: var(--type-meta);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+  cursor: pointer;
+}

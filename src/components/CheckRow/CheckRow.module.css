@@ -1,0 +1,67 @@
+/* Ported from ba-check and ba-box in the design system's bundle.css. */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap-target);
+  padding: var(--space-1) 0;
+  cursor: pointer;
+}
+
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+
+.input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: inherit;
+}
+
+.box {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1.5px solid var(--ink-muted);
+  border-radius: var(--radius-sm);
+}
+
+.on {
+  border-color: var(--caramel);
+  background: var(--caramel);
+  color: var(--on-caramel);
+}
+
+.box svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2.5;
+}
+
+.input:focus-visible + .box {
+  outline: 2px solid var(--caramel);
+  outline-offset: 2px;
+}
+
+.label {
+  flex: 1 1 0;
+  min-width: 0;
+  font: var(--type-body);
+}
+
+.trailing {
+  flex: none;
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}
+
+/* Already in the recipe: ticked, greyed out. */
+.disabled {
+  cursor: default;
+  opacity: 0.45;
+}

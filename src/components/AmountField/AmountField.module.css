@@ -17,7 +17,7 @@
   height: var(--field-height);
   border: 1.5px solid transparent;
   border-radius: var(--radius-input);
-  background: var(--input);
+  background: var(--field-bg, var(--input));
   overflow: hidden;
 }
 

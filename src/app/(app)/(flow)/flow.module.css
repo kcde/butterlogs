@@ -1,0 +1,8 @@
+/* 16px side margins, and room at the bottom so the last field clears the
+   ActionBar (running total, a message and the buttons). */
+.screen {
+  max-width: 480px;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0 var(--space-4) calc(220px + var(--safe-bottom));
+}

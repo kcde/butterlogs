@@ -1,0 +1,30 @@
+/* Ported from ba-chip in the design system's bundle.css. The row (ba-chips) is
+   laid out by the screen. */
+.chip {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  height: 36px;
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--surface);
+  color: var(--ink);
+  font: var(--type-body-strong);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* A 44px hit area around the 36px pill. */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: -4px 0;
+}
+
+.chip[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--on-ink);
+}

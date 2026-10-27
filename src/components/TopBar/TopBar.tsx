@@ -13,9 +13,11 @@ export interface TopBarProps {
   backHref?: string;
   /** Sync pill, "…" button, "Add" button. */
   trailing?: ReactNode;
+  /** Not in the design system's props: flow only, a close that asks first ("Keep as draft?") instead of linking away. */
+  onClose?: () => void;
 }
 
-export function TopBar({ variant, title, subtitle, backHref, trailing }: TopBarProps) {
+export function TopBar({ variant, title, subtitle, backHref, trailing, onClose }: TopBarProps) {
   const actions = trailing && <div className={styles.actions}>{trailing}</div>;
 
   if (variant === "tab") {
@@ -34,7 +36,7 @@ export function TopBar({ variant, title, subtitle, backHref, trailing }: TopBarP
       <header className={styles.bar}>
         <div className={styles.row}>
           <div className={styles.lead}>
-            {backHref && <IconButton href={backHref} icon={<X />} label="Close" />}
+            {(backHref || onClose) && <IconButton href={backHref} onClick={onClose} icon={<X />} label="Close" />}
             <h1 className={styles.smallTitle}>{title}</h1>
           </div>
           {actions}

@@ -67,8 +67,27 @@ export async function signInDirectly(page: Page, prepared?: TestUser) {
     [key, JSON.stringify(data.session)],
   );
   await page.goto("/recipes");
-  await expect(page.getByRole("heading", { name: "No recipes yet" })).toBeVisible();
+  // The title shows once her business is on the phone (the first sync is done).
+  await expect(page.getByRole("heading", { name: "Recipes", level: 1 })).toBeVisible();
   return user;
+}
+
+/** Ingredients with their last restock, written as the user (through RLS). Returns their ids by name. */
+export async function addIngredients(
+  { client, businessId }: TestUser,
+  items: readonly { name: string; unit: string; priceMinor: number | null; size: number }[],
+) {
+  const rows = items.map((item) => ({
+    id: crypto.randomUUID(),
+    business_id: businessId,
+    name: item.name,
+    unit: item.unit,
+    pack_price_minor: item.priceMinor,
+    pack_size: item.size,
+    pack_size_unit: item.unit,
+  }));
+  must(await client.from("ingredients").insert(rows));
+  return Object.fromEntries(rows.map((row) => [row.name, row.id]));
 }
 
 /** The overhead item names in a user's business, in order. */

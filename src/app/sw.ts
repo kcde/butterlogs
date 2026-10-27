@@ -13,6 +13,11 @@ declare const self: ServiceWorkerGlobalScope;
 
 const serwist = new Serwist({
   precacheEntries: self.__SW_MANIFEST,
+  // The app's own page parameters (/recipes?saved=…, /recipes?install=1,
+  // /recipes/new?draft=…) don't change the page: offline it must still come
+  // from the precache, not fall back to "/". Only these, plus Serwist's
+  // defaults: Next's ?_rsc= requests must not get a page's HTML.
+  precacheOptions: { ignoreURLParametersMatching: [/^utm_/, /^fbclid$/, /^saved$/, /^install$/, /^draft$/] },
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,

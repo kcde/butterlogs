@@ -10,7 +10,8 @@
   padding: 0 var(--space-2);
   border: 0;
   border-radius: var(--radius-full);
-  background: var(--surface);
+  /* Raised inside a card (ba-card .ba-choice): the card sets --choice-bg. */
+  background: var(--choice-bg, var(--surface));
   color: var(--ink);
   font: var(--type-body-strong);
   font-size: 15px;
@@ -20,4 +21,10 @@
 .choice[aria-checked="true"] {
   background: var(--ink);
   color: var(--on-ink);
+}
+
+/* Not in the design system: an odd last option (the recipe flow's "Cost only",
+   agreed 27 Oct) spans both columns. */
+.choice:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
 }

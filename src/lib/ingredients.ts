@@ -32,18 +32,6 @@ export interface RestockValues {
   pack_size_unit: Unit;
 }
 
-const key = (name: string) => name.trim().toLocaleLowerCase("en");
-
-/**
- * The existing ingredient with this name, ignoring capitals and spaces at
- * either end, among the (non-deleted) ones given, leaving out the one being
- * edited. Done here, not in SQL: SQLite's lower() only folds ASCII.
- */
-export function nameTaken<T extends { id: string; name: string | null }>(name: string, others: readonly T[], selfId?: string) {
-  const wanted = key(name);
-  return others.find((other) => other.id !== selfId && key(other.name ?? "") === wanted) ?? null;
-}
-
 /** The form as row values: text trimmed, empty notes as null. Assumes the form passed validation. */
 export function ingredientValues(form: IngredientForm): IngredientValues {
   const notes = form.notes.trim();

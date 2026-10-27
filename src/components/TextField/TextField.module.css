@@ -17,7 +17,8 @@
   width: 100%;
   border: 1.5px solid transparent;
   border-radius: var(--radius-input);
-  background: var(--input);
+  /* Raised inside a card (EditRecipe.dc.html): the card sets --field-bg. */
+  background: var(--field-bg, var(--input));
   color: var(--ink);
 }
 

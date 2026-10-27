@@ -1,0 +1,125 @@
+/* Ported from ba-editrow, ba-editrow-name, ba-editrow-amount and ba-grip in
+   the design system's bundle.css. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-2);
+  background: var(--surface);
+}
+
+/* Overhead rows have no grip: the name lines up 16px in (NewRecipe3.dc.html). */
+.noGrip {
+  padding-left: var(--space-4);
+}
+
+.row + .row {
+  border-top: 1px solid var(--line);
+}
+
+/* While dragged: lifted above its neighbours. */
+.row[data-dragging] {
+  position: relative;
+  z-index: 1;
+  border-radius: var(--radius-sm);
+  background: var(--raised);
+  box-shadow: var(--shadow-float);
+}
+
+.grip {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 40px;
+  margin: 0 calc(var(--space-1) * -1);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-muted);
+  cursor: grab;
+  /* Dragging the grip moves the line, never scrolls the page. */
+  touch-action: none;
+}
+
+.grip svg {
+  width: 18px;
+  height: 18px;
+}
+
+.name {
+  flex: 1 1 0;
+  min-width: 0;
+  font: var(--type-body);
+  overflow-wrap: anywhere;
+}
+
+.amount {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  width: 112px;
+  height: 36px;
+  padding: 0 10px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--raised);
+}
+
+/* The box's border shows focus, so the input inside has no ring of its own. */
+.amount:focus-within {
+  border-color: var(--caramel);
+}
+
+.amount input:focus-visible {
+  box-shadow: none;
+}
+
+/* Not in the design system: an amount she has to fill in (agreed 27 Oct). */
+.invalid,
+.invalid:focus-within {
+  border-color: var(--warning);
+}
+
+.amount input {
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: var(--type-body-strong);
+  text-align: right;
+}
+
+.prefix {
+  font: var(--type-body);
+  color: var(--ink-muted);
+}
+
+.unit {
+  min-width: 20px;
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+.remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.remove svg {
+  width: 18px;
+  height: 18px;
+}

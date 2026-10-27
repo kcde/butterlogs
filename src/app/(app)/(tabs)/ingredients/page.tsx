@@ -16,7 +16,7 @@ import { deleteIngredient, type IngredientRow, useIngredients, useRecipesUsing }
 import { formatMoney, formatPackSize, formatUnitCost, formatUpdated } from "@/lib/format";
 import { matchesName } from "@/lib/search";
 import { isUnit } from "@/lib/units";
-import { useCurrentBusiness } from "../business";
+import { useCurrentBusiness } from "../../business";
 import { SyncPill } from "../SyncPill";
 import { IngredientSheet } from "./IngredientSheet";
 import styles from "./ingredients.module.css";

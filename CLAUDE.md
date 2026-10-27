@@ -12,7 +12,7 @@ A phone-first app (installable as a PWA) for bakers. It scales recipes and works
   - `building-in-code.md`: follow it for folder layout and conventions
 - **Mockups:** https://claude.ai/artifact/JChFePQ5mcTiZAVG4XScWw
   - One file per screen, e.g. `Recipe.dc.html`. The PRD refers to screens by these names.
-- **`docs/costing-journal.xlsx`:** her spreadsheet, used for loading her data (M9) and checking totals.
+- **Her spreadsheet** (Butter Puff Co Costing Journal), used for loading her data (M9) and checking totals, isn't in the repo. Keside keeps it locally and gives the path when it's needed; don't commit it or search outside the project for it. Vanilla Cake's numbers are in `tests/fixtures/vanilla-cake.ts`.
 
 Read the two artifacts with the Artifact tool, fetching only the files you need.
 
@@ -41,6 +41,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 - CSS Modules + `styles/tokens.css`, generated from the design system's `tokens.json`
   - No Tailwind, no component libraries
   - Native `<dialog>` and `<select>`, lucide-react icons
+  - dnd-kit for drag to reorder
   - Noto Sans via `next/font` with latin-ext (needed for ₦)
 - React Hook Form + Zod
 - Vitest, Playwright, axe
