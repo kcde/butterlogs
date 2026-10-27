@@ -26,6 +26,8 @@ export interface ConfirmDialogProps {
   layout?: "row" | "stack";
   onConfirm: () => void;
   onCancel: () => void;
+  /** Not in the design system's props: a tap outside or Escape, when that shouldn't count as the cancel button ("Keep as draft"). Default: onCancel. */
+  onDismiss?: () => void;
 }
 
 const ICONS = { trash: <Trash2 />, alert: <TriangleAlert />, logout: <LogOut /> };
@@ -43,6 +45,7 @@ export function ConfirmDialog({
   layout = "row",
   onConfirm,
   onCancel,
+  onDismiss = onCancel,
 }: ConfirmDialogProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -59,9 +62,9 @@ export function ConfirmDialog({
     if (!open && element.open) element.close();
   }, [open]);
 
-  // The dialog fills the screen and is the scrim: a tap on it cancels.
+  // The dialog fills the screen and is the scrim: a tap on it dismisses.
   function onScrimClick(event: MouseEvent<HTMLDialogElement>) {
-    if (event.target === event.currentTarget) onCancel();
+    if (event.target === event.currentTarget) onDismiss();
   }
 
   return (
@@ -73,7 +76,7 @@ export function ConfirmDialog({
       aria-describedby={list ? `${bodyId} ${listId}` : bodyId}
       onCancel={(event) => {
         event.preventDefault();
-        onCancel();
+        onDismiss();
       }}
       onClick={onScrimClick}
     >

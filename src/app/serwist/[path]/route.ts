@@ -17,6 +17,7 @@ export const { dynamic, dynamicParams, revalidate, generateStaticParams, GET } =
     "/code",
     "/setup",
     "/recipes",
+    "/recipes/new",
     "/ingredients",
     "/settings",
   ].map((url) => ({ url, revision })),

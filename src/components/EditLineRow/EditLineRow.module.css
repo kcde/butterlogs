@@ -68,8 +68,13 @@
   background: var(--raised);
 }
 
+/* The box's border shows focus, so the input inside has no ring of its own. */
 .amount:focus-within {
   border-color: var(--caramel);
+}
+
+.amount input:focus-visible {
+  box-shadow: none;
 }
 
 /* Not in the design system: an amount she has to fill in (agreed 27 Oct). */

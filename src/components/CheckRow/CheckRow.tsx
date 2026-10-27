@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import { cx } from "../cx";
 import styles from "./CheckRow.module.css";
 
@@ -18,6 +18,7 @@ export interface CheckRowProps {
 }
 
 export function CheckRow({ label, checked, onChange, trailing, disabled = false }: CheckRowProps) {
+  const id = useId();
   return (
     <label className={cx(styles.row, disabled && styles.disabled)}>
       {/* The real checkbox, visually replaced by the box. */}
@@ -26,13 +27,22 @@ export function CheckRow({ label, checked, onChange, trailing, disabled = false 
         className={styles.input}
         checked={checked}
         disabled={disabled}
+        // Named by the label alone; the cost or "add price" is read after it.
+        aria-labelledby={`${id}-label`}
+        aria-describedby={trailing ? `${id}-trailing` : undefined}
         onChange={(event) => onChange(event.target.checked)}
       />
       <span className={cx(styles.box, checked && styles.on)} aria-hidden="true">
         {checked && <Check />}
       </span>
-      <span className={styles.label}>{label}</span>
-      {trailing && <span className={styles.trailing}>{trailing}</span>}
+      <span id={`${id}-label`} className={styles.label}>
+        {label}
+      </span>
+      {trailing && (
+        <span id={`${id}-trailing`} className={styles.trailing}>
+          {trailing}
+        </span>
+      )}
     </label>
   );
 }

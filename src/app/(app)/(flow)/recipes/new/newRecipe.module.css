@@ -1,0 +1,233 @@
+/* NewRecipe1–3.dc.html: 20px from the top bar to the step indicator, 24px
+   (step 1) or 16px (steps 2–3) to the content. */
+.steps {
+  margin: 20px 0 var(--space-4);
+}
+
+/* Step 1: fields 20px apart. */
+.basics {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: var(--space-6);
+}
+
+.field,
+.yield {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.yield {
+  gap: var(--space-2);
+}
+
+.label {
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+/* The category opens a sheet: a field-shaped button with a chevron. */
+.picker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--field-height);
+  padding: 0 var(--space-4);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-input);
+  background: var(--input);
+  color: var(--ink);
+  font: var(--type-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.picker svg {
+  width: 18px;
+  height: 18px;
+}
+
+.placeholder {
+  color: var(--ink-muted);
+}
+
+/* "Also add pieces (optional)": a caramel text button flush left. */
+.also {
+  align-self: flex-start;
+  margin-left: calc(var(--space-4) * -1);
+}
+
+/* Step 2: one card per section, its add buttons under it. */
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.sectionName {
+  flex: 1 1 0;
+}
+
+.sectionHead > :last-child {
+  margin-top: 18px;
+}
+
+.lines {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.adds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Step 3. */
+.overheadStep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.card {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.card .lines {
+  border-radius: 0;
+}
+
+.cardTitle {
+  padding: var(--space-3) var(--space-4) var(--space-1);
+  font: var(--type-section);
+}
+
+.cardHint {
+  padding: 0 var(--space-4) var(--space-4);
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}
+
+.total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 0 var(--space-4);
+  border-top: 1px solid var(--line);
+  font: var(--type-body-strong);
+}
+
+.total span:last-child {
+  font-weight: 700;
+  color: var(--money);
+}
+
+/* The pricing card: choices and the value field sit raised on it. */
+.pricing {
+  --choice-bg: var(--raised);
+  --field-bg: var(--raised);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.pricing .cardTitle {
+  padding: 0;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+
+/* Sheets. */
+.checks {
+  margin-top: var(--space-2);
+}
+
+.none {
+  margin-top: var(--space-4);
+  color: var(--ink-muted);
+  text-align: center;
+}
+
+.missing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-weight: 600;
+  color: var(--warning);
+}
+
+.missing svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.newIngredient {
+  margin: var(--space-2) 0 0 calc(var(--space-4) * -1);
+}
+
+/* "New category" / "New item": the field with Add beside it (CategoryPicker.dc.html). */
+.addNew {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-top: 20px;
+}
+
+.addNewField {
+  flex: 1 1 0;
+}
+
+/* Lines the 52px button up with the 48px box under the label. */
+.addNew > :last-child {
+  margin-top: 20px;
+}
+
+/* AddButton: the mockups' 44px grey pill with a plus. */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--tap-target);
+  padding: 0 var(--space-4);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--input);
+  color: var(--ink);
+  font: var(--type-body-strong);
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.pill svg {
+  width: 18px;
+  height: 18px;
+}

@@ -97,6 +97,9 @@ export default function SetupPage() {
       setProblem(OFFLINE);
       return;
     }
+    // Set before the call: her business can sync to the phone before the reply
+    // arrives, and she should still be offered the install guide.
+    setCreated(true);
     const { error } = await supabase.rpc("create_business", {
       p_name: values.name,
       p_currency_code: values.currency,
@@ -106,6 +109,7 @@ export default function SetupPage() {
     });
     // "Already has a business" means an earlier tap got through: carry on.
     if (error && !error.message.includes("already has a business")) {
+      setCreated(false);
       if (error.message.includes("Failed to fetch") || error.message.includes("NetworkError")) {
         setProblem(OFFLINE);
       } else {
@@ -114,7 +118,6 @@ export default function SetupPage() {
       }
       return;
     }
-    setCreated(true);
   });
 
   // Shown straight away, even before the first sync says whether she has a

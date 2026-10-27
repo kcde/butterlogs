@@ -20,16 +20,29 @@ export interface AmountFieldProps {
   error?: string;
   /** Not in the design system's props: lets forms validate on blur, as TextField does. */
   onBlur?: () => void;
+  /** Not in the design system's props: the label is read out but not shown (NewRecipe1's yield, under its "Yield" heading). */
+  hideLabel?: boolean;
 }
 
-export function AmountField({ label, value, onChange, unit, units, onUnitChange, helper, error, onBlur }: AmountFieldProps) {
+export function AmountField({
+  label,
+  value,
+  onChange,
+  unit,
+  units,
+  onUnitChange,
+  helper,
+  error,
+  onBlur,
+  hideLabel = false,
+}: AmountFieldProps) {
   const id = useId();
   const helpId = `${id}-help`;
   const message = error ?? helper;
 
   return (
     <div className={cx(styles.field, error && styles.error)}>
-      <label htmlFor={id} className={styles.label}>
+      <label htmlFor={id} className={hideLabel ? "sr-only" : styles.label}>
         {label}
       </label>
       <div className={styles.group}>

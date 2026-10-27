@@ -35,6 +35,8 @@ export interface TextFieldProps {
   autoComplete?: string;
   /** Not in the design system's props: lets forms validate on blur, as its README asks. */
   onBlur?: () => void;
+  /** Not in the design system's props: the label is read out but not shown, when a heading above already says it (NewRecipe1's "Yield"). */
+  hideLabel?: boolean;
 }
 
 export function TextField({
@@ -51,6 +53,7 @@ export function TextField({
   multiline = false,
   autoComplete,
   onBlur,
+  hideLabel = false,
 }: TextFieldProps) {
   const id = useId();
   const helpId = `${id}-help`;
@@ -111,7 +114,7 @@ export function TextField({
 
   return (
     <div className={cx(styles.field, error && styles.error)}>
-      <label htmlFor={id} className={styles.label}>
+      <label htmlFor={id} className={hideLabel ? "sr-only" : styles.label}>
         {label}
       </label>
       {control}
