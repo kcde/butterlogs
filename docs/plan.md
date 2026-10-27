@@ -17,7 +17,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
 | M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
 | M4 | Ingredients | F3 | Done | 27 Oct 2026 |
-| M5 | Create recipes | F2, F4, F5, F7 | In progress | |
+| M5 | Create recipes | F2, F4, F5, F7 | Done | 27 Oct 2026 |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
 | M7 | Change and delete recipes | F4, F5 | Not started | |
 | M8 | Settings and sync | F1, F2, F4, F8, F9 | Not started | |
@@ -327,7 +327,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
   - the precache now ignores the app's own page parameters (`?saved=`, `?install=`, `?draft=`), so those pages open offline instead of falling back to "/"
   - Setup counts the business as created from the tap, because it can sync back before the reply and then skip the install guide
 - Drag to reorder now uses dnd-kit (`@dnd-kit/core`, `sortable`, `utilities`, `modifiers`; agreed 27 Oct). Our own code failed on the preview when dragging a lower line up, and its test only dragged the top line down. The test now drags both ways, uses the keyboard (Space, ↑/↓, Space; Esc cancels) and checks the order survives a reload.
-- Waiting on the iPhone check.
+- 27 Oct 2026: done. On Keside's iPhone, online and offline: dragging lines both ways, drafts, and the keyboard with the ActionBar all work. Next: M6, the recipe screen.
 
 ---
 
