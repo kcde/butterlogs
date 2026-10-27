@@ -12,7 +12,7 @@ import { Chip } from "@/components/Chip";
 import { ChoiceGrid } from "@/components/ChoiceGrid";
 import { CodeField } from "@/components/CodeField";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { EditLineRow, useReorder } from "@/components/EditLineRow";
+import { EditLineRow, SortableLineRow, SortableLines } from "@/components/EditLineRow";
 import { EmptyState } from "@/components/EmptyState";
 import { FAB } from "@/components/FAB";
 import { IconButton } from "@/components/IconButton";
@@ -79,7 +79,6 @@ export function Gallery() {
       next.splice(to, 0, ...next.splice(from, 1));
       return next;
     });
-  const grip = useReorder(lines.length, moveLine);
 
   return (
     <main className={styles.page}>
@@ -229,28 +228,29 @@ export function Gallery() {
 
       <Section name="EditLineRow">
         <Card padding="flush">
-          <div>
-            {lines.map((line, index) => (
-              <EditLineRow
-                key={line.name}
-                name={line.name}
-                amount={line.amount}
-                unit={line.unit}
-                onAmountChange={(amount) =>
-                  setLines((current) => current.map((other, at) => (at === index ? { ...other, amount } : other)))
-                }
-                onRemove={() => {}}
-                dragHandle
-                gripProps={grip(index)}
-                invalid={line.amount === ""}
-              />
-            ))}
-          </div>
+          <SortableLines ids={lines.map((line) => line.name)} nameOf={(name) => name} onMove={moveLine}>
+            <div>
+              {lines.map((line, index) => (
+                <SortableLineRow
+                  key={line.name}
+                  id={line.name}
+                  name={line.name}
+                  amount={line.amount}
+                  unit={line.unit}
+                  onAmountChange={(amount) =>
+                    setLines((current) => current.map((other, at) => (at === index ? { ...other, amount } : other)))
+                  }
+                  onRemove={() => {}}
+                  invalid={line.amount === ""}
+                />
+              ))}
+            </div>
+          </SortableLines>
         </Card>
         <Card padding="flush">
           <EditLineRow name="Gas" amount="500" prefix="₦" onAmountChange={() => {}} onRemove={() => {}} />
         </Card>
-        <p className={styles.hint}>Drag a grip (or use ↑ ↓ on it) to reorder. An empty amount gets the red outline (not in the design system).</p>
+        <p className={styles.hint}>Drag a grip to reorder (or Space on it, ↑ ↓, Space). An empty amount gets the red outline (not in the design system).</p>
       </Section>
 
       <Section name="CheckRow">

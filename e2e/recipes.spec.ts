@@ -393,7 +393,7 @@ test("a recipe made offline syncs when the phone is back online", async ({ page,
     .toEqual([1, [{ amount: 350 }], [{ amount_minor: 50_000 }]]);
 });
 
-test("dragging a line's grip moves it, and the order is saved", async ({ page }) => {
+test("dragging a line's grip moves it either way, and the order is saved", async ({ page }) => {
   const user = await createTestUser();
   await addIngredients(user, VANILLA_CAKE_INGREDIENTS.slice(0, 3));
   await signInDirectly(page, user);
@@ -404,19 +404,47 @@ test("dragging a line's grip moves it, and the order is saved", async ({ page })
   await tick(page, ["Sugar", "Flour", "Baking powder"], "Add 3 ingredients");
   const order = () =>
     page.getByRole("textbox", { name: / amount$/ }).evaluateAll((boxes) => boxes.map((box) => box.getAttribute("aria-label")));
+  const grip = (name: string) => page.getByRole("button", { name: `Move ${name} up or down` });
+  // A line's grip, dragged in small steps (as a finger would) to just past
+  // the top or bottom of another line.
+  async function drag(name: string, onto: string, side: "top" | "bottom") {
+    const from = await grip(name).boundingBox();
+    const row = await page.getByRole("textbox", { name: `${onto} amount` }).boundingBox();
+    if (!from || !row) throw new Error("no grips");
+    const x = from.x + from.width / 2;
+    await page.mouse.move(x, from.y + from.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(x, side === "top" ? row.y - 8 : row.y + row.height + 8, { steps: 12 });
+    await page.mouse.up();
+  }
   expect(await order()).toEqual(["Sugar amount", "Flour amount", "Baking powder amount"]);
 
-  // Sugar's grip, dragged down past the other two in small steps, as a finger would.
-  const grip = await page.getByRole("button", { name: "Move Sugar up or down" }).boundingBox();
-  const last = await page.getByRole("button", { name: "Move Baking powder up or down" }).boundingBox();
-  if (!grip || !last) throw new Error("no grips");
-  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(grip.x + grip.width / 2, last.y + last.height, { steps: 12 });
-  await page.mouse.up();
+  await drag("Sugar", "Baking powder", "bottom");
   await expect.poll(order).toEqual(["Flour amount", "Baking powder amount", "Sugar amount"]);
-
-  // ↑ on a grip moves it one place.
-  await page.getByRole("button", { name: "Move Sugar up or down" }).press("ArrowUp");
+  // The bottom line up to the top (the case our own code got wrong).
+  await drag("Sugar", "Flour", "top");
+  await expect.poll(order).toEqual(["Sugar amount", "Flour amount", "Baking powder amount"]);
+  // The middle line up one.
+  await drag("Flour", "Sugar", "top");
   await expect.poll(order).toEqual(["Flour amount", "Sugar amount", "Baking powder amount"]);
+
+  // Keyboard: Space picks it up, ↑/↓ move it, Space drops it; Esc puts it back.
+  await grip("Baking powder").focus();
+  await page.keyboard.press("Space");
+  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("Space");
+  await expect.poll(order).toEqual(["Flour amount", "Baking powder amount", "Sugar amount"]);
+  await grip("Flour").focus();
+  await page.keyboard.press("Space");
+  await page.keyboard.press("ArrowDown");
+  await page.keyboard.press("Escape");
+  await expect.poll(order).toEqual(["Flour amount", "Baking powder amount", "Sugar amount"]);
+  await expectAccessible(page);
+
+  // The draft keeps the order (saved 400ms after the last change).
+  await page.waitForURL(/\?draft=/);
+  await page.waitForTimeout(1000);
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Ingredients", exact: true })).toBeVisible();
+  expect(await order()).toEqual(["Flour amount", "Baking powder amount", "Sugar amount"]);
 });

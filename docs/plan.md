@@ -321,11 +321,12 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
   - chips and search
   - a recipe made offline syncing
 - Decided in plan mode (a grilling round with Keside): drafts on the phone only; overhead picked or created in the flow; Cost only; the first section never named; New ingredient inside Add ingredients; red outlines on empty boxes; most recently updated first. Saved recipe cards aren't tappable until M6.
-- Not in the design system, noted in the code: an error outline on EditLineRow and its grip handlers, a draft card, TopBar `onClose`, ActionBar `message`, ConfirmDialog `onDismiss`, CheckRow `disabled`, SegmentedControl `label`, Toast `onDone`, `hideLabel` on TextField and AmountField, raised fields and choices inside a card, and an odd last ChoiceGrid option spanning the row. The add buttons are 44px pills as in the mockups (no Button size matches).
+- Not in the design system, noted in the code: an error outline on EditLineRow and its drag props, a draft card, TopBar `onClose`, ActionBar `message`, ConfirmDialog `onDismiss`, CheckRow `disabled`, SegmentedControl `label`, Toast `onDone`, `hideLabel` on TextField and AmountField, raised fields and choices inside a card, and an odd last ChoiceGrid option spanning the row. The add buttons are 44px pills as in the mockups (no Button size matches).
 - The flow keeps the draft in plain React state with the step rules in `lib/recipes.ts` (tested), not React Hook Form + Zod: the nested sections and the autosaved draft made those a thin wrapper.
 - Fixed along the way:
   - the precache now ignores the app's own page parameters (`?saved=`, `?install=`, `?draft=`), so those pages open offline instead of falling back to "/"
   - Setup counts the business as created from the tap, because it can sync back before the reply and then skip the install guide
+- Drag to reorder now uses dnd-kit (`@dnd-kit/core`, `sortable`, `utilities`, `modifiers`; agreed 27 Oct). Our own code failed on the preview when dragging a lower line up, and its test only dragged the top line down. The test now drags both ways, uses the keyboard (Space, ↑/↓, Space; Esc cancels) and checks the order survives a reload.
 - Waiting on the iPhone check.
 
 ---

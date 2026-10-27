@@ -215,7 +215,7 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 - A new recipe starts with one section. **The first section is never named**; every section she adds needs a name ("Name this section, like Crumble."). This is how her sheet works: Salted Caramel Cake has the cake part, then "Salted Caramel" (agreed 27 Oct 2026).
 - Removing an added section with ingredients asks first ("Remove Crumble?" / "Its 3 ingredients will be removed too."); an empty one goes at once.
 - The same ingredient can appear in more than one section.
-- Lines reorder by dragging their grip within their section (or ↑/↓ on the grip). Moving whole sections comes with Edit recipe (M7).
+- Lines reorder by dragging their grip within their section. With a keyboard: Space to pick up, ↑/↓ to move, Space to drop, Esc to cancel. Moving whole sections comes with Edit recipe (M7).
 
 **Ingredient lines**
 - Pick an ingredient and enter the amount in that ingredient's unit.
@@ -413,7 +413,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 | Database, login | Supabase: Postgres, email one-time-code auth, Row Level Security |
 | Offline sync | PowerSync: local SQLite copy on the phone, synced with Supabase |
 | Styling | CSS Modules + one global `tokens.css` generated from the design system's `tokens.json`. No Tailwind, no component library |
-| UI primitives | Native `<dialog>`, `<select>` and form elements; lucide-react icons; Noto Sans via `next/font` (latin + latin-ext, for ₦) |
+| UI primitives | Native `<dialog>`, `<select>` and form elements; lucide-react icons; dnd-kit for drag to reorder; Noto Sans via `next/font` (latin + latin-ext, for ₦) |
 | Forms | React Hook Form + Zod |
 | Tests | Vitest (calculations), Playwright (flows, offline, screenshots), axe (accessibility) |
 | Errors | Sentry |
@@ -774,6 +774,7 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 | Price history | Server-only, filled by a trigger, not shown in the MVP |
 | Spreadsheet | Load ingredients and finished cakes; she adds the rest |
 | Build order | Vertical slices from M3: each milestone builds its own components, maths and screens and is checked on a real iPhone (changed 19 Oct 2026, replacing "all components, then all maths, then screens") |
+| Drag to reorder | dnd-kit (changed 27 Oct 2026 from our own code, which failed when dragging a lower line up) |
 
 ---
 

@@ -41,6 +41,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 - CSS Modules + `styles/tokens.css`, generated from the design system's `tokens.json`
   - No Tailwind, no component libraries
   - Native `<dialog>` and `<select>`, lucide-react icons
+  - dnd-kit for drag to reorder
   - Noto Sans via `next/font` with latin-ext (needed for ₦)
 - React Hook Form + Zod
 - Vitest, Playwright, axe

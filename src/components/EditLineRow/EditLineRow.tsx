@@ -2,7 +2,7 @@ import { GripVertical, X } from "lucide-react";
 import type { Ref } from "react";
 import { cx } from "../cx";
 import styles from "./EditLineRow.module.css";
-import type { GripProps } from "./useReorder";
+import type { SortableLine } from "./SortableLines";
 
 /** An editable line in the new-recipe and edit flows: drag handle, name, amount box with unit, remove. */
 export interface EditLineRowProps {
@@ -17,8 +17,8 @@ export interface EditLineRowProps {
   onRemove?: () => void;
   /** Shows the grip; rows reorder by dragging. Default: false. */
   dragHandle?: boolean;
-  /** Not in the design system's props: the grip's drag and arrow-key handlers, from useReorder. */
-  gripProps?: GripProps;
+  /** Not in the design system's props: the row's and grip's drag props, from SortableLineRow. */
+  sortable?: SortableLine;
   /** Not in the design system's props: a red outline on an amount she has to fill in (agreed 27 Oct). */
   invalid?: boolean;
   /** Not in the design system's props: lets the screen put the cursor in the amount. */
@@ -33,14 +33,26 @@ export function EditLineRow({
   prefix,
   onRemove,
   dragHandle = false,
-  gripProps,
+  sortable,
   invalid = false,
   inputRef,
 }: EditLineRowProps) {
   return (
-    <div className={cx(styles.row, !dragHandle && styles.noGrip)} data-reorder-row="">
+    <div
+      ref={sortable?.rowRef}
+      className={cx(styles.row, !dragHandle && styles.noGrip)}
+      style={sortable?.rowStyle}
+      data-dragging={sortable?.dragging || undefined}
+    >
       {dragHandle && (
-        <button type="button" className={styles.grip} aria-label={`Move ${name} up or down`} {...gripProps}>
+        <button
+          ref={sortable?.gripRef}
+          type="button"
+          className={styles.grip}
+          {...sortable?.gripAttributes}
+          {...sortable?.gripListeners}
+          aria-label={`Move ${name} up or down`}
+        >
           <GripVertical aria-hidden="true" />
         </button>
       )}

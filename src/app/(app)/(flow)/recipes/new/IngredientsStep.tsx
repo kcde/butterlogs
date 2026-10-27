@@ -2,7 +2,7 @@
 
 import { X } from "lucide-react";
 import type { Ref } from "react";
-import { EditLineRow, useReorder } from "@/components/EditLineRow";
+import { SortableLineRow, SortableLines } from "@/components/EditLineRow";
 import { IconButton } from "@/components/IconButton";
 import { TextField } from "@/components/TextField";
 import type { DraftLine, DraftSection } from "@/lib/recipes";
@@ -43,11 +43,11 @@ function SectionCard({
   const { sections, onSectionsChange, label, invalid, onTyped, register, onAddLines, onAddSection, onRemoveSection } = props;
   const setLines = (lines: DraftLine[]) =>
     onSectionsChange(sections.map((other) => (other.key === section.key ? { ...other, lines } : other)));
-  const grip = useReorder(section.lines.length, (from, to) => {
+  const moveLine = (from: number, to: number) => {
     const lines = [...section.lines];
     lines.splice(to, 0, ...lines.splice(from, 1));
     setLines(lines);
-  });
+  };
   const last = index === total - 1;
 
   return (
@@ -76,28 +76,36 @@ function SectionCard({
         </div>
       )}
       {section.lines.length > 0 && (
-        <div className={styles.lines}>
-          {section.lines.map((line, at) => {
-            const { name, unit } = label(line);
-            return (
-              <EditLineRow
-                key={line.key}
-                name={name}
-                amount={line.amount}
-                unit={unit}
-                onAmountChange={(amount) => {
-                  onTyped(line.key);
-                  setLines(section.lines.map((other) => (other.key === line.key ? { ...other, amount } : other)));
-                }}
-                onRemove={() => setLines(section.lines.filter((other) => other.key !== line.key))}
-                dragHandle
-                gripProps={grip(at)}
-                invalid={invalid.has(line.key)}
-                inputRef={register(line.key)}
-              />
-            );
-          })}
-        </div>
+        <SortableLines
+          ids={section.lines.map((line) => line.key)}
+          nameOf={(key) => {
+            const line = section.lines.find((other) => other.key === key);
+            return line ? label(line).name : "";
+          }}
+          onMove={moveLine}
+        >
+          <div className={styles.lines}>
+            {section.lines.map((line) => {
+              const { name, unit } = label(line);
+              return (
+                <SortableLineRow
+                  key={line.key}
+                  id={line.key}
+                  name={name}
+                  amount={line.amount}
+                  unit={unit}
+                  onAmountChange={(amount) => {
+                    onTyped(line.key);
+                    setLines(section.lines.map((other) => (other.key === line.key ? { ...other, amount } : other)));
+                  }}
+                  onRemove={() => setLines(section.lines.filter((other) => other.key !== line.key))}
+                  invalid={invalid.has(line.key)}
+                  inputRef={register(line.key)}
+                />
+              );
+            })}
+          </div>
+        </SortableLines>
       )}
       <div className={styles.adds}>
         <AddButton onClick={() => onAddLines(section.key, "ingredients")}>Add ingredients</AddButton>
