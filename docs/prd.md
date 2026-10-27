@@ -112,6 +112,7 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 
 - **What overhead is:** costs that stay the same per bake, whatever the batch size: gas, electricity, transport, labour, oven maintenance, and so on.
 - **The list holds names only.** Each recipe picks the items it needs and sets its own amount for each (F5).
+- **In the new-recipe flow** (agreed 27 Oct 2026), a recipe's overhead starts empty. "Add overhead item" opens a sheet with her items to tick (ones already on the recipe show ticked and greyed out) and a "New item" box that adds one to her list there and then. A new item stays in her list even if the recipe is discarded.
 - **One overhead list per recipe.** Her sheet's "Indirect" and "Miscellaneous" groups are merged.
 - **Overhead never scales on its own.** When scaling, overhead stays at the recipe's amounts unless she edits it in the calculator (F6).
 - **Per-piece costs are not overhead.** Bags, liners and per-piece boxes are ingredients measured in pieces (F3).
@@ -185,7 +186,7 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 - **She creates, renames, reorders and deletes categories** (*Categories.dc.html*).
 - **One category per recipe.** None = **Uncategorised**.
 - **The Recipes list filters by category chips:** All, then her categories in her order, then Uncategorised if any recipe has none.
-- **The category picker** (*CategoryPicker.dc.html*) lets her pick one or add a new one on the spot.
+- **The category picker** (*CategoryPicker.dc.html*) lets her pick one or add a new one on the spot. A new one goes at the end of her list and stays even if the recipe is discarded.
 - **Deleting a category keeps its recipes.** They move to Uncategorised.
 - Categories are for recipes only in the MVP.
 
@@ -211,14 +212,16 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 
 **Sections**
 - A recipe is split into named sections, such as "Cake", "Crumble" and "Topping".
-- A new recipe starts with one section; its name is hidden while it's the only one.
+- A new recipe starts with one section. **The first section is never named**; every section she adds needs a name ("Name this section, like Crumble."). This is how her sheet works: Salted Caramel Cake has the cake part, then "Salted Caramel" (agreed 27 Oct 2026).
+- Removing an added section with ingredients asks first ("Remove Crumble?" / "Its 3 ingredients will be removed too."); an empty one goes at once.
 - The same ingredient can appear in more than one section.
-- Sections and lines can be reordered.
+- Lines reorder by dragging their grip within their section (or ↑/↓ on the grip). Moving whole sections comes with Edit recipe (M7).
 
 **Ingredient lines**
 - Pick an ingredient and enter the amount in that ingredient's unit.
-- Add several at once: a searchable sheet with checkboxes (*AddIngredients.dc.html*), then fill in the amounts.
-- Each line shows its cost.
+- Add several at once: a searchable sheet with checkboxes (*AddIngredients.dc.html*), then fill in the amounts. Ingredients already in that section show ticked and greyed out.
+- **An ingredient she doesn't have yet:** "New ingredient" at the bottom of the sheet opens the New ingredient sheet, then Restock (F3), and comes back to the sheet with it ticked (agreed 27 Oct 2026).
+- Each line shows its cost on the recipe screen (M6). While she builds the recipe, the rows show no cost, as in *NewRecipe2*; the bar at the bottom shows the running ingredient cost, or "Ingredient cost · 1 has no price".
 - Fractions of a piece are allowed (0.5 egg).
 
 **Sub-recipe lines**
@@ -229,18 +232,28 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 - **Changes carry through.** Edits to the sub-recipe update every recipe that uses it.
 - **Opens inline on the recipe screen**, with its scaled ingredients (*RecipeSub.dc.html*).
 - **No loops.** A recipe can't include itself, directly or through another recipe; the app checks before saving.
+- **"Add a recipe"** opens the same sheet, listing her saved recipes with their ingredient cost per g or pc. An incomplete one is listed with the "incomplete" warning and can still be added; the line then counts as missing. Drafts are never listed.
 
 **Overhead lines**
 - Picked from the overhead list, each with an amount for the recipe at its base yield.
 
 **Creating, editing and deleting**
-- **New recipe is three steps:** Basics → Ingredients → Overhead & price, with Back/Next and a running ingredient cost. Saving opens the recipe at ×1 with a "saved" toast.
+- **New recipe is three steps:** Basics → Ingredients → Overhead & price, with Back/Next and a running ingredient cost. Saving opens the recipe at ×1 with a "saved" toast (until M6 builds the recipe screen, it goes back to Recipes with the toast).
+- **A box she has to fill in** (a line amount, a section name, an overhead ₦, or a fixed profit or set price) stops Next or Save: every empty one gets a red outline, the cursor goes to the first, and the bar says "Fill in the boxes marked in red." Each outline goes as she types (agreed 27 Oct 2026).
 - **Edit recipe is one page** with collapsible sections (Basics, Ingredients, Overhead & price). Closing with unsaved changes asks "Discard changes?".
 - **The recipe "…" menu:** Edit recipe · Change category · Delete recipe.
 - **Deleting a recipe** asks first.
 - **Deleting a recipe used inside other recipes:**
   - The app warns and lists them.
   - If she goes ahead, those lines show "Salted Caramel was deleted" and the totals are marked incomplete.
+
+**Drafts** (agreed 27 Oct 2026)
+- A recipe she's building is kept as a draft on her phone as she types, so it survives switching apps, iOS closing the app, or a reload.
+- Drafts live on this phone only: never synced, and cleared when she signs out.
+- New recipe always starts blank, so she can have several drafts.
+- **× while building:** if nothing was entered it just closes; otherwise "Keep Salted Caramel Cake as a draft?" / "You can finish it later from Recipes." / Keep as draft · Discard. Tapping outside goes back to the recipe.
+- **On the Recipes list**, drafts are cards with a "Draft" tag and "Not finished" ("Untitled recipe" until named). They follow the chips and search like any recipe. Tapping one opens it on the step she left.
+- Drafts never count in totals and never appear in "Add a recipe". Saving turns the draft into the recipe.
 
 **Acceptance**
 - A recipe can't be saved without a yield type and amount.
@@ -301,7 +314,8 @@ Each recipe has one method (or none); the business has a default.
   - markup = profit ÷ cost
   - per piece where a count is known
 - **Margin must be under 100%.**
-- **No method** = cost only (fillings used inside other recipes).
+- **No method** = cost only (fillings used inside other recipes). In the new-recipe flow it's a fifth choice, **"Cost only"**, under the four methods (agreed 27 Oct 2026), and the totals show just Total cost and Cost per gram (or each).
+- A recipe starts with the business default. A fixed profit or set price is typed per recipe and must be filled in when chosen.
 - **When scaling:**
   - a set price scales by the same factor
   - a fixed profit stays the same
@@ -377,6 +391,7 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 |---|---|---|
 | Money | Whole units, business currency | ₦15,430.93 → "₦15,431" |
 | Cost per unit | 2 decimals; a whole amount drops ".00" (agreed 25 Oct 2026) | "₦1.20 / g", "₦9.98/g", "₦40 / g", "₦300 / pc" |
+| A recipe's cost per gram or each | Per gram as cost per unit, no spaces; each in whole money | "₦6.86/g", "₦899 each" |
 | Quantity bought | As typed, up to 2 decimals | "12.5 kg", "1,000 g", "1 pc" |
 | Amounts 10 or more | Whole number | 833.33 g → "833 g" |
 | Amounts under 10 | Up to 2 decimals | "2.67 g", "1.5 g" |
@@ -571,6 +586,16 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | position | double precision | |
 | created_at, updated_at | timestamptz | |
 
+**Phone only: `recipe_drafts`** (a PowerSync local-only table; not on the server, never uploaded, wiped on sign-out)
+
+| Column | Notes |
+|---|---|
+| id, business_id | text |
+| name, category_id | For the Recipes list's card, chips and search |
+| step | 1, 2 or 3: where she left it |
+| form | The whole draft as JSON |
+| created_at, updated_at | text |
+
 ### Triggers and functions
 
 - **`set_updated_at`:** before every update, on every table.
@@ -662,7 +687,21 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 
 ## 9. Test fixtures (from her spreadsheet)
 
-**Vanilla Cake at ×1 (1,500 g):** ingredients ₦4,937 · overhead ₦5,350 · total **₦10,287** · ₦6.86/g.
+**Vanilla Cake at ×1 (1,500 g):** ingredients ₦4,937 · overhead ₦5,350 · total **₦10,287** · ₦6.86/g · markup 50% → price ₦15,431, profit ₦5,144.
+
+From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake.ts`):
+
+| Ingredient | Price paid | Quantity bought | Amount | Cost |
+|---|---|---|---|---|
+| Sugar | ₦20,000 | 12,500 g | 380 g | ₦608 |
+| Flour | ₦15,000 | 12,500 g | 350 g | ₦420 |
+| Baking powder | ₦6,000 | 450 g | 12 g | ₦160 |
+| Salt | ₦600 | 500 g | 5 g | ₦6 |
+| Oil | ₦4,000 | 700 ml | 118 ml | ₦674.29 |
+| Vanilla extract | ₦5,000 | 500 ml | 10 ml | ₦100 |
+| Yogurt | ₦1,500 | 200 g | 118 g | ₦885 |
+| Milk | ₦4,000 | 1,000 ml | 296 ml | ₦1,184 |
+| Eggs | ₦300 | 1 pc | 3 pcs | ₦900 |
 
 **Vanilla Cake scaled to 800 g (×0.5333):**
 
@@ -704,6 +743,13 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | Offline | Full offline (PowerSync), from day one |
 | Cost per unit on screen | 2 decimals, but a whole amount drops ".00": "₦1.20 / g", "₦40 / g" (25 Oct 2026; the PRD said 2 decimals, the mockups showed whole prices) |
 | Ingredient list order | A to Z by name (25 Oct 2026) |
+| Recipe list order | Most recently updated first, drafts included (27 Oct 2026, the design system's default). No "…" sort menu: name sort isn't in the PRD |
+| Drafts | An unfinished recipe is a draft on the phone only; several allowed; × asks Keep as draft · Discard (27 Oct 2026) |
+| Overhead in the new-recipe flow | Starts empty; pick items or create one on the spot (27 Oct 2026) |
+| Cost only | A fifth pricing choice in the flow (27 Oct 2026) |
+| Sections | The first is never named; added ones need a name; lines move within a section, whole sections move in M7 (27 Oct 2026) |
+| New ingredient while building a recipe | From the Add ingredients sheet, through New ingredient and Restock (27 Oct 2026) |
+| Empty required boxes | Red outline, cursor on the first, one line above the buttons (27 Oct 2026) |
 | Deleting an unused ingredient | Asks first, like deleting a recipe (25 Oct 2026) |
 | Ingredient prices | Entered through Restock, not the ingredient sheet; no "pack" on screen (25 Oct 2026): one sheet with pack price, pack size and "I measure it in" side by side was confusing, and recording a purchase felt like editing the ingredient |
 | "Quantity bought", not "Amount bought" | 26 Oct 2026: in Nigeria "amount" usually means money. The label doesn't repeat the unit, since the unit chip sits in the field |

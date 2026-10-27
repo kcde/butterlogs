@@ -17,7 +17,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
 | M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
 | M4 | Ingredients | F3 | Done | 27 Oct 2026 |
-| M5 | Create recipes | F2, F4, F5, F7 | Not started | |
+| M5 | Create recipes | F2, F4, F5, F7 | In progress | |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
 | M7 | Change and delete recipes | F4, F5 | Not started | |
 | M8 | Settings and sync | F1, F2, F4, F8, F9 | Not started | |
@@ -273,39 +273,60 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 **Goal:** she can create a full recipe offline in three steps and see it on the Recipes list with the right cost.
 
-**PRD:** F4 (chips, picker), F5 (create), F7. **Screens:** NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, Main, RecipesDark.
+**PRD:** F4 (chips, picker), F5 (create, drafts), F7. **Screens:** NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, Main, RecipesDark, EmptyRecipes.
 
-**Components** (first needed here): StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast
+**Components** (first needed here, confirmed against the mockups in plan mode, 27 Oct): StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast, and StatTile and WarningBanner (moved from M6: *NewRecipe3* needs them)
 
 **Maths**
-- [ ] `format.ts`: recipe amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2) (moved from M4: the first screens that show amounts are here)
-- [ ] Ingredient line cost = amount × cost per unit
-- [ ] Sub-recipe line cost = amount × (sub-recipe ingredient cost ÷ its yield in g or pcs); missing if the sub-recipe is deleted or has any missing line; ingredients only (no overhead or markup carried in)
-- [ ] Recipe ingredient total (every line, including sub-recipe lines) and an incomplete flag with a count of missing lines
-- [ ] Overhead total; deleted overhead items still count
-- [ ] Total cost; cost per piece and per gram where the yield allows
-- [ ] Loop detection for sub-recipes (direct and indirect)
-- [ ] Sub-recipe yield check (gram amount needs a weight yield; pieces need a count yield)
-- [ ] §9 fixture: Vanilla Cake ×1
+- [x] `format.ts`: recipe amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2) (moved from M4); a recipe's cost per gram ("₦6.86/g") or each ("₦899 each")
+- [x] Ingredient line cost = amount × cost per unit
+- [x] Sub-recipe line cost = amount × (sub-recipe ingredient cost ÷ its yield in g or pcs); missing if the sub-recipe is deleted or has any missing line; ingredients only (no overhead or markup carried in)
+- [x] Recipe ingredient total (every line, including sub-recipe lines) and an incomplete flag with a count of missing lines
+- [x] Overhead total; deleted overhead items still count
+- [x] Total cost; cost per piece and per gram where the yield allows
+- [x] Loop detection for sub-recipes (direct and indirect); a new recipe can't make one, so it guards M7
+- [x] Sub-recipe yield check (gram amount needs a weight yield; pieces need a count yield)
+- [x] §9 fixture: Vanilla Cake ×1, from her sheet (`tests/fixtures/vanilla-cake.ts`)
 
 **New recipe flow**
-- [ ] *NewRecipe1* (Basics): name, category, notes, yield type + amount, optional second figure; weight in any unit, stored in grams
-- [ ] *CategoryPicker*: pick one or add a new one on the spot
-- [ ] *NewRecipe2* (Ingredients): sections (one to start, name hidden while alone), ingredient and sub-recipe lines, reorder, running ingredient cost
-- [ ] *AddIngredients*: searchable sheet with checkboxes, then fill in amounts
-- [ ] Sub-recipe lines: amount in the sub-recipe's yield unit; blocked when the needed yield is missing; loop check before saving
-- [ ] *NewRecipe3* (Overhead & price): pick overhead items with amounts; pricing method + value (business default; a Fixed profit or Set price default starts with the amount empty; empty method = cost only); margin under 100%
-- [ ] Back / Next with the running total in the ActionBar; Discard dialog on close
-- [ ] Save writes the recipe, sections and lines in one local transaction
-- [ ] After saving: back to Recipes with the "saved" Toast (M6 switches this to opening the recipe, as in *RecipeSaved*)
+- [x] *NewRecipe1* (Basics): name, category, notes, yield type + amount, optional second figure; weight in any unit, stored in grams
+- [x] *CategoryPicker*: pick one or add a new one on the spot
+- [x] *NewRecipe2* (Ingredients): sections (the first never named, added ones need a name), ingredient and sub-recipe lines, lines reorder by dragging within a section, running ingredient cost. Moving whole sections moved to M7
+- [x] *AddIngredients*: searchable sheet with checkboxes (already-added ones ticked and greyed out), then fill in amounts; "New ingredient" opens New ingredient → Restock and comes back ticked
+- [x] Sub-recipe lines: amount in the sub-recipe's yield unit; incomplete ones listed with the warning; loop check before saving
+- [x] *NewRecipe3* (Overhead & price): overhead starts empty, pick items or create one on the spot, with amounts; pricing method + value (business default; Fixed profit or Set price typed per recipe) or Cost only; margin under 100%; stat tiles
+- [x] Empty boxes on Next or Save: red outline, cursor on the first, "Fill in the boxes marked in red."
+- [x] Back / Next with the running total in the ActionBar
+- [x] Save writes the recipe, sections and lines in one local transaction
+- [x] After saving: back to Recipes with the "saved" Toast (M6 switches this to opening the recipe, as in *RecipeSaved*)
+
+**Drafts** (agreed 27 Oct)
+- [x] A local-only table (`recipe_drafts`): kept as she types, never uploaded, wiped on sign-out
+- [x] × asks Keep as draft · Discard (tapping outside goes back); New recipe always starts blank
+- [x] Draft cards on Recipes ("Draft", "Not finished"); tapping opens the step she left; a reload keeps it (`?draft=`)
 
 **Recipes list**
-- [ ] *Main*: RecipeCards (yield, total, per g or per piece), search, category chips (All, her categories in order, Uncategorised if any recipe has none), incomplete tag on cards, FAB
-- [ ] *EmptyRecipes* "Start a recipe anyway" opens the flow
+- [x] *Main*: RecipeCards (yield, total, per g or per piece), search, category chips (All, her categories in order, Uncategorised if any recipe has none), incomplete tag on cards, FAB; most recently updated first, drafts included
+- [x] *EmptyRecipes* "Start a recipe anyway" opens the flow
 
 **Done when:** on Keside's iPhone, Vanilla Cake made offline shows ₦10,287 on its card, syncs, and shows the same after a reload.
 
 **Notes**
+- 27 Oct 2026: built and passing typecheck, lint, unit tests (100% of `src/lib`, plus recipes, drafts, categories and overhead items against a local PowerSync database) and the Playwright flows in light and dark with axe:
+  - Vanilla Cake to ₦10,287
+  - a cost-only filling inside a cake with a named second section, and a count recipe
+  - a new ingredient made inside Add ingredients, with no price
+  - every empty-box message
+  - drafts (keep, reload, reopen, discard)
+  - chips and search
+  - a recipe made offline syncing
+- Decided in plan mode (a grilling round with Keside): drafts on the phone only; overhead picked or created in the flow; Cost only; the first section never named; New ingredient inside Add ingredients; red outlines on empty boxes; most recently updated first. Saved recipe cards aren't tappable until M6.
+- Not in the design system, noted in the code: an error outline on EditLineRow and its grip handlers, a draft card, TopBar `onClose`, ActionBar `message`, ConfirmDialog `onDismiss`, CheckRow `disabled`, SegmentedControl `label`, Toast `onDone`, `hideLabel` on TextField and AmountField, raised fields and choices inside a card, and an odd last ChoiceGrid option spanning the row. The add buttons are 44px pills as in the mockups (no Button size matches).
+- The flow keeps the draft in plain React state with the step rules in `lib/recipes.ts` (tested), not React Hook Form + Zod: the nested sections and the autosaved draft made those a thin wrapper.
+- Fixed along the way:
+  - the precache now ignores the app's own page parameters (`?saved=`, `?install=`, `?draft=`), so those pages open offline instead of falling back to "/"
+  - Setup counts the business as created from the tap, because it can sync back before the reply and then skip the install guide
+- Waiting on the iPhone check.
 
 ---
 
@@ -355,7 +376,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **Components** (first needed here): ActionSheet, CollapsibleSection
 
 - [ ] *RecipeMenu*: Edit recipe · Change category · Delete recipe
-- [ ] *EditRecipe*: one page, collapsible Basics / Ingredients / Overhead & price; sections and lines reorderable; same validation as M5
+- [ ] *EditRecipe*: one page, collapsible Basics / Ingredients / Overhead & price; sections and lines reorderable (moving whole sections moved here from M5); same validation as M5
 - [ ] *DiscardChanges* on close with unsaved changes
 - [ ] *DeleteRecipe*: confirm, soft delete
 - [ ] *DeleteRecipeInUse*: lists recipes that use it; their lines then show "Salted Caramel was deleted" and totals go incomplete
