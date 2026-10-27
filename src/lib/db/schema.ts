@@ -1,6 +1,6 @@
 import { column, Schema, Table } from "@powersync/web";
 
-// Client copy of the synced tables (PRD §6). `id` is implicit.
+// Client copy of the synced tables (PRD §6), plus the local-only drafts. `id` is implicit.
 // Types: uuid/text/timestamptz → text, bigint → integer, double precision → real.
 // ingredient_price_history is server only and not here.
 
@@ -100,6 +100,22 @@ const recipe_overhead_lines = new Table({
   updated_at: column.text,
 });
 
+// A recipe she's still building (agreed 27 Oct): on this phone only, never
+// uploaded, and wiped with everything else on sign-out (disconnectAndClear).
+// `form` is the whole draft as JSON (lib/recipes.ts RecipeDraft).
+const recipe_drafts = new Table(
+  {
+    business_id: column.text,
+    name: column.text,
+    category_id: column.text,
+    step: column.integer,
+    form: column.text,
+    created_at: column.text,
+    updated_at: column.text,
+  },
+  { localOnly: true },
+);
+
 export const AppSchema = new Schema({
   businesses,
   business_members,
@@ -110,6 +126,7 @@ export const AppSchema = new Schema({
   recipe_sections,
   recipe_lines,
   recipe_overhead_lines,
+  recipe_drafts,
 });
 
 export type Database = (typeof AppSchema)["types"];
@@ -122,3 +139,4 @@ export type Recipe = Database["recipes"];
 export type RecipeSection = Database["recipe_sections"];
 export type RecipeLine = Database["recipe_lines"];
 export type RecipeOverheadLine = Database["recipe_overhead_lines"];
+export type RecipeDraftRow = Database["recipe_drafts"];
