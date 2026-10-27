@@ -1,0 +1,24 @@
+/* Ported from ba-stat, ba-stat-num and ba-stat-label in the design system's bundle.css. */
+.tile {
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.value {
+  display: block;
+  font: var(--type-big-number);
+  letter-spacing: var(--type-big-number-tracking);
+  color: var(--money);
+}
+
+.label {
+  display: block;
+  margin-top: var(--space-1);
+  font: var(--type-label);
+  color: var(--ink-muted);
+}
+
+.incomplete .value {
+  color: var(--ink-muted);
+}

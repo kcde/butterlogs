@@ -1,0 +1,41 @@
+/* Ported from ba-card, ba-card-head, ba-card-title, ba-meta, ba-money and ba-tag
+   in the design system's bundle.css. Tags on a card are raised. */
+.card {
+  composes: card from "../Card/Card.module.css";
+  --tag-bg: var(--raised);
+  display: block;
+  width: 100%;
+  border: 0;
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+}
+
+a.card,
+button.card {
+  cursor: pointer;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.name {
+  min-width: 0;
+  font: var(--type-section);
+}
+
+.meta {
+  display: block;
+  margin-top: var(--space-1);
+  font: var(--type-meta);
+  color: var(--ink-muted);
+}
+
+.meta strong {
+  font-weight: 600;
+  color: var(--money);
+}

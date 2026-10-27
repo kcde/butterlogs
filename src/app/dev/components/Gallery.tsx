@@ -2,25 +2,37 @@
 
 import { BookOpen, Check, ChevronLeft, Ellipsis, Mail, Plus, RotateCcw, Share, SquarePlus, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { ActionBar } from "@/components/ActionBar";
 import { AmountField } from "@/components/AmountField";
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
 import { Card } from "@/components/Card";
+import { CheckRow } from "@/components/CheckRow";
+import { Chip } from "@/components/Chip";
 import { ChoiceGrid } from "@/components/ChoiceGrid";
 import { CodeField } from "@/components/CodeField";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { EditLineRow, useReorder } from "@/components/EditLineRow";
 import { EmptyState } from "@/components/EmptyState";
 import { FAB } from "@/components/FAB";
 import { IconButton } from "@/components/IconButton";
 import { IngredientCard } from "@/components/IngredientCard";
 import { Notice } from "@/components/Notice";
+import { RadioList } from "@/components/RadioList";
+import { RecipeCard } from "@/components/RecipeCard";
 import { SearchField } from "@/components/SearchField";
+import { SegmentedControl } from "@/components/SegmentedControl";
 import { SelectField } from "@/components/SelectField";
+import { StatTile } from "@/components/StatTile";
+import { StepIndicator } from "@/components/StepIndicator";
 import { StepList } from "@/components/StepList";
 import { SyncStatus } from "@/components/SyncStatus";
 import { TabBar } from "@/components/TabBar";
+import { Tag } from "@/components/Tag";
 import { TextField } from "@/components/TextField";
+import { Toast } from "@/components/Toast";
 import { TopBar } from "@/components/TopBar";
+import { WarningBanner } from "@/components/WarningBanner";
 import type { Unit } from "@/lib/units";
 import styles from "./gallery.module.css";
 
@@ -49,11 +61,30 @@ export function Gallery() {
   const [packUnit, setPackUnit] = useState<Unit>("kg");
   const [search, setSearch] = useState("");
   const [dialog, setDialog] = useState<"in-use" | "unused" | null>(null);
+  const [chip, setChip] = useState("all");
+  const [yieldType, setYieldType] = useState("weight");
+  const [view, setView] = useState("ingredients");
+  const [lines, setLines] = useState([
+    { name: "Sugar", amount: "380", unit: "g" },
+    { name: "Flour", amount: "", unit: "g" },
+    { name: "Eggs", amount: "3", unit: "pcs" },
+  ]);
+  const [ticked, setTicked] = useState<string[]>(["Butter"]);
+  const [category, setCategory] = useState<string | null>("cakes");
+  const [toast, setToast] = useState(0);
+  const [actionBar, setActionBar] = useState(false);
+  const moveLine = (from: number, to: number) =>
+    setLines((current) => {
+      const next = [...current];
+      next.splice(to, 0, ...next.splice(from, 1));
+      return next;
+    });
+  const grip = useReorder(lines.length, moveLine);
 
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Components</h1>
-      <p className={styles.lede}>Built so far (M4). Compare with the design system previews in light and dark.</p>
+      <p className={styles.lede}>Built so far (M5). Compare with the design system previews in light and dark.</p>
 
       <Section name="Button">
         <div className={styles.row}>
@@ -164,6 +195,88 @@ export function Gallery() {
             { value: "margin", label: "Margin %" },
             { value: "fixed_profit", label: "Fixed profit" },
             { value: "set_price", label: "Set price" },
+            { value: "cost_only", label: "Cost only" },
+          ]}
+        />
+        <p className={styles.hint}>An odd last option (Cost only, not in the design system) spans both columns.</p>
+      </Section>
+
+      <Section name="SegmentedControl">
+        <SegmentedControl
+          label="Yield"
+          value={yieldType}
+          onChange={setYieldType}
+          options={[
+            { value: "weight", label: "Weight" },
+            { value: "count", label: "Pieces" },
+          ]}
+        />
+        <SegmentedControl
+          as="tabs"
+          label="Show"
+          value={view}
+          onChange={setView}
+          options={[
+            { value: "ingredients", label: "Ingredients" },
+            { value: "costs", label: "Costs" },
+          ]}
+        />
+      </Section>
+
+      <Section name="StepIndicator">
+        <StepIndicator step={2} total={3} label="Ingredients" />
+      </Section>
+
+      <Section name="EditLineRow">
+        <Card padding="flush">
+          <div>
+            {lines.map((line, index) => (
+              <EditLineRow
+                key={line.name}
+                name={line.name}
+                amount={line.amount}
+                unit={line.unit}
+                onAmountChange={(amount) =>
+                  setLines((current) => current.map((other, at) => (at === index ? { ...other, amount } : other)))
+                }
+                onRemove={() => {}}
+                dragHandle
+                gripProps={grip(index)}
+                invalid={line.amount === ""}
+              />
+            ))}
+          </div>
+        </Card>
+        <Card padding="flush">
+          <EditLineRow name="Gas" amount="500" prefix="₦" onAmountChange={() => {}} onRemove={() => {}} />
+        </Card>
+        <p className={styles.hint}>Drag a grip (or use ↑ ↓ on it) to reorder. An empty amount gets the red outline (not in the design system).</p>
+      </Section>
+
+      <Section name="CheckRow">
+        <div>
+          {["Butter", "Brown sugar", "Egg white"].map((name) => (
+            <CheckRow
+              key={name}
+              label={name}
+              checked={ticked.includes(name)}
+              onChange={(on) => setTicked((current) => (on ? [...current, name] : current.filter((other) => other !== name)))}
+              trailing={name === "Egg white" ? "add price" : "₦40 / g"}
+            />
+          ))}
+          <CheckRow label="Sugar (already added)" checked disabled onChange={() => {}} trailing="₦1.60 / g" />
+        </div>
+      </Section>
+
+      <Section name="RadioList">
+        <RadioList
+          label="Category"
+          value={category}
+          onChange={setCategory}
+          options={[
+            { value: "cakes", label: "Cakes" },
+            { value: "fillings", label: "Fillings" },
+            { value: "cookies", label: "Cookies" },
           ]}
         />
       </Section>
@@ -188,6 +301,53 @@ export function Gallery() {
         <IngredientCard name="Egg white" unitCost={null} meta="ignored when the price is missing" onClick={() => {}} />
         <IngredientCard name="Water" unitCost="₦0 / ml" meta="1 L · ₦0 · updated yesterday" onClick={() => {}} />
       </Section>
+
+      <Section name="RecipeCard">
+        <RecipeCard name="Vanilla Cake" category="Cakes" yieldLabel="1,500 g" totalCost="₦10,287" unitCost="₦6.86/g" />
+        <RecipeCard name="Dirty Chai Cookies" category="Cookies" yieldLabel="24 pcs" totalCost="₦21,582" unitCost="₦899 each" />
+        <RecipeCard name="Salted Caramel Cake" category="Cakes" yieldLabel="1,000 g" incomplete={{ missingCount: 1 }} />
+        <RecipeCard name="Lemon Cake" yieldLabel="" draft onClick={() => {}} />
+      </Section>
+
+      <Section name="Tag">
+        <div className={styles.row}>
+          <Tag>Cakes</Tag>
+          <Tag tone="warning">incomplete</Tag>
+          <Tag>Draft</Tag>
+        </div>
+      </Section>
+
+      <Section name="Chip">
+        <div className={styles.row}>
+          {["all", "Cakes", "Fillings", "Uncategorised"].map((name) => (
+            <Chip key={name} label={name === "all" ? "All" : name} selected={chip === name} onClick={() => setChip(name)} />
+          ))}
+        </div>
+      </Section>
+
+      <Section name="StatTile and WarningBanner">
+        <WarningBanner message="1 ingredient has no price, so these totals are incomplete." />
+        <div className={styles.stats}>
+          <StatTile value="₦10,287" label="Total cost" />
+          <StatTile value="₦6.86/g" label="Cost per gram" />
+          <StatTile value="₦15,431" label="Selling price" incomplete />
+          <StatTile value="₦5,144" label="Profit" incomplete />
+        </div>
+      </Section>
+
+      <Section name="Toast and ActionBar">
+        <div className={styles.row}>
+          <Button onClick={() => setToast((count) => count + 1)}>Show a toast</Button>
+          <Button onClick={() => setActionBar((shown) => !shown)}>{actionBar ? "Hide" : "Show"} the action bar</Button>
+        </div>
+      </Section>
+      {toast > 0 && <Toast key={toast} message="Chocolate Cake saved" />}
+      {actionBar && (
+        <ActionBar summary={{ label: "Ingredient cost", value: "₦4,937" }} message="Fill in the boxes marked in red.">
+          <Button>Back</Button>
+          <Button variant="primary">Next</Button>
+        </ActionBar>
+      )}
 
       <Section name="ConfirmDialog">
         <div className={styles.row}>

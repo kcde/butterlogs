@@ -1,0 +1,44 @@
+/* Ported from ba-toast in the design system's bundle.css: centred, 120px from
+   the bottom (RecipeSaved.dc.html), above the tab bar. */
+.place {
+  position: fixed;
+  right: 0;
+  bottom: calc(120px + var(--safe-bottom));
+  left: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-full);
+  background: var(--ink);
+  color: var(--on-ink);
+  font: var(--type-body-strong);
+  font-size: 15px;
+  box-shadow: var(--shadow-float);
+  pointer-events: auto;
+}
+
+.toast svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+.toast button {
+  padding: 0 0 0 var(--space-2);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

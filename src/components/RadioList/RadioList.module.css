@@ -1,0 +1,37 @@
+/* Ported from ba-radiolist and ba-radio in the design system's bundle.css. */
+.list {
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 var(--space-4);
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: var(--type-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+.radio + .radio {
+  border-top: 1px solid var(--line);
+}
+
+.radio[aria-checked="true"] {
+  font-weight: 600;
+}
+
+.radio svg {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  color: var(--caramel);
+  stroke-width: 2;
+}

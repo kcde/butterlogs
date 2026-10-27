@@ -1,0 +1,30 @@
+/* Ported from ba-tag and ba-tag-warning in the design system's bundle.css. On a
+   card the neutral tag is raised (ba-card .ba-tag): cards set --tag-bg. */
+.tag {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1);
+  height: 24px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--tag-bg, var(--surface));
+  color: var(--ink-muted);
+  font: var(--type-caption);
+  white-space: nowrap;
+}
+
+.warning {
+  background: var(--warning-soft);
+  color: var(--warning);
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.icon svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}

@@ -21,3 +21,9 @@
   background: var(--ink);
   color: var(--on-ink);
 }
+
+/* Not in the design system: an odd last option (the recipe flow's "Cost only",
+   agreed 27 Oct) spans both columns. */
+.choice:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
