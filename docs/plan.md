@@ -16,7 +16,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
 | M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
-| M4 | Ingredients | F3 | In progress | |
+| M4 | Ingredients | F3 | Done | 27 Oct 2026 |
 | M5 | Create recipes | F2, F4, F5, F7 | Not started | |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
 | M7 | Change and delete recipes | F4, F5 | Not started | |
@@ -265,6 +265,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - 25 Oct 2026: split adding from pricing, after Keside found the one sheet confusing ("I measure it in" next to "Pack size" read like "price per…", and a new purchase meant overwriting the ingredient). Adding an ingredient asks only its name, "I measure it in" and notes; what she paid goes through **Restock** ("Amount bought", "Price paid"), which opens straight after a new ingredient is saved and from the ingredient's sheet. No "pack" on screen, since not everything comes in a pack. No schema change: the `pack_` columns hold the last restock. Agreed in plan mode: tapping a card opens the ingredient (with a Restock button); Restock starts from the last amount with the price empty. The *IngredientSheet* mockup no longer matches on fields, and Restock has no mockup; it's built from the same parts, and the e2e screenshots are the reference. Waiting on the iPhone check.
 - 26 Oct 2026: Restock's first field is "Quantity bought" (was "Amount bought"): in Nigeria "amount" usually means money. "Price paid" stays.
 - 27 Oct 2026: iPhone check passed. Keside found sheets jarring to open ("goes up first then jumps down"). Cause: showModal() focuses the × while the sheet is still below the screen, so the dialog scrolled to it; the scroll pushed the sliding sheet too high, then reset when the slide ended. The dialog no longer scrolls (`overflow: clip`). The slide now uses iOS's sheet curve over 500 ms, the scrim fades in with it, and it stays dimmed when one sheet hands over to another (New ingredient → Restock). Closing is still instant.
+- 27 Oct 2026: done. On Keside's iPhone (preview, airplane mode): Flour restocked at ₦15,000 for 12.5 kg shows "₦1.20 / g", and a full bag at ₦56,000 for 50 kg "₦1.12 / g"; restocking starts from the last quantity with the price empty; Egg white with no restock shows "add price"; Water at ₦0 shows "₦0 / ml"; fields reachable with the keyboard up; "All synced" back online; dark mode. Sheets open smoothly after the fix. Not built: a slide-down when a sheet closes (closing is instant), and swipe to close (not in the MVP). Next: M5, create recipes.
 
 ---
 
