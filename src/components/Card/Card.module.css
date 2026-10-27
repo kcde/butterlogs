@@ -1,0 +1,11 @@
+/* Ported from ba-card and ba-card-flush in the design system's bundle.css. */
+.card {
+  padding: var(--space-4);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+}
+
+.flush {
+  padding: 0;
+  overflow: hidden;
+}

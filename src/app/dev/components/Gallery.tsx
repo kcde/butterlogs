@@ -2,19 +2,26 @@
 
 import { BookOpen, Check, ChevronLeft, Ellipsis, Mail, Plus, RotateCcw, Share, SquarePlus, X } from "lucide-react";
 import { type ReactNode, useState } from "react";
+import { AmountField } from "@/components/AmountField";
 import { BottomSheet } from "@/components/BottomSheet";
 import { Button } from "@/components/Button";
+import { Card } from "@/components/Card";
 import { ChoiceGrid } from "@/components/ChoiceGrid";
 import { CodeField } from "@/components/CodeField";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { EmptyState } from "@/components/EmptyState";
+import { FAB } from "@/components/FAB";
 import { IconButton } from "@/components/IconButton";
+import { IngredientCard } from "@/components/IngredientCard";
 import { Notice } from "@/components/Notice";
+import { SearchField } from "@/components/SearchField";
 import { SelectField } from "@/components/SelectField";
 import { StepList } from "@/components/StepList";
 import { SyncStatus } from "@/components/SyncStatus";
 import { TabBar } from "@/components/TabBar";
 import { TextField } from "@/components/TextField";
 import { TopBar } from "@/components/TopBar";
+import type { Unit } from "@/lib/units";
 import styles from "./gallery.module.css";
 
 function Section({ name, children }: { name: string; children: ReactNode }) {
@@ -37,11 +44,16 @@ export function Gallery() {
   const [method, setMethod] = useState("markup");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [code, setCode] = useState("1264");
+  const [price, setPrice] = useState("15,000");
+  const [packSize, setPackSize] = useState("12.5");
+  const [packUnit, setPackUnit] = useState<Unit>("kg");
+  const [search, setSearch] = useState("");
+  const [dialog, setDialog] = useState<"in-use" | "unused" | null>(null);
 
   return (
     <main className={styles.page}>
       <h1 className={styles.title}>Components</h1>
-      <p className={styles.lede}>Built so far (M3). Compare with the design system previews in light and dark.</p>
+      <p className={styles.lede}>Built so far (M4). Compare with the design system previews in light and dark.</p>
 
       <Section name="Button">
         <div className={styles.row}>
@@ -78,13 +90,15 @@ export function Gallery() {
         <TextField label="Recipe name" value={text} onChange={setText} />
         <TextField label="Password" type="password" value={password} onChange={setPassword} helper="At least 8 characters." />
         <TextField label="Markup" type="number" suffix="%" value={percent} onChange={setPercent} />
+        <TextField label="Pack price" type="number" prefix="₦" placeholder="0" value={price} onChange={setPrice} />
         <TextField
           label="Pack price"
           type="number"
-          placeholder="₦0"
-          value=""
+          prefix="₦"
+          placeholder="0"
+          value="15.000.00"
           onChange={() => {}}
-          error="Add a price so this ingredient can be costed."
+          error="Type the price, like 15,000."
         />
         <TextField label="Notes" multiline placeholder="e.g. pan size, oven notes" value={notes} onChange={setNotes} />
       </Section>
@@ -98,6 +112,33 @@ export function Gallery() {
           onChange={() => {}}
           error="That code didn’t work. Check it, or ask for a new one."
         />
+      </Section>
+
+      <Section name="AmountField">
+        <AmountField
+          label="Pack size"
+          value={packSize}
+          onChange={setPackSize}
+          unit={packUnit}
+          units={["g", "kg", "oz", "lb"]}
+          onUnitChange={setPackUnit}
+          helper="The size of the bag or pack you buy."
+        />
+        <AmountField label="Pack size" value="50" onChange={() => {}} unit="pcs" units={["pcs"]} onUnitChange={() => {}} />
+        <AmountField
+          label="Pack size"
+          value="0"
+          onChange={() => {}}
+          unit="l"
+          units={["ml", "l", "fl_oz", "tsp", "tbsp", "cup"]}
+          onUnitChange={() => {}}
+          error="Type a size above 0, like 12.5."
+        />
+      </Section>
+
+      <Section name="SearchField">
+        <SearchField value={search} onChange={setSearch} placeholder="Search ingredients" />
+        <SearchField value="flour" onChange={() => {}} placeholder="Search recipes" />
       </Section>
 
       <Section name="SelectField">
@@ -124,6 +165,56 @@ export function Gallery() {
             { value: "fixed_profit", label: "Fixed profit" },
             { value: "set_price", label: "Set price" },
           ]}
+        />
+      </Section>
+
+      <Section name="Card">
+        <Card>
+          <p>Default: 16px padding on the grey surface.</p>
+        </Card>
+        <Card as="section" padding="flush">
+          <p className={styles.hint}>Flush: no padding, for rows that bring their own.</p>
+        </Card>
+      </Section>
+
+      <Section name="IngredientCard">
+        <IngredientCard
+          name="Flour"
+          unitCost="₦1.20 / g"
+          meta="12.5 kg · ₦15,000 · updated 2 weeks ago"
+          onClick={() => {}}
+        />
+        <IngredientCard name="Ziplock bags" unitCost="₦20 / pc" meta="50 pcs · ₦1,000 · updated today" onClick={() => {}} />
+        <IngredientCard name="Egg white" unitCost={null} meta="ignored when the price is missing" onClick={() => {}} />
+        <IngredientCard name="Water" unitCost="₦0 / ml" meta="1 L · ₦0 · updated yesterday" onClick={() => {}} />
+      </Section>
+
+      <Section name="ConfirmDialog">
+        <div className={styles.row}>
+          <Button onClick={() => setDialog("in-use")}>Delete in use</Button>
+          <Button onClick={() => setDialog("unused")}>Delete unused</Button>
+        </div>
+        <ConfirmDialog
+          open={dialog === "in-use"}
+          icon="alert"
+          title="Flour is in 14 recipes"
+          body="If you delete it, those recipes will show it as missing and their totals will be incomplete."
+          affected={["Vanilla Cake", "Chocolate Cake", "Red Velvet", ...Array.from({ length: 11 }, (_, i) => `Cake ${i + 1}`)]}
+          confirmLabel="Delete anyway"
+          cancelLabel="Keep Flour"
+          layout="stack"
+          onConfirm={() => setDialog(null)}
+          onCancel={() => setDialog(null)}
+        />
+        <ConfirmDialog
+          open={dialog === "unused"}
+          icon="trash"
+          title="Delete Flour?"
+          body="This can’t be undone. No recipes use it."
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+          onConfirm={() => setDialog(null)}
+          onCancel={() => setDialog(null)}
         />
       </Section>
 
@@ -201,6 +292,11 @@ export function Gallery() {
           <p className={styles.hint}>Sheet content scrolls inside when tall. Closes on ×, a tap outside or Escape.</p>
         </BottomSheet>
       </Section>
+
+      <Section name="FAB">
+        <p className={styles.hint}>Floats at the bottom right, above the tab bar.</p>
+      </Section>
+      <FAB label="New ingredient" onClick={() => {}} />
 
       <Section name="TabBar">
         <p className={styles.hint}>Floats at the bottom of the screen (Recipes active).</p>

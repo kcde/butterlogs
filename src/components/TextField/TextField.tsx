@@ -24,6 +24,11 @@ export interface TextFieldProps {
   error?: string;
   /** Unit shown inside the right edge, e.g. "%", "g" */
   suffix?: string;
+  /**
+   * Not in the design system's props: a symbol inside the left edge, read as
+   * part of the value ("₦15,000" in the Edit ingredient mockup).
+   */
+  prefix?: string;
   /** Renders a 88px textarea (recipe notes) Default: false. */
   multiline?: boolean;
   /** name, email, new-password, current-password. */
@@ -42,6 +47,7 @@ export function TextField({
   helper,
   error,
   suffix,
+  prefix,
   multiline = false,
   autoComplete,
   onBlur,
@@ -79,10 +85,15 @@ export function TextField({
     control = (
       <textarea {...shared} className={styles.textarea} onChange={(event) => onChange(event.target.value)} />
     );
-  } else if (suffix || type === "password") {
+  } else if (prefix || suffix || type === "password") {
     control = (
       <div className={styles.wrap}>
-        {input(styles.bare)}
+        {prefix && (
+          <span className={styles.prefix} aria-hidden="true">
+            {prefix}
+          </span>
+        )}
+        {input(cx(styles.bare, prefix && styles.afterPrefix))}
         {suffix && <span className={styles.suffix}>{suffix}</span>}
         {type === "password" && (
           <IconButton

@@ -15,6 +15,10 @@ export interface BottomSheetProps {
   footer?: ReactNode;
 }
 
+// When one sheet hands over to another (New ingredient → Restock), the scrim
+// stays dimmed instead of clearing and fading in again.
+let lastClosed = Number.NEGATIVE_INFINITY;
+
 export function BottomSheet({ open, title, onClose, children, footer }: BottomSheetProps) {
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -23,8 +27,46 @@ export function BottomSheet({ open, title, onClose, children, footer }: BottomSh
   useEffect(() => {
     const element = dialog.current;
     if (!element) return;
-    if (open && !element.open) element.showModal();
-    if (!open && element.open) element.close();
+    if (open && !element.open) {
+      element.toggleAttribute("data-handoff", performance.now() - lastClosed < 100);
+      element.showModal();
+    }
+    if (!open && element.open) {
+      element.close();
+      lastClosed = performance.now();
+    }
+  }, [open]);
+
+  // Stay above the iPhone keyboard (building-in-code.md): while open, the
+  // dialog covers only the visible part of the screen, measured at runtime, so
+  // the sheet sits on top of the keyboard and its body scrolls.
+  useEffect(() => {
+    const element = dialog.current;
+    const viewport = window.visualViewport;
+    if (!open || !element || !viewport) return;
+    const fit = () => {
+      element.style.setProperty("--visible-top", `${viewport.offsetTop}px`);
+      element.style.setProperty("--visible-height", `${viewport.height}px`);
+    };
+    // A field tapped while the keyboard opens can end up under it: bring it
+    // back into view once the sheet has resized.
+    const reveal = (event: FocusEvent) => {
+      const field = event.target;
+      if (field instanceof HTMLElement && field.matches("input, select, textarea")) {
+        setTimeout(() => field.scrollIntoView({ block: "nearest" }), 300);
+      }
+    };
+    fit();
+    viewport.addEventListener("resize", fit);
+    viewport.addEventListener("scroll", fit);
+    element.addEventListener("focusin", reveal);
+    return () => {
+      viewport.removeEventListener("resize", fit);
+      viewport.removeEventListener("scroll", fit);
+      element.removeEventListener("focusin", reveal);
+      element.style.removeProperty("--visible-top");
+      element.style.removeProperty("--visible-height");
+    };
   }, [open]);
 
   // The dialog fills the screen and is the scrim; a tap outside the panel lands on it.

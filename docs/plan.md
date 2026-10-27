@@ -16,7 +16,7 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M1 | Offline spike on an iPhone | F8 (proof) | Done | 19 Oct 2026 |
 | M2 | Full data model | All (data) | Done | 19 Oct 2026 |
 | M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
-| M4 | Ingredients | F3 | Not started | |
+| M4 | Ingredients | F3 | Done | 27 Oct 2026 |
 | M5 | Create recipes | F2, F4, F5, F7 | Not started | |
 | M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
 | M7 | Change and delete recipes | F4, F5 | Not started | |
@@ -233,31 +233,39 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 **Goal:** she can manage her full ingredient list, offline.
 
-**PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients.
+**PRD:** F3, §4. **Screens:** Ingredients, IngredientsDark, IngredientSheet, Restock (no mockup), DeleteIngredient, EmptyIngredients.
 
-**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card
+**Components** (first needed here): SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card (confirmed against the mockups in plan mode, 25 Oct)
 
 **Maths**
-- [ ] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
-- [ ] Ingredient cost per unit = pack price ÷ pack size converted to the measuring unit; missing if price or size is empty or the ingredient is deleted; ₦0 is a real price
-- [ ] Unit change on an ingredient converts its recipe line amounts so costs don't change
-- [ ] `format.ts`: cost per unit (2 decimals), amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2), a space before units; missing price never formats as ₦0
-- [ ] §9 fixtures: ₦15,000 / 12.5 kg → ₦1.20 per g; ₦1,000 / 50 pcs; ₦0 vs empty
+- [x] `units.ts`: unit list and kinds: weight (g, kg, oz, lb), volume (ml, l, fl oz, tsp, tbsp, cup US), count (pcs); convert within a kind with the §4 factors; refuse across kinds
+- [x] Ingredient cost per unit = pack price ÷ pack size converted to the measuring unit; missing if price or size is empty or the ingredient is deleted; ₦0 is a real price
+- [x] Unit change on an ingredient converts its recipe line amounts so costs don't change (the maths; the database side is under Screens)
+- [x] `format.ts`: cost per unit (2 decimals, whole amounts without ".00"), pack sizes (up to 2 decimals), "updated … ago", a space before units; missing price never formats as ₦0. Recipe amounts (≥10 whole; <10 up to 2 decimals; pieces) moved to M5, where the first screen shows them
+- [x] §9 fixtures: ₦15,000 / 12.5 kg → ₦1.20 per g; ₦1,000 / 50 pcs; ₦0 vs empty
+- [x] `search.ts`: search by name ignoring capitals and accents; A to Z order
 
 **Screens**
-- [ ] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add
-- [ ] *EmptyIngredients*: "Add your first ingredient"
-- [ ] *IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes; "Works out to ₦1.20 per g"; "Price last updated"
-- [ ] Validation in the app: name unique among non-deleted ingredients ignoring capitals; pack size unit must be the same kind as the unit
-- [ ] Empty price = missing; ₦0 saves as a real price
-- [ ] `price_updated_at` set when price, size or size unit changes
-- [ ] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (tested now; seen on screen from M5)
-- [ ] *DeleteIngredient*: soft delete; when in use, warns with the recipe list ("Flour is in 14 recipes")
-- [ ] Money entered in whole currency units and stored in minor units
+- [x] *Ingredients*: list with search by name, "add price" on missing prices, FAB to add (A to Z)
+- [x] *EmptyIngredients*: "Add your first ingredient"
+- [x] ~~*IngredientSheet* (add and edit): name, unit, pack price, pack size, pack size unit, notes~~ (split into the two sheets below, 25 Oct)
+- [x] *IngredientSheet* (add and edit): name, "I measure it in", notes; "Works out to ₦1.20 per g"; "Last bought 12.5 kg for ₦15,000, 2 weeks ago · Used in 14 recipes"; Restock button (edits saved first)
+- [x] *Restock* (no mockup): "Quantity bought" + unit (same kind as "I measure it in"), "Price paid", both required; starts with the last amount and unit and an empty price; "Works out to"; opens straight after saving a new ingredient
+- [x] Validation in the app: name unique among non-deleted ingredients ignoring capitals
+- [x] Never restocked = missing; ₦0 saves as a real price
+- [x] `price_updated_at` set on every restock, even at the same price
+- [x] Changing the unit within the same kind converts every recipe line for that ingredient in the same transaction (tested now; seen on screen from M5)
+- [x] *DeleteIngredient*: soft delete; when in use, warns with the recipe list ("Flour is in 14 recipes"); when unused, asks first
+- [x] Money entered in whole currency units and stored in minor units
 
-**Done when:** on Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
+**Done when:** on Keside's iPhone, offline, Flour restocked at ₦15,000 for 12.5 kg shows "₦1.20 / g", and missing and ₦0 behave differently.
 
 **Notes**
+- 25 Oct 2026: built and passing typecheck, lint, unit tests (100% of `src/lib`, plus the phone's ingredient writes against a local PowerSync database) and the Playwright flows in light and dark with axe: add, missing vs ₦0, unique names, search, edit, a unit change converting a recipe line on the server, both delete dialogs, and adding offline. Agreed in plan mode: cost per unit drops ".00" on whole amounts, the list is A to Z, and deleting an unused ingredient asks first. Small calls: the card's detail line has no "bag" (no field holds it); litres show as "L"; the ₦ sits inside the price box. Design system gaps: TextField has no `prefix` prop and Card's `as="a"` has no `href`; both are noted in the code. BottomSheet now follows `visualViewport` so a sheet with fields stays above the iPhone keyboard. Waiting on the iPhone check (keyboard over the sheet, and whether a focus ring shows on the sheet's close button when it opens).
+- 25 Oct 2026: split adding from pricing, after Keside found the one sheet confusing ("I measure it in" next to "Pack size" read like "price per…", and a new purchase meant overwriting the ingredient). Adding an ingredient asks only its name, "I measure it in" and notes; what she paid goes through **Restock** ("Amount bought", "Price paid"), which opens straight after a new ingredient is saved and from the ingredient's sheet. No "pack" on screen, since not everything comes in a pack. No schema change: the `pack_` columns hold the last restock. Agreed in plan mode: tapping a card opens the ingredient (with a Restock button); Restock starts from the last amount with the price empty. The *IngredientSheet* mockup no longer matches on fields, and Restock has no mockup; it's built from the same parts, and the e2e screenshots are the reference. Waiting on the iPhone check.
+- 26 Oct 2026: Restock's first field is "Quantity bought" (was "Amount bought"): in Nigeria "amount" usually means money. "Price paid" stays.
+- 27 Oct 2026: iPhone check passed. Keside found sheets jarring to open ("goes up first then jumps down"). Cause: showModal() focuses the × while the sheet is still below the screen, so the dialog scrolled to it; the scroll pushed the sliding sheet too high, then reset when the slide ended. The dialog no longer scrolls (`overflow: clip`). The slide now uses iOS's sheet curve over 500 ms, the scrim fades in with it, and it stays dimmed when one sheet hands over to another (New ingredient → Restock). Closing is still instant.
+- 27 Oct 2026: done. On Keside's iPhone (preview, airplane mode): Flour restocked at ₦15,000 for 12.5 kg shows "₦1.20 / g", and a full bag at ₦56,000 for 50 kg "₦1.12 / g"; restocking starts from the last quantity with the price empty; Egg white with no restock shows "add price"; Water at ₦0 shows "₦0 / ml"; fields reachable with the keyboard up; "All synced" back online; dark mode. Sheets open smoothly after the fix. Not built: a slide-down when a sheet closes (closing is instant), and swipe to close (not in the MVP). Next: M5, create recipes.
 
 ---
 
@@ -270,6 +278,7 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 **Components** (first needed here): StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast
 
 **Maths**
+- [ ] `format.ts`: recipe amounts (≥10 whole with separator; <10 up to 2 decimals), pieces (up to 2) (moved from M4: the first screens that show amounts are here)
 - [ ] Ingredient line cost = amount × cost per unit
 - [ ] Sub-recipe line cost = amount × (sub-recipe ingredient cost ÷ its yield in g or pcs); missing if the sub-recipe is deleted or has any missing line; ingredients only (no overhead or markup carried in)
 - [ ] Recipe ingredient total (every line, including sub-recipe lines) and an incomplete flag with a count of missing lines

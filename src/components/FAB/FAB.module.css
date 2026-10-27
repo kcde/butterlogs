@@ -1,0 +1,32 @@
+/* Ported from ba-fab in the design system's bundle.css. 16px from the right of
+   the screen (or of the 480px column on a wider one) and 24px above the tab bar,
+   which keeps it clear of the home indicator: 112px from the bottom on a phone
+   without one, as in the mockups. */
+.fab {
+  position: fixed;
+  right: max(var(--space-4), calc((100vw - 480px) / 2 + var(--space-4)));
+  bottom: calc(max(24px, var(--safe-bottom)) + var(--tabbar-height) + 24px);
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  width: var(--fab-size);
+  height: var(--fab-size);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--caramel);
+  color: var(--on-caramel);
+  box-shadow: var(--shadow-float);
+  cursor: pointer;
+  transition: transform 100ms ease;
+}
+
+.fab:active {
+  transform: scale(0.95);
+}
+
+.fab svg {
+  width: 28px;
+  height: 28px;
+  stroke-width: 2;
+}
