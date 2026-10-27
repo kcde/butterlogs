@@ -392,3 +392,31 @@ test("a recipe made offline syncs when the phone is back online", async ({ page,
     })
     .toEqual([1, [{ amount: 350 }], [{ amount_minor: 50_000 }]]);
 });
+
+test("dragging a line's grip moves it, and the order is saved", async ({ page }) => {
+  const user = await createTestUser();
+  await addIngredients(user, VANILLA_CAKE_INGREDIENTS.slice(0, 3));
+  await signInDirectly(page, user);
+  await startRecipe(page);
+  await basics(page, { name: "Plain Cake", weight: "750" });
+  await next(page, "Ingredients");
+  await page.getByRole("button", { name: "Add ingredients" }).click();
+  await tick(page, ["Sugar", "Flour", "Baking powder"], "Add 3 ingredients");
+  const order = () =>
+    page.getByRole("textbox", { name: / amount$/ }).evaluateAll((boxes) => boxes.map((box) => box.getAttribute("aria-label")));
+  expect(await order()).toEqual(["Sugar amount", "Flour amount", "Baking powder amount"]);
+
+  // Sugar's grip, dragged down past the other two in small steps, as a finger would.
+  const grip = await page.getByRole("button", { name: "Move Sugar up or down" }).boundingBox();
+  const last = await page.getByRole("button", { name: "Move Baking powder up or down" }).boundingBox();
+  if (!grip || !last) throw new Error("no grips");
+  await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(grip.x + grip.width / 2, last.y + last.height, { steps: 12 });
+  await page.mouse.up();
+  await expect.poll(order).toEqual(["Flour amount", "Baking powder amount", "Sugar amount"]);
+
+  // ↑ on a grip moves it one place.
+  await page.getByRole("button", { name: "Move Sugar up or down" }).press("ArrowUp");
+  await expect.poll(order).toEqual(["Flour amount", "Sugar amount", "Baking powder amount"]);
+});
