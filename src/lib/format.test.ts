@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatAmount,
   formatInputNumber,
   formatMoney,
   formatPackSize,
+  formatRecipeUnitCost,
   formatUnitCost,
   formatUpdated,
   parseTimestamp,
@@ -137,5 +139,39 @@ describe("formatUpdated", () => {
 
   it("returns null when the stored text isn't a time", () => {
     expect(formatUpdated("not a time", now)).toBeNull();
+  });
+});
+
+describe("formatRecipeUnitCost", () => {
+  it("shows the cost per gram with 2 decimals and no spaces (Main.dc.html)", () => {
+    expect(formatRecipeUnitCost(685.819, "NGN", "g")).toBe("₦6.86/g");
+    expect(formatRecipeUnitCost(998, "NGN", "g")).toBe("₦9.98/g");
+    expect(formatRecipeUnitCost(4_000, "NGN", "g")).toBe("₦40/g");
+  });
+
+  it("shows the cost each in whole money", () => {
+    expect(formatRecipeUnitCost(89_925, "NGN", "each")).toBe("₦899 each");
+    expect(formatRecipeUnitCost(150_000, "USD", "each")).toBe("$1,500 each");
+  });
+});
+
+describe("formatAmount", () => {
+  it("shows 10 or more as a whole number with a separator (PRD §4)", () => {
+    expect(formatAmount(833.33, "g")).toBe("833 g");
+    expect(formatAmount(1_500, "g")).toBe("1,500 g");
+    expect(formatAmount(203.2, "ml")).toBe("203 ml");
+  });
+
+  it("shows under 10 with up to 2 decimals", () => {
+    expect(formatAmount(2.6667, "g")).toBe("2.67 g");
+    expect(formatAmount(1.5, "g")).toBe("1.5 g");
+    expect(formatAmount(6, "tsp")).toBe("6 tsp");
+  });
+
+  it("shows pieces with up to 2 decimals, whatever the size", () => {
+    expect(formatAmount(1.6, "pcs")).toBe("1.6 pcs");
+    expect(formatAmount(24, "pcs")).toBe("24 pcs");
+    expect(formatAmount(36.125, "pcs")).toBe("36.13 pcs");
+    expect(formatAmount(1, "pcs")).toBe("1 pc");
   });
 });

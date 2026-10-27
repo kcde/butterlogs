@@ -55,6 +55,29 @@ export function formatUnitCost(minorPerUnit: number, currency: CurrencyCode, uni
   return `${money} ${joiner} ${unitLabel(unit, 1)}`;
 }
 
+/**
+ * A recipe's cost per gram or per piece (Main.dc.html): "₦6.86/g" (2 decimals,
+ * a whole amount drops ".00"), or "₦899 each" in whole money.
+ */
+export function formatRecipeUnitCost(minor: number, currency: CurrencyCode, per: "g" | "each") {
+  if (per === "each") return `${formatMoney(minor, currency)} each`;
+  const rounded = Math.round(minor);
+  return `${unitCostFormat(currency, rounded % 100 === 0 ? 0 : 2).format(rounded / 100)}/g`;
+}
+
+const wholeFormat = new Intl.NumberFormat("en", { maximumFractionDigits: 0 });
+const twoDecimalsFormat = new Intl.NumberFormat("en", { maximumFractionDigits: 2 });
+
+/**
+ * A recipe amount (PRD §4): 10 or more → whole ("833 g", "1,500 g"); under 10
+ * → up to 2 decimals ("2.67 g"); pieces always up to 2 ("1.6 pcs", "24 pcs").
+ */
+export function formatAmount(amount: number, unit: Unit) {
+  const whole = unit !== "pcs" && Math.abs(amount) >= 10;
+  const rounded = whole ? Math.round(amount) : Math.round(amount * 100) / 100;
+  return `${(whole ? wholeFormat : twoDecimalsFormat).format(rounded)} ${unitLabel(unit, rounded)}`;
+}
+
 const packSizeFormat = new Intl.NumberFormat("en", { maximumFractionDigits: 2 });
 
 /** A pack size as she typed it, up to 2 decimals, with its unit: "12.5 kg", "1,000 g", "1 pc", "1 L". */
