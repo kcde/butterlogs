@@ -5,8 +5,8 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 - Work one milestone at a time. Don't start the next until Keside says go.
 - Tick tasks as they're done. When a milestone finishes, set its status, add the date, and write 2–3 lines in its **Notes**.
 - If a task here and the PRD disagree, the PRD wins. Fix this file.
-- Screens are named by their mockup file (`Recipe.dc.html` → *Recipe*). Components are named as in the design system.
-- From M3 on, each milestone is a vertical slice: components, maths and screens for one part of the app, checked on Keside's iPhone (see "How each milestone from M3 on is built").
+- Screens are named by their mockup file (`Recipe.dc.html` → *Recipe*); laptop files end in `Laptop` (*RecipeLaptop*). Components are named as in the design system.
+- From M3 on, each milestone is a vertical slice: components, maths and screens for one part of the app, checked on Keside's iPhone, and from M6 on her laptop too (see "How each milestone from M3 on is built").
 
 ## Status
 
@@ -18,12 +18,13 @@ The detailed version of PRD section 8. The PRD says **what** to build; this file
 | M3 | Foundation and getting started | F1, F7, F9 | Done | 20 Oct 2026 |
 | M4 | Ingredients | F3 | Done | 27 Oct 2026 |
 | M5 | Create recipes | F2, F4, F5, F7 | Done | 27 Oct 2026 |
-| M6 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
-| M7 | Change and delete recipes | F4, F5 | Not started | |
-| M8 | Settings and sync | F1, F2, F4, F8, F9 | Not started | |
-| M9 | Load her spreadsheet | — | Not started | |
-| M10 | Hardening | F6, F8, F9 | Not started | |
-| M11 | Pilot | — | Not started | |
+| M6 | Keep-alive and the responsive shell | F1, F3, F4, F5, F9, F10 | Not started | |
+| M7 | Recipe screen (the calculator) | F5, F6, F7 | Not started | |
+| M8 | Change and delete recipes | F4, F5 | Not started | |
+| M9 | Settings and sync | F1, F2, F4, F8, F9 | Not started | |
+| M10 | Load her spreadsheet | — | Not started | |
+| M11 | Hardening | F6, F8, F9 | Not started | |
+| M12 | Pilot | — | Not started | |
 
 Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
@@ -158,13 +159,13 @@ Statuses: Not started · In progress · Done · Blocked (say why in Notes).
 
 ## How each milestone from M3 on is built
 
-Each milestone is a **vertical slice**: one part of the app, built all the way through and checked on a real phone. Nothing is built ahead of the screen that needs it.
+Each milestone is a **vertical slice**: one part of the app, built all the way through and checked on a real phone (and, from M6, a laptop). Nothing is built ahead of the screen that needs it.
 
 Every slice includes:
 - **Components** its screens use first: ported from the `ba-` blocks in `bundle.css`, with props exactly as in `index.d.ts`, and added to `/dev/components` with their states. The list under each milestone is a starting point; it's confirmed against the mockups in plan mode before the milestone starts.
 - **Maths** its screens need, in `src/lib/calc`, `units.ts` or `format.ts`, as pure functions with Vitest tests, including any PRD §9 fixtures it covers. Full coverage of `src/lib/` throughout.
-- **Screens**, matched to their mockups at 390 × 844 in light and dark.
-- **Checks**: typecheck, lint, tests; a Playwright run of the slice's flow with axe; works offline; deployed to Vercel and checked on Keside's iPhone.
+- **Screens**, matched to their mockups in light and dark: at 390 × 844 for M3–M5; from M6 at 1440, 1024, 834 and 390 wide (laptop, laptop edge, tablet, phone).
+- **Checks**: typecheck, lint, tests; a Playwright run of the slice's flow with axe; works offline; deployed to Vercel and checked on Keside's iPhone (and, from M6, her laptop).
 
 Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, never both. Icon-only buttons require `label`. Native `<dialog>` with `showModal()`, `<select>`, `<input type="checkbox">`. No inline styles, no hex values. Components only display pre-formatted text.
 
@@ -331,13 +332,68 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 ---
 
-## M6 — Recipe screen (the calculator)
+## M6 — Keep-alive and the responsive shell
+
+**Goal:** the app works as a dashboard on a laptop, an icon rail on a tablet and a tab bar on a phone, everything built so far fits every size, and the free tiers never pause.
+
+**Why now:** on 5 Nov 2026 Butterlogs became a responsive web app (PRD §1 Platform, F9, F10). Every later screen is built at every size, so the shell comes first. The keep-alive moves here from Hardening: nothing stops Supabase and PowerSync pausing until it runs.
+
+**PRD:** §5 (keep-alive), F1, F3, F4, F5 (layouts), F9, F10. **Screens:** Sidebar, TabBar, NewMenuLaptop / NewMenu, WelcomeLaptop, SignUpLaptop / LogInLaptop (layout only: email codes stay), SetupLaptop, IngredientsLaptop, IngredientSheetLaptop (layout only: Restock stays), DeleteIngredientLaptop, RecipesLaptop, RecipesTablet, NewRecipe1–3Laptop, AddIngredientsLaptop, HomeStartLaptop / HomeStart, HomeLaptop / Home, HomeDarkLaptop, LoadingLaptop (placeholder rows).
+
+**Components** (first needed here): AppShell, Sidebar, DataTable, SetupChecklist, ListGroup (StatTile is from M5); TabBar and BottomSheet updated to their new versions
+
+**Keep-alive**
+- [ ] Migration: `heartbeat` table (RLS on, no policies, not in the sync streams)
+- [ ] Keep-alive Supabase user, in no business; `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `KEEPALIVE_EMAIL`, `KEEPALIVE_PASSWORD` in `.env.local` and Vercel (Keside)
+- [ ] `GET /api/keep-alive`: secret check (401 otherwise) → heartbeat upsert → one PowerSync sync request as the keep-alive user → `{ supabase, powersync, at }`; a failed step goes to Sentry with its name
+- [ ] Vercel Cron in `vercel.json` and a scheduled GitHub Action, about 12 hours apart
+- [ ] Tests: 401 without the secret, ok with it
+
+**Tokens and shell**
+- [ ] `npm run tokens` from the new `tokens.json` (breakpoints 768, 1024, 1280)
+- [ ] AppShell: sidebar from 1024px, icon rail 768–1023px, tab bar under 768px; resizing keeps what's on screen
+- [ ] Sidebar: Butterlogs · New · Home · Recipes · Ingredients · Settings; sync status and the business at the bottom (the business opens Settings); collapses to the rail, remembered on that device
+- [ ] TabBar: Home · Recipes · + · Ingredients · Settings
+- [ ] New menu (centred dialog on laptop, sheet on phones): New recipe · New ingredient; replaces the FAB on Recipes and Ingredients
+- [ ] BottomSheet: a sheet on phones; on laptop and tablet a side panel (editing) or a small centred dialog (quick choices, confirmations), no grab handle
+- [ ] DataTable: sortable columns, extra columns from 1,280px, fewer on tablet
+
+**Screens built in M3–M5, at every size**
+- [ ] Welcome, the email and code screens, Setup: one centred column, no sidebar or tab bar
+- [ ] *IngredientsLaptop*: table (A to Z, "add price" on missing prices, search); cards stay on phones
+- [ ] *IngredientSheetLaptop*: side panel with the row highlighted, clicking another row switches to it, "Discard changes?" first when there are unsaved edits; Restock replaces the ingredient in the same panel, with a back arrow (open question 7)
+- [ ] *DeleteIngredientLaptop*: centred dialog
+- [ ] *RecipesLaptop* / *RecipesTablet*: table with category chips and search; drafts as rows with the "Draft" tag
+- [ ] *NewRecipe1–3Laptop*: the sidebar stays, the flow takes over the page (640px column); phones hide the tab bar
+- [ ] *AddIngredientsLaptop*: side panel; CategoryPicker and the overhead sheet as dialogs
+- [ ] Empty states at every size
+
+**Home**
+- [ ] *HomeStartLaptop* / *HomeStart*: SetupChecklist (business set up · add your ingredients · add your first recipe), each step done when it has happened
+- [ ] Once all three are done, a "checklist finished" flag on that device keeps it gone; without the flag it's worked out from the data
+- [ ] Setup and sign-in land on Home; Install guide offered on phones only
+- [ ] *HomeLaptop* / *Home*: four counts as StatTiles (Recipes · Ingredients · Missing prices · Incomplete recipes), each a link; drafts not counted
+- [ ] Needs attention: ingredients without a price, deleted ingredients or sub-recipes still in use, each with its fix; "Nothing needs attention."
+- [ ] Recently edited recipes (3–5) and recently changed prices (5); no drafts; recipes open the recipe from M7, as on the Recipes list
+- [ ] Laptop: counts in a row, then two columns; phone: stacked
+
+**Checks**
+- [ ] Playwright at 1440 × 900, 1024 × 768, 834 × 1194 and 390 × 844, light and dark; no sideways page scroll
+- [ ] On Keside's laptop (Chrome and Safari) and iPhone, offline
+
+**Done when:** `/api/keep-alive` returns ok with the secret and 401 without it; every M3–M5 screen matches its mockup at 1440, 1024, 834 and 390px on Keside's laptop and iPhone; a new user lands on Home with the checklist; Home counts match the data.
+
+**Notes**
+
+---
+
+## M7 — Recipe screen (the calculator)
 
 **Goal:** opening a recipe shows its ingredients and costs, and scales them.
 
-**PRD:** F5 (view), F6, F7. **Screens:** Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeSaved.
+**PRD:** F5 (view), F6, F7. **Screens:** RecipeLaptop / Recipe, RecipeDarkLaptop / RecipeDark, RecipeCosts, RecipeSubLaptop / RecipeSub, CookieRecipeLaptop / CookieRecipe, RecipeSaved.
 
-**Components** (first needed here): ScaleBar, Switch, IngredientRow, CostLine, StatTile, WarningBanner
+**Components** (first needed here): ScaleBar, Switch, IngredientRow, CostLine
 
 **Maths**
 - [ ] Multiplier from weight, from count, or typed; which fields the yield supports
@@ -350,54 +406,56 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [ ] Title block: name, category tag, base yield
 - [ ] ScaleBar: × multiplier, grams and pieces linked; unsupported field hidden with its note ("Add the dough weight to scale by grams")
 - [ ] "Scaled ×0.533" + Reset; "Show the maths" toggle ("800 g ÷ 1,500 g = ×0.533")
-- [ ] Ingredients tab: one card per section, scaled amounts and line costs; deleted ingredient lines show "Flour was deleted"
+- [ ] Laptop: ingredients on the left, stat tiles, costs and price on the right; below 1024px Ingredients / Costs tabs
+- [ ] Ingredients: one card per section, scaled amounts and line costs; deleted ingredient lines show "Flour was deleted"
 - [ ] *RecipeSub*: sub-recipe lines open inline with their scaled ingredients
 - [ ] *CookieRecipe*: count-yield recipe, per-piece supplies scale
-- [ ] *RecipeCosts*: ingredient total, overhead lines, total cost, per piece / per gram, price with method, profit, margin
+- [ ] *RecipeCosts*: ingredient total, overhead lines, total cost, per piece / per gram, price with method, profit, margin, per piece; no Markup row for any method
 - [ ] Overhead editable for this calculation only: "edited" tag + reset; deleted items show "(deleted)" and still count
 - [ ] Set price and fixed profit editable in the calculator
 - [ ] WarningBanner and greyed totals when incomplete ("Incomplete: 1 ingredient has no price")
 - [ ] StatTile grid
 - [ ] Nothing saved; leaving returns to ×1
-- [ ] Wake Lock while the recipe is open
+- [ ] Wake Lock while the recipe is open (phones and tablets)
 - [ ] *RecipeSaved*: saving a new recipe opens it at ×1 with the "saved" toast; RecipeCards open the recipe
 
-**Done when:** on Keside's iPhone, the Vanilla Cake fixtures show on screen (₦10,287 at ×1; ₦7,983 at 800 g, priced ₦11,975), and editing overhead doesn't change the saved recipe.
+**Done when:** on Keside's iPhone and laptop, the Vanilla Cake fixtures show on screen (₦10,287 at ×1; ₦7,983 at 800 g, priced ₦11,975), and editing overhead doesn't change the saved recipe.
 
 **Notes**
 
 ---
 
-## M7 — Change and delete recipes
+## M8 — Change and delete recipes
 
 **Goal:** she can edit, recategorise and delete recipes safely.
 
-**PRD:** F4 (change category), F5 (edit, delete). **Screens:** RecipeMenu, EditRecipe, DiscardChanges, DeleteRecipe, DeleteRecipeInUse.
+**PRD:** F4 (change category), F5 (edit, delete). **Screens:** RecipeMenuLaptop / RecipeMenu, EditRecipeLaptop / EditRecipe, DiscardChangesLaptop / DiscardChanges, DeleteRecipe, DeleteRecipeInUseLaptop / DeleteRecipeInUse.
 
 **Components** (first needed here): ActionSheet, CollapsibleSection
 
-- [ ] *RecipeMenu*: Edit recipe · Change category · Delete recipe
+- [ ] *RecipeMenu*: Edit recipe · Change category · Delete recipe; on laptop, Edit recipe is a header button and the menu holds the other two
 - [ ] *EditRecipe*: one page, collapsible Basics / Ingredients / Overhead & price; sections and lines reorderable (moving whole sections moved here from M5); same validation as M5
 - [ ] *DiscardChanges* on close with unsaved changes
 - [ ] *DeleteRecipe*: confirm, soft delete
 - [ ] *DeleteRecipeInUse*: lists recipes that use it; their lines then show "Salted Caramel was deleted" and totals go incomplete
 
-**Done when:** on Keside's iPhone, an edit made offline syncs, and deleting a sub-recipe in use marks the recipes that use it incomplete.
+**Done when:** on Keside's iPhone and laptop, an edit made offline syncs, and deleting a sub-recipe in use marks the recipes that use it incomplete.
 
 **Notes**
 
 ---
 
-## M8 — Settings and sync
+## M9 — Settings and sync
 
 **Goal:** everything around the recipes: settings, lists, sync details and signing out.
 
-**PRD:** F1, F2, F4, F8, F9. **Screens:** Settings, SettingsDark, OverheadItems, Categories, SyncSheet, SignOut, Loading.
+**PRD:** F1, F2, F4, F8, F9. **Screens:** SettingsLaptop / Settings, SettingsDark, CurrencyLaptop, OverheadItemsLaptop / OverheadItems, CategoriesLaptop / Categories, SyncLaptop / SyncSheet, SignOutLaptop / SignOut, LoadingLaptop / Loading.
 
-**Components** (first needed here): ListGroup, Skeleton
+**Components** (first needed here): Skeleton
 
 **Settings**
 - [ ] *Settings*: Business (name, currency, default pricing) · Recipes (overhead items, categories) · App (install on iPhone) · Account (email, sign out; no change password, so the mockup's row is left out)
+- [ ] Each Business row opens a small dialog (sheet on phones) with that field and Save (*CurrencyLaptop*)
 - [ ] Changing currency changes display only; amounts never convert
 
 **Lists**
@@ -405,22 +463,22 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 - [ ] *Categories*: create, rename, reorder, delete; deleting moves its recipes to Uncategorised (cleared locally in the same transaction)
 
 **Sync**
-- [ ] SyncStatus pill opens the sheet when changes wait; "All synced" fades
-- [ ] *SyncSheet*: waiting changes (what and when), last sync time
+- [ ] Sync status at the bottom of the sidebar (laptop, tablet) and as a pill on phones ("All synced" fades); opens the sheet when changes wait
+- [ ] *SyncLaptop* (side panel) / *SyncSheet*: waiting changes (what and when), last sync time
 - [ ] A dropped (rejected) change is explained to her in plain words
 - [ ] *SignOut*: simple confirm when nothing waits; warning with "Stay signed in" / "Sign out anyway" when changes wait; clears the local copy
 
 **States**
-- [ ] *Loading*: skeleton cards, only before the first sync
+- [ ] *Loading*: skeleton rows (laptop) or cards (phone), only before the first sync
 - [ ] Dark mode pass on every screen
 
-**Done when:** on Keside's iPhone, the sign-out warning appears with changes waiting, and every screen has been checked in dark mode.
+**Done when:** on Keside's iPhone and laptop, the sign-out warning appears with changes waiting, and every screen has been checked in dark mode.
 
 **Notes**
 
 ---
 
-## M9 — Load her spreadsheet
+## M10 — Load her spreadsheet
 
 **Goal:** her account opens with her ingredients and finished cakes in place.
 
@@ -441,33 +499,34 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 ---
 
-## M10 — Hardening
+## M11 — Hardening
 
-**Goal:** ready for real use on her phone.
+**Goal:** ready for real use on her phone and laptop.
 
 **PRD:** §5 hosting, F6, F8, F9, §11.
 
 - [x] Sentry SDK: client, server and edge errors, global error page (done early, in M0)
 - [x] Permanently rejected uploads reported to Sentry
 - [ ] Source maps upload on Vercel builds (`SENTRY_AUTH_TOKEN` in Vercel); production stack traces readable
-- [ ] Daily keep-alive (Vercel cron or GitHub Action) for Supabase and PowerSync
+- [ ] Sentry alerts; the keep-alive (M6) still running every day
 - [ ] Playwright end-to-end: sign up → setup → ingredient → recipe → scale (joins the slice flows)
 - [ ] Playwright offline tests: add and edit offline, then sync
-- [ ] Screenshot comparison with every mockup at 390 × 844, light and dark
+- [ ] Screenshot comparison with every mockup at 1440 × 900, 834 × 1194 and 390 × 844, light and dark
 - [ ] axe on every screen
 - [ ] Her-phone pass: ₦, tabular numbers, keyboard (ActionBar and sheets above it), safe areas, Wake Lock, install guide
+- [ ] Laptop pass in Chrome and Safari
 
-**Done when:** no failing checks, and ₦ renders on her phone.
+**Done when:** no failing checks, and ₦ renders on her phone and laptop.
 
 **Notes**
 
 ---
 
-## M11 — Pilot
+## M12 — Pilot
 
 **Goal:** she uses it for real for 1–2 weeks.
 
-- [ ] Her account loaded (M9) and app installed on her phone
+- [ ] Her account loaded (M10) and app installed on her phone (and laptop, if she uses one)
 - [ ] Testers invited (empty accounts with starter overhead items)
 - [ ] Issues logged in this section as they come in, and fixed
 
@@ -483,37 +542,40 @@ Component rules (all slices): `href` → `next/link`, `onClick` → `<button>`, 
 
 | Feature | Milestones |
 |---|---|
-| F1 Account and business | M2 (`create_business`), M3, M8 (settings) |
-| F2 Overhead items | M2 (starter items), M5 (pick, maths), M6 (edit in calculator), M8 (manage) |
-| F3 Ingredients | M4 |
-| F4 Categories | M5 (chips, picker), M7 (change), M8 (manage) |
-| F5 Recipes | M5 (create), M6 (view), M7 (edit, delete) |
-| F6 Scaling calculator | M6 |
-| F7 Pricing methods | M3 (maths, default), M5, M6 |
-| F8 Offline and sync | M1, M2, M3 (pill), every slice (works offline), M8, M10 |
-| F9 App shell and install | M1 (PWA), M3, M8, M10 |
+| F1 Account and business | M2 (`create_business`), M3, M6 (laptop), M9 (settings) |
+| F2 Overhead items | M2 (starter items), M5 (pick, maths), M7 (edit in calculator), M9 (manage) |
+| F3 Ingredients | M4, M6 (table, side panel) |
+| F4 Categories | M5 (chips, picker), M6 (laptop), M8 (change), M9 (manage) |
+| F5 Recipes | M5 (create), M6 (laptop), M7 (view), M8 (edit, delete) |
+| F6 Scaling calculator | M7 |
+| F7 Pricing methods | M3 (maths, default), M5, M7 |
+| F8 Offline and sync | M1, M2, M3 (pill), every slice (works offline), M9 (sidebar status, sheet), M11 |
+| F9 App shell, navigation and install | M1 (PWA), M3, M6 (sidebar, rail, tab bar, New menu), M9, M11 |
+| F10 Home | M6 |
 
-**Screens → milestones** (all 39 mockups)
+**Screens → milestones** (phone mockups, and from M6 their laptop versions)
 
 | Milestone | Screens |
 |---|---|
 | M3 | Welcome, Setup, InstallGuide, EmptyRecipes, TabBar; email and code screens in place of SignUp and LogIn (ForgotPassword not built) |
 | M4 | Ingredients, IngredientsDark, IngredientSheet, DeleteIngredient, EmptyIngredients |
 | M5 | NewRecipe1, NewRecipe2, NewRecipe3, CategoryPicker, AddIngredients, Main, RecipesDark |
-| M6 | Recipe, RecipeDark, RecipeCosts, RecipeSub, CookieRecipe, RecipeSaved |
-| M7 | RecipeMenu, EditRecipe, DiscardChanges, DeleteRecipe, DeleteRecipeInUse |
-| M8 | Settings, SettingsDark, OverheadItems, Categories, SyncSheet, SignOut, Loading |
+| M6 | Sidebar, TabBar (new), NewMenuLaptop, NewMenu, WelcomeLaptop, SignUpLaptop, LogInLaptop, SetupLaptop, IngredientsLaptop, IngredientSheetLaptop, DeleteIngredientLaptop, RecipesLaptop, RecipesTablet, NewRecipe1–3Laptop, AddIngredientsLaptop, HomeStartLaptop, HomeStart, HomeLaptop, Home, HomeDarkLaptop |
+| M7 | RecipeLaptop, Recipe, RecipeDarkLaptop, RecipeDark, RecipeCosts, RecipeSubLaptop, RecipeSub, CookieRecipeLaptop, CookieRecipe, RecipeSaved |
+| M8 | RecipeMenuLaptop, RecipeMenu, EditRecipeLaptop, EditRecipe, DiscardChangesLaptop, DiscardChanges, DeleteRecipe, DeleteRecipeInUseLaptop, DeleteRecipeInUse |
+| M9 | SettingsLaptop, Settings, SettingsDark, CurrencyLaptop, OverheadItemsLaptop, OverheadItems, CategoriesLaptop, Categories, SyncLaptop, SyncSheet, SignOutLaptop, SignOut, LoadingLaptop, Loading |
 
-**Components → milestones** (all 38)
+**Components → milestones** (all 42)
 
 | Milestone | Components |
 |---|---|
 | M3 | TopBar, TabBar, Button, IconButton, TextField, SelectField, ChoiceGrid, BottomSheet, StepList, EmptyState, Notice, SyncStatus; plus CodeField (not in the design system yet) |
 | M4 | SearchField, FAB, IngredientCard, ConfirmDialog, AmountField, Card |
-| M5 | StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast |
-| M6 | ScaleBar, Switch, IngredientRow, CostLine, StatTile, WarningBanner |
-| M7 | ActionSheet, CollapsibleSection |
-| M8 | ListGroup, Skeleton |
+| M5 | StepIndicator, ActionBar, SegmentedControl, EditLineRow, CheckRow, RadioList, RecipeCard, Chip, Tag, Toast, StatTile, WarningBanner |
+| M6 | AppShell, Sidebar, DataTable, SetupChecklist, ListGroup; TabBar and BottomSheet updated |
+| M7 | ScaleBar, Switch, IngredientRow, CostLine |
+| M8 | ActionSheet, CollapsibleSection |
+| M9 | Skeleton |
 
 ---
 
@@ -528,4 +590,8 @@ Raise each before the milestone that needs it. Answers go into the PRD.
 | 3 | ~~The "set a new password" page has no mockup.~~ No passwords: sign-in uses one-time email codes, screens built from the sign-in pattern (19 Oct) | M3 |
 | 4 | ~~Which currencies go in the Setup list, and which first?~~ Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira (19 Oct) | M3 |
 | 5 | ~~For a currency with no minor unit, do we still store ×100?~~ Yes, always ×100 (19 Oct) | M3 |
-| 6 | ~~"Change password" in Settings has no mockup.~~ Not needed: no passwords (19 Oct) | M8 |
+| 6 | ~~"Change password" in Settings has no mockup.~~ Not needed: no passwords (19 Oct) | M9 |
+| 7 | ~~Restock on laptop has no mockup.~~ It opens in the same side panel as the ingredient, replacing it, with a back arrow (5 Nov) | M6 |
+| 8 | ~~If she deletes her only recipe after finishing the setup checklist, does it come back?~~ No: a "checklist finished" flag on each device keeps it gone (5 Nov) | M6 |
+| 9 | ~~What Home shows once the checklist is done, before M9 builds the overview.~~ The whole overview is built in M6 (5 Nov) | M6 |
+| 10 | ~~Drafts on Home?~~ Not counted and not listed under Recently edited; the mockups don't show drafts (5 Nov) | M6 |

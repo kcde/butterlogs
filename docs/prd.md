@@ -1,7 +1,7 @@
 # Butterlogs — Product Requirements Document
 
 **Status:** Agreed, ready to build
-**Date:** 16 October 2026
+**Date:** 16 October 2026 (layout changed to a responsive web app, 5 November 2026)
 **Owner:** Keside
 **Pilot user:** The Butter Puff Co.
 
@@ -14,8 +14,8 @@ This is the single source of truth for **what Butterlogs does, how its data work
 | Source | What it covers | Link |
 |---|---|---|
 | **This PRD** | Features, rules, calculations, data model, sync, build plan, tests | `docs/prd.md` |
-| **Butterlogs design system** | Tokens, all 38 components with props (`components/index.d.ts`), screen patterns, the build guide (`building-in-code.md`) | https://claude.ai/artifact/7H2cKYXx1qJq2PuN1V6Wa2 |
-| **Butterlogs mockups** | All 39 screens in rows by flow, plus a flow map. One file per screen (e.g. `Main.dc.html`) | https://claude.ai/artifact/JChFePQ5mcTiZAVG4XScWw |
+| **Butterlogs design system** | Tokens (including screen-size breakpoints), all 42 components with props (`components/index.d.ts`), screen patterns at each size, the build guide (`building-in-code.md`) | https://claude.ai/artifact/7H2cKYXx1qJq2PuN1V6Wa2 |
+| **Butterlogs mockups** | Every screen at laptop (1440 wide) and phone (390 × 844) size, in rows by flow, plus tablet, dark mode and a flow map. One file per screen: laptop files end in `Laptop` (e.g. `RecipeLaptop.dc.html`), phone files don't (e.g. `Recipe.dc.html`) | https://claude.ai/artifact/JChFePQ5mcTiZAVG4XScWw |
 | **Butter Puff Co. Costing Journal** (xlsx) | Her ingredients and recipes to load, and the numbers the maths must match | `docs/costing-journal.xlsx` |
 
 **When sources disagree:**
@@ -24,7 +24,9 @@ This is the single source of truth for **what Butterlogs does, how its data work
 - **Layout of a specific screen:** the mockup wins.
 - If something is missing from all of them, ask instead of inventing it.
 
-**Screens are named by their mockup file** (e.g. *Recipe.dc.html*) throughout.
+**Screens are named by their mockup file** throughout, without the `.dc.html`. Where a screen has both, the laptop name comes first: *RecipeLaptop / Recipe*.
+
+**Some laptop mockups were drawn from an older version of this PRD.** *SignUpLaptop* and *LogInLaptop* show a password, and *IngredientSheetLaptop* shows pack price and pack size. Take their layout, but build what this PRD says: email codes (F1) and Restock (F3).
 
 ---
 
@@ -59,11 +61,16 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 
 ### Platform
 
-- **A web app built for phones**, installable as a PWA: home-screen icon, full screen, no browser bar.
-- **Works fully offline**, including adding and editing. Changes sync when the phone is back online.
+- **A responsive web app.** It's not in the app stores; it runs in the browser and can be installed as a PWA (home-screen or dock icon, its own window, no browser bar).
+- **One app, three sizes** (details in F9):
+  - **Laptop (1024px and up):** a dashboard. A sidebar on the left (New, Home, Recipes, Ingredients, Settings), the page in a white panel beside it. Lists are tables; a recipe shows its ingredients and costs side by side.
+  - **Tablet (768–1023px):** the sidebar shrinks to an icon rail.
+  - **Phone (under 768px):** the bottom tab bar (Home · Recipes · + · Ingredients · Settings), cards instead of tables, sheets from the bottom.
+- **The layout is taken from a reference dashboard (Tooclear), not its look.** Colours, type and components stay the Butterlogs design system.
+- **Works fully offline** on every device, including adding and editing. Changes sync when the device is back online.
 - **First sign-in needs internet.** After that, the app works without a connection.
-- **The screen stays on** while a recipe is open.
-- **An iPhone install guide** is offered once after setup and kept in Settings.
+- **The screen stays on** while a recipe is open (phones and tablets).
+- **An iPhone install guide** is offered once after setup on phones and kept in Settings.
 
 ---
 
@@ -71,15 +78,16 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
 
 | # | Feature | Main screens |
 |---|---|---|
-| F1 | Account and business | Welcome, sign-in screens (email, code), Setup |
-| F2 | Overhead items | OverheadItems, NewRecipe3, RecipeCosts |
-| F3 | Ingredients and per-piece supplies | Ingredients, IngredientSheet, Restock (no mockup), DeleteIngredient, EmptyIngredients |
-| F4 | Recipe categories | Categories, CategoryPicker, Main (chips) |
-| F5 | Recipes: create, edit, delete | NewRecipe1–3, AddIngredients, EditRecipe, RecipeMenu, DeleteRecipe, DeleteRecipeInUse, DiscardChanges, RecipeSaved |
-| F6 | Scaling calculator | Recipe, RecipeCosts, RecipeSub, CookieRecipe |
-| F7 | Pricing methods | Setup, NewRecipe3, RecipeCosts |
-| F8 | Offline and sync | SyncSheet, RecipesDark (offline pill), SignOut |
-| F9 | App shell and install | TabBar, InstallGuide, Loading, empty states |
+| F1 | Account and business | WelcomeLaptop / Welcome, sign-in screens (email, code; SignUpLaptop / SignUp and LogInLaptop / LogIn for layout), SetupLaptop / Setup |
+| F2 | Overhead items | OverheadItemsLaptop / OverheadItems, NewRecipe3Laptop / NewRecipe3, RecipeLaptop / RecipeCosts |
+| F3 | Ingredients and per-piece supplies | IngredientsLaptop / Ingredients, IngredientSheetLaptop (side panel) / IngredientSheet, Restock (no mockup), DeleteIngredientLaptop / DeleteIngredient, EmptyIngredients |
+| F4 | Recipe categories | CategoriesLaptop / Categories, CategoryPicker, RecipesLaptop / Main (chips) |
+| F5 | Recipes: create, edit, delete | NewRecipe1–3Laptop / NewRecipe1–3, AddIngredientsLaptop / AddIngredients, EditRecipeLaptop / EditRecipe, RecipeMenuLaptop / RecipeMenu, DeleteRecipe, DeleteRecipeInUseLaptop / DeleteRecipeInUse, DiscardChangesLaptop / DiscardChanges, RecipeSaved |
+| F6 | Scaling calculator | RecipeLaptop / Recipe + RecipeCosts, RecipeSubLaptop / RecipeSub, CookieRecipeLaptop / CookieRecipe |
+| F7 | Pricing methods | SetupLaptop / Setup, NewRecipe3Laptop / NewRecipe3, RecipeLaptop / RecipeCosts |
+| F8 | Offline and sync | SyncLaptop / SyncSheet, Sidebar (sync row), RecipesDark (offline pill), SignOutLaptop / SignOut |
+| F9 | App shell, navigation and install | Sidebar, TabBar, NewMenuLaptop / NewMenu, CurrencyLaptop, RecipesTablet, InstallGuide, LoadingLaptop / Loading, empty states |
+| F10 | Home | HomeStartLaptop / HomeStart, HomeLaptop / Home |
 
 ---
 
@@ -97,14 +105,14 @@ A recipe scaling and costing app for home bakers and small bakeries. A baker sav
   - **Code screen:** six boxes, one per digit (a CodeField component, not yet in the design system), checked as soon as the last digit is in; the email shown with a "Change" link back to the previous screen.
 - **A business is created at setup.** All data belongs to the business, not the person. The *Setup* screen asks for:
   - business name
-  - currency: Nigerian Naira (₦), US Dollar ($), British Pound (£), Euro (€). The one matching the phone's region is first and preselected (Nigeria → Naira, US → Dollar, UK → Pound, eurozone → Euro); otherwise Naira.
+  - currency: Nigerian Naira (₦), US Dollar ($), British Pound (£), Euro (€). The one matching the device's region is first and preselected (Nigeria → Naira, US → Dollar, UK → Pound, eurozone → Euro); otherwise Naira.
   - default pricing method (Markup 50% preselected). Markup and Margin also take their default percentage, with a live example ("A cake that costs ₦10,000 to make sells for ₦15,000"). Fixed profit and Set price take no amount: a profit or price differs per product, so it's typed on each recipe.
 - **Setup also creates five starter overhead items:** Gas, Electricity, Transport, Labour, Packaging.
 - **One login per business** in the MVP. The data model allows staff logins later without a rebuild.
 - **She stays logged in while offline.**
 
 **Acceptance**
-- A new user can sign up, name the business, pick a currency, and land on an empty Recipes screen with the starter overhead list in place.
+- A new user can sign up, name the business, pick a currency, and land on Home with the setup checklist and the starter overhead list in place.
 - Changing the currency changes how every amount is displayed. Amounts are never converted.
 - A user can never see or change another business's data.
 
@@ -154,6 +162,7 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
   - Tapping an ingredient opens its sheet. It shows "Works out to", "Last bought 12.5 kg for ₦15,000, 2 weeks ago · Used in 14 recipes", and a **Restock** button. Unsaved edits are saved before Restock opens.
   - Restock starts with the last amount and unit (she usually buys the same bag), and Price paid is always empty. The first time, the amount is empty and the unit is the one she measures in.
   - Saving or closing Restock goes back to the list.
+  - **On laptop** Restock opens in the same side panel as the ingredient, replacing it, with a back arrow to the ingredient (no mockup; agreed 5 Nov 2026).
   - The ingredient sheet never changes the price.
 - **No "pack" on screen:** not everything is bought in a pack. The columns keep their `pack_` names.
 - **Cost per unit is calculated, never typed:** price paid ÷ quantity bought, converted into the measuring unit.
@@ -185,7 +194,7 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 
 - **She creates, renames, reorders and deletes categories** (*Categories.dc.html*).
 - **One category per recipe.** None = **Uncategorised**.
-- **The Recipes list filters by category chips:** All, then her categories in her order, then Uncategorised if any recipe has none.
+- **The Recipes list (a table on laptop, cards on phones) filters by category chips:** All, then her categories in her order, then Uncategorised if any recipe has none.
 - **The category picker** (*CategoryPicker.dc.html*) lets her pick one or add a new one on the spot. A new one goes at the end of her list and stays even if the recipe is discarded.
 - **Deleting a category keeps its recipes.** They move to Uncategorised.
 - Categories are for recipes only in the MVP.
@@ -215,13 +224,13 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 - A new recipe starts with one section. **The first section is never named**; every section she adds needs a name ("Name this section, like Crumble."). This is how her sheet works: Salted Caramel Cake has the cake part, then "Salted Caramel" (agreed 27 Oct 2026).
 - Removing an added section with ingredients asks first ("Remove Crumble?" / "Its 3 ingredients will be removed too."); an empty one goes at once.
 - The same ingredient can appear in more than one section.
-- Lines reorder by dragging their grip within their section. With a keyboard: Space to pick up, ↑/↓ to move, Space to drop, Esc to cancel. Moving whole sections comes with Edit recipe (M7).
+- Lines reorder by dragging their grip within their section. With a keyboard: Space to pick up, ↑/↓ to move, Space to drop, Esc to cancel. Moving whole sections comes with Edit recipe (M8).
 
 **Ingredient lines**
 - Pick an ingredient and enter the amount in that ingredient's unit.
 - Add several at once: a searchable sheet with checkboxes (*AddIngredients.dc.html*), then fill in the amounts. Ingredients already in that section show ticked and greyed out.
 - **An ingredient she doesn't have yet:** "New ingredient" at the bottom of the sheet opens the New ingredient sheet, then Restock (F3), and comes back to the sheet with it ticked (agreed 27 Oct 2026).
-- Each line shows its cost on the recipe screen (M6). While she builds the recipe, the rows show no cost, as in *NewRecipe2*; the bar at the bottom shows the running ingredient cost, or "Ingredient cost · 1 has no price".
+- Each line shows its cost on the recipe screen (M7). While she builds the recipe, the rows show no cost, as in *NewRecipe2*; the bar at the bottom shows the running ingredient cost, or "Ingredient cost · 1 has no price".
 - Fractions of a piece are allowed (0.5 egg).
 
 **Sub-recipe lines**
@@ -238,21 +247,22 @@ Adding an ingredient and saying what she paid for it are two steps (agreed 25 Oc
 - Picked from the overhead list, each with an amount for the recipe at its base yield.
 
 **Creating, editing and deleting**
-- **New recipe is three steps:** Basics → Ingredients → Overhead & price, with Back/Next and a running ingredient cost. Saving opens the recipe at ×1 with a "saved" toast (until M6 builds the recipe screen, it goes back to Recipes with the toast).
+- **New recipe is three steps:** Basics → Ingredients → Overhead & price, with Back/Next and a running ingredient cost. Saving opens the recipe at ×1 with a "saved" toast (until M7 builds the recipe screen, it goes back to Recipes with the toast).
 - **A box she has to fill in** (a line amount, a section name, an overhead ₦, or a fixed profit or set price) stops Next or Save: every empty one gets a red outline, the cursor goes to the first, and the bar says "Fill in the boxes marked in red." Each outline goes as she types (agreed 27 Oct 2026).
 - **Edit recipe is one page** with collapsible sections (Basics, Ingredients, Overhead & price). Closing with unsaved changes asks "Discard changes?".
-- **The recipe "…" menu:** Edit recipe · Change category · Delete recipe.
+- **The recipe "…" menu:** Edit recipe · Change category · Delete recipe. On laptop, Edit recipe is a button in the page header, so the menu holds Change category · Delete recipe.
+- **New recipe starts from the New menu** (sidebar New on laptop, the tab bar + on phones) or the "New recipe" button on Recipes.
 - **Deleting a recipe** asks first.
 - **Deleting a recipe used inside other recipes:**
   - The app warns and lists them.
   - If she goes ahead, those lines show "Salted Caramel was deleted" and the totals are marked incomplete.
 
 **Drafts** (agreed 27 Oct 2026)
-- A recipe she's building is kept as a draft on her phone as she types, so it survives switching apps, iOS closing the app, or a reload.
-- Drafts live on this phone only: never synced, and cleared when she signs out.
+- A recipe she's building is kept as a draft on that device as she types, so it survives switching apps, iOS closing the app, or a reload.
+- Drafts live on that device only (a draft started on the phone isn't on the laptop): never synced, and cleared when she signs out.
 - New recipe always starts blank, so she can have several drafts.
 - **× while building:** if nothing was entered it just closes; otherwise "Keep Salted Caramel Cake as a draft?" / "You can finish it later from Recipes." / Keep as draft · Discard. Tapping outside goes back to the recipe.
-- **On the Recipes list**, drafts are cards with a "Draft" tag and "Not finished" ("Untitled recipe" until named). They follow the chips and search like any recipe. Tapping one opens it on the step she left.
+- **On the Recipes list**, drafts are cards (rows in the laptop table) with a "Draft" tag and "Not finished" ("Untitled recipe" until named). They follow the chips and search like any recipe. Tapping one opens it on the step she left.
 - Drafts never count in totals and never appear in "Add a recipe". Saving turns the draft into the recipe.
 
 **Acceptance**
@@ -278,7 +288,8 @@ The recipe screen **is** the calculator. It opens at ×1.
 **What it shows**
 - Every amount scaled, grouped by section, with the cost of each line.
 - Sub-recipes broken down inline, scaled.
-- **Costs tab:**
+- **Laptop:** ingredients on the left, and on the right the stat tiles, the costs and the price, all visible at once. **Tablet and phone:** Ingredients and Costs tabs.
+- **Costs:**
   - ingredient total and each overhead line, then the total cost
   - cost per piece and/or per gram
   - selling price with its method, profit and margin
@@ -290,7 +301,7 @@ The recipe screen **is** the calculator. It opens at ×1.
 **Rules**
 - Nothing in the calculator is saved. Leaving the recipe returns it to ×1.
 - Works fully offline.
-- The screen stays on while open (Wake Lock).
+- The screen stays on while open (Wake Lock; phones and tablets).
 
 **Acceptance**
 - Scaling her 1,500 g Vanilla Cake to 800 g gives every ingredient ×0.5333 of its base amount (section 9 fixtures).
@@ -311,8 +322,8 @@ Each recipe has one method (or none); the business has a default.
 - **Always shown:**
   - profit = price − cost
   - margin = profit ÷ price
-  - markup = profit ÷ cost
   - per piece where a count is known
+- **Markup isn't a row on the recipe screen,** whatever the method (agreed 5 Nov 2026). It only shows as the method's own percentage when the method is Markup. `lib/calc` still works it out.
 - **Margin must be under 100%.**
 - **No method** = cost only (fillings used inside other recipes). In the new-recipe flow it's a fifth choice, **"Cost only"**, under the four methods (agreed 27 Oct 2026), and the totals show just Total cost and Cost per gram (or each).
 - A recipe starts with the business default. A fixed profit or set price is typed per recipe and must be filled in when chosen.
@@ -325,42 +336,88 @@ Each recipe has one method (or none); the business has a default.
 
 ### F8. Offline and sync
 
-- **Everything works offline.** The phone holds a full copy of the business's data (PowerSync).
-- **A sync pill** at the top of tab screens shows one of:
-  - "All synced" (fades after a few seconds)
-  - "3 changes waiting" (taps open the sync sheet)
+- **Everything works offline.** Each device (laptop or phone) holds a full copy of the business's data (PowerSync).
+- **Sync status** shows one of:
+  - "All synced"
+  - "3 changes waiting" (opens the sync sheet)
   - "Offline" (neutral, never red)
-- **The sync sheet** (*SyncSheet.dc.html*) lists the waiting changes (what changed, and when) and the last sync time.
+- **Where it shows:** at the bottom of the sidebar on laptop and tablet; as a pill at the top of tab screens on phones (where "All synced" fades after a few seconds).
+- **Laptop and phone together:** she can be signed in on both. Each keeps its own copy and syncs; if the same row is changed on both while offline, the last change to reach the server wins.
+- **The sync sheet** (*SyncLaptop / SyncSheet*) lists the waiting changes (what changed, and when) and the last sync time.
 - **Sign out:**
   - **Nothing waiting:** a simple "Sign out?" confirmation.
   - **Changes waiting:** "3 changes haven't synced yet. Connect to the internet first, or they'll be lost," with "Stay signed in" and "Sign out anyway".
-  - Signing out clears the copy on the phone.
+  - Signing out clears the copy on that device.
 - **A change the server rejects:**
   - It's dropped so the queue never jams.
   - It's reported to Sentry, and she's told in plain words.
   - Because the app checks everything first, this should only happen after a bug.
 
-### F9. App shell and install
+### F9. App shell, navigation and install
 
-- **Floating tab bar:** Recipes · Ingredients · Settings. Room for Shopping later.
-- **The "+" button** creates a recipe or an ingredient, on those tabs only.
-- **Settings** (*Settings.dc.html*):
+The app is one responsive web app. The design system's AppShell, Sidebar and TabBar components and its "Screen patterns" section have the measurements.
+
+| | Laptop (1024px and up) | Tablet (768–1023px) | Phone (under 768px) |
+|---|---|---|---|
+| Navigation | Sidebar: Butterlogs · **New** · Home · Recipes · Ingredients · Settings; sync status and the business at the bottom | The sidebar as an icon rail | Tab bar: Home · Recipes · **+** · Ingredients · Settings |
+| Page | A white panel beside the sidebar; one centred column (max 1,040px; forms and Settings 640px) | The same panel | Full width, 16px margins |
+| Recipes and Ingredients lists | Tables (sortable; extra columns from 1,280px) | Tables with fewer columns | Cards |
+| A recipe | Ingredients and costs side by side | Ingredients / Costs tabs | Ingredients / Costs tabs |
+| Editing (edit or new ingredient, add ingredients to a recipe, changes waiting to sync) | A side panel on the right; the page narrows beside it from 1,280px, and the panel slides over it below that | Side panel over the page | Sheet from the bottom |
+| Quick choices (New menu, recipe menu, category, a Settings field) | Small centred dialog | Small centred dialog | Sheet from the bottom |
+
+- **New** (the sidebar button or the tab bar +) opens one small menu: **New recipe** · **New ingredient**. It replaces the "+" button on the Recipes and Ingredients tabs.
+- **No grab-handle trays on laptop.** The bottom sheet is a phone pattern; on laptop the same component opens as a side panel or a centred dialog (design system: BottomSheet).
+- **The side panel keeps the table usable** (*IngredientSheetLaptop*): the row being edited stays highlighted, and clicking another row switches the panel to it. With unsaved changes, "Discard changes?" comes first.
+- **The sidebar can collapse** to the icon rail on laptop; the choice is remembered on that device only.
+- **Settings** (*SettingsLaptop / Settings*): one page of grouped rows.
   - Business: name, currency, default pricing
   - Recipes: overhead items, categories
   - App: install on iPhone
-  - Account: email, sign out (no change password: sign-in uses email codes; the Settings mockup's row is left out)
-- **Install guide** (*InstallGuide.dc.html*): offered once after setup (not when the app is already open from the home screen); always reachable from Settings.
+  - Account: email, sign out (no change password: sign-in uses email codes; the Settings mockups' row is left out)
+  - Each Business row opens a small dialog (sheet on phones) with just that field and Save (*CurrencyLaptop*).
+  - The business name at the bottom of the sidebar also opens Settings. There is no profile menu.
+- **Flows** (new recipe, edit recipe) keep the sidebar on laptop and take over the page; on phones they hide the tab bar.
+- **Sign-in screens** have no sidebar or tab bar: one centred column.
+- **Install guide** (*InstallGuide*): offered once after setup on phones (not when the app is already open from the home screen); always reachable from Settings.
 - **Empty states:**
+  - A brand-new business lands on Home with the setup checklist (F10).
   - Recipes empty → the main button is "Add ingredients", because recipes need prices first.
   - Ingredients empty → "Add your first ingredient".
-- **Loading:** grey placeholder cards, only before the first sync.
-- **Dark mode** follows the phone's setting.
+- **Loading:** grey placeholder rows or cards, only before the first sync.
+- **Dark mode** follows the device's setting. There is no theme switch in the MVP.
+
+**Acceptance**
+- At 1440, 1024, 834 and 390px wide every screen matches its mockup's layout: sidebar, rail or tab bar as above, with no sideways scrolling of the page.
+- New opens the same menu from the sidebar and from the tab bar.
+- Resizing a laptop window across 1024px and 768px switches between sidebar, rail and tab bar without losing what's on screen (a scaled recipe stays scaled).
+
+### F10. Home
+
+The first page after sign-in. Everything on it is worked out from data already on the device. The only thing it stores is a "checklist finished" flag on that device.
+
+- **A new business** (*HomeStartLaptop / HomeStart*) sees the setup checklist:
+  1. Business set up (done at sign-up)
+  2. Add your ingredients (current step, with an "Add ingredients" button)
+  3. Add your first recipe
+  - A step is done when it has happened: one ingredient with a price; one saved recipe. When all are done, the checklist goes away for good: the device remembers it's finished, so deleting her only recipe later doesn't bring it back (agreed 5 Nov 2026). A device without the flag works it out from the data, so a new laptop doesn't show it to a business that's already set up.
+- **After that** (*HomeLaptop / Home*):
+  - **Four counts**, each a link: Recipes · Ingredients · Missing prices · Incomplete recipes.
+  - **Needs attention:** every ingredient without a price and every deleted ingredient or sub-recipe still used in a recipe, each with its fix ("Add price", "Open recipe"). When there's nothing: "Nothing needs attention."
+  - **Recently edited recipes:** the last 3–5, by `updated_at`, with yield and total cost.
+  - **Recently changed prices:** the last 5 ingredients by `price_updated_at`, with the pack price and cost per unit.
+- **Drafts aren't on Home:** they don't count in Recipes or Incomplete recipes and aren't listed under Recently edited (agreed 5 Nov 2026). She finds them on the Recipes list.
+- **Laptop:** the counts in a row of four, then two columns (needs attention and recent recipes on the left, recent prices on the right). **Phone:** the same blocks stacked.
+
+**Acceptance**
+- A business with one ingredient missing a price shows "1" under Missing prices, lists it under Needs attention, and Add price opens that ingredient.
+- Restocking an ingredient moves it to the top of Recently changed prices.
 
 ---
 
 ## 4. Calculation rules
 
-All calculations run on the phone in one pure TypeScript module (`lib/calc`), separate from the screens and fully tested with Vitest.
+All calculations run on the device in one pure TypeScript module (`lib/calc`), separate from the screens and fully tested with Vitest.
 
 ### Unit conversions (same kind only)
 
@@ -411,8 +468,8 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 |---|---|
 | App | Next.js, installable PWA via Serwist, hosted on Vercel |
 | Database, login | Supabase: Postgres, email one-time-code auth, Row Level Security |
-| Offline sync | PowerSync: local SQLite copy on the phone, synced with Supabase |
-| Styling | CSS Modules + one global `tokens.css` generated from the design system's `tokens.json`. No Tailwind, no component library |
+| Offline sync | PowerSync: a local SQLite copy on each device, synced with Supabase |
+| Styling | CSS Modules + one global `tokens.css` generated from the design system's `tokens.json`. Mobile-first media queries at 768, 1024 and 1280px. No Tailwind, no component library |
 | UI primitives | Native `<dialog>`, `<select>` and form elements; lucide-react icons; dnd-kit for drag to reorder; Noto Sans via `next/font` (latin + latin-ext, for ₦) |
 | Forms | React Hook Form + Zod |
 | Tests | Vitest (calculations), Playwright (flows, offline, screenshots), axe (accessibility) |
@@ -423,14 +480,26 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
   - Turbopack bundles PowerSync's worker and SQLite engine itself (as in PowerSync's Next.js example); nothing is copied to `public/`. The service worker precaches both SQLite `.wasm` builds so the database opens offline.
   - If Serwist gives trouble under Turbopack, build with webpack.
 - **PowerSync runs only on the client.** Keep it in a client provider; server-rendered pages get no data.
-- **The phone keeps PowerSync's database in OPFS** (`OPFSCoopSyncVFS`), falling back to IndexedDB only where OPFS isn't available (Safari private browsing, Playwright's WebKit). IndexedDB storage needs SQLite's large "Asyncify" build, which iOS 26.0–26.4 runs out of memory compiling: the page is killed and reloads while it sits idle ([WebKit bug 309251](https://bugs.webkit.org/show_bug.cgi?id=309251), fixed in iOS 26.5). Don't switch back to PowerSync's default.
-- **The app's files** (component layout, token setup, conventions) follow the design system's `building-in-code.md`.
+- **Each device keeps PowerSync's database in OPFS** (`OPFSCoopSyncVFS`), falling back to IndexedDB only where OPFS isn't available (Safari private browsing, Playwright's WebKit). IndexedDB storage needs SQLite's large "Asyncify" build, which iOS 26.0–26.4 runs out of memory compiling: the page is killed and reloads while it sits idle ([WebKit bug 309251](https://bugs.webkit.org/show_bug.cgi?id=309251), fixed in iOS 26.5). Don't switch back to PowerSync's default.
+- **The app's files** (component layout, token setup, conventions, responsive rules) follow the design system's `building-in-code.md`.
 - **Service worker:** Supabase, PowerSync and Sentry requests bypass it. PowerSync's worker scripts are served from the precache but without their cached address: Turbopack passes the workers' settings in the script address, and WebKit (iPhone) would otherwise lose them and PowerSync wouldn't open on reopening the app.
 
 **Pilot hosting**
 - Free tiers of Supabase, PowerSync and Vercel.
-- **A daily scheduled check-in** (Vercel cron or GitHub Action) keeps Supabase and PowerSync from pausing after about a week of no use.
-- Move to paid plans when testers pay. Vercel's free plan is for non-commercial use.
+- **Free projects pause when idle.** Supabase pauses after about a week with little database activity (it emails a week before). PowerSync deactivates after 1–2 weeks with "no activity on the PowerSync dashboard or any API requests". The keep-alive below stops both.
+- Move to paid plans when testers pay: Supabase Pro and PowerSync Pro never pause. Vercel's free plan is for non-commercial use.
+
+**Keep-alive** (built in M6)
+- **Route:** `GET /api/keep-alive`, server-only, protected by a secret (`Authorization: Bearer $CRON_SECRET`; anything else gets 401).
+- **What it does, in order:**
+  1. **Supabase:** upserts one row in a `heartbeat` table (`id` text primary key = `'daily'`, `beat_at` timestamptz) using the service-role key on the server. A real write, not just a page load. `heartbeat` is not synced by PowerSync and has RLS on with no policies, so the app can't read or write it.
+  2. **PowerSync:** signs in a dedicated `keepalive@…` Supabase user with a password (env), gets its access token and makes one real sync request to the PowerSync instance, then closes it. This user is not a member of any business, so it syncs nothing. (The app itself has no passwords; Supabase still allows password sign-in for this user, as the database tests do.)
+  3. **Returns** `{ supabase: "ok", powersync: "ok", at }`, or a 500 with which step failed.
+- **Failures** are reported to Sentry with the step name, so a failed day is never silent.
+- **Two schedulers, once a day each, about 12 hours apart:**
+  - Vercel Cron in `vercel.json` (Hobby allows one run a day; timing can drift up to an hour). Vercel sends `CRON_SECRET` itself.
+  - A scheduled GitHub Action in the (private) repo that calls the same route with the secret. A backup if Vercel skips a day; GitHub disables schedules in public repos after 60 days of no activity, so keep the repo private.
+- **Env vars:** `CRON_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, `KEEPALIVE_EMAIL`, `KEEPALIVE_PASSWORD`, plus the existing Supabase and PowerSync URLs. Never exposed to the browser.
 
 ---
 
@@ -438,10 +507,10 @@ All calculations run on the phone in one pure TypeScript module (`lib/calc`), se
 
 ### Rules for every table
 
-1. **`uuid` primary key named `id`, generated on the phone.**
+1. **`uuid` primary key named `id`, generated on the device.**
 2. **Every row carries `business_id`.** Sync and row-level security both filter on it.
 3. **The app checks first; the server only enforces what can't fail.** A rejected offline change would otherwise jam the upload queue. Unique names and loop checks are app-side.
-4. **Money in minor units (whole kobo for Naira), as `bigint`.** Never `numeric`: PowerSync sends it to the phone as text. Every currency is stored × 100, including any without a minor unit, so changing the currency never changes the stored numbers.
+4. **Money in minor units (whole kobo for Naira), as `bigint`.** Never `numeric`: PowerSync sends it to the device as text. Every currency is stored × 100, including any without a minor unit, so changing the currency never changes the stored numbers.
 5. **Amounts, sizes and percentages as `double precision`.**
 6. **Totals are never stored.**
 7. **Soft deletes** (`deleted_at`) for ingredients, overhead items and recipes. Real deletes for categories, sections and lines.
@@ -586,7 +655,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | position | double precision | |
 | created_at, updated_at | timestamptz | |
 
-**Phone only: `recipe_drafts`** (a PowerSync local-only table; not on the server, never uploaded, wiped on sign-out)
+**Device only: `recipe_drafts`** (a PowerSync local-only table; not on the server, never uploaded, wiped on sign-out)
 
 | Column | Notes |
 |---|---|
@@ -666,7 +735,7 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 
 **Work one milestone at a time.** Each ends with its checks passing and a short note of what was done. The task breakdown and progress for each milestone are in `docs/plan.md`.
 
-**From M3 on, each milestone is a vertical slice:** the components, maths and screens for one part of the app, built together and checked on Keside's iPhone before the next starts. Nothing is built ahead of the screen that needs it, so problems show up while they're cheap to fix.
+**From M3 on, each milestone is a vertical slice:** the components, maths and screens for one part of the app, built together and checked on Keside's iPhone (and, from M6, her laptop) before the next starts. Nothing is built ahead of the screen that needs it, so problems show up while they're cheap to fix.
 
 | # | Milestone | Done when |
 |---|---|---|
@@ -676,12 +745,13 @@ Exactly one of `ingredient_id` and `sub_recipe_id` is set (server check). Deleti
 | M3 | **Foundation and getting started:** `tokens.css` from `tokens.json`, global styles, the components these screens use, money format and pricing maths; Welcome, sign up and log in with an email code, Setup, Install guide, empty Recipes, tab bar | On Keside's iPhone, a new user signs up with an email code and reaches the empty Recipes screen with five overhead items; ₦ and tabular figures render |
 | M4 | **Ingredients:** units and cost-per-unit maths; list, search, ingredient sheet (add/edit), Restock, delete-in-use warning, empty state | On Keside's iPhone, offline, Flour at ₦15,000 / 12.5 kg shows "₦1.20 / g"; missing and ₦0 behave differently |
 | M5 | **Create recipes:** line, sub-recipe, overhead and total maths, loop check; new recipe steps 1–3, category sheet, add-ingredients sheet; Recipes list with chips | On Keside's iPhone, Vanilla Cake made offline shows ₦10,287 on its card and syncs |
-| M6 | **Recipe screen (the calculator):** scaling maths; scale bar, Ingredients/Costs, sub-recipe inline, stat tiles, incomplete banner, saved toast | On Keside's iPhone, the Vanilla Cake fixtures show on screen; editing overhead doesn't change the saved recipe |
-| M7 | **Change and delete recipes:** "…" menu, Edit recipe with Discard, delete flows | An edit made offline syncs; deleting a sub-recipe in use marks its users incomplete |
-| M8 | **Settings and sync:** Settings, overhead items, categories, sign out (both variants), sync sheet, loading, dark mode | The sign-out warning appears with changes waiting; every screen is checked in dark mode |
-| M9 | **Load her spreadsheet** (section 7) | Every loaded recipe matches its tab at ×1 |
-| M10 | **Hardening:** daily keep-alive, source maps, Playwright offline tests, screenshot comparison with the mockups at 390 × 844, axe on every screen, her-phone pass (₦, tabular numbers, keyboard, safe areas, Wake Lock) | No failing checks; ₦ renders on her phone |
-| M11 | **Pilot:** she uses it for real for 1–2 weeks | Issues logged and fixed |
+| M6 | **Keep-alive and the responsive shell** (5 Nov 2026: the app became a responsive web app). Keep-alive route, `heartbeat` table, keep-alive user, Vercel Cron and GitHub Action (section 5). Breakpoint tokens; AppShell (sidebar, rail, tab bar with Home and +), New menu, sheets that open as a side panel or centred dialog on laptop, DataTable. The screens built in M3–M5 at every size: sign-in and Setup, Recipes and Ingredients as tables with the side panel, the new recipe flow. Home (F10): the setup checklist, where setup now lands, and the overview | Calling `/api/keep-alive` with the secret returns ok for both, and without it returns 401; on Keside's iPhone and laptop, every M3–M5 screen matches its mockup at 1440, 1024, 834 and 390px, a new user lands on Home with the checklist, and Home counts match the data |
+| M7 | **Recipe screen (the calculator):** scaling maths; scale bar, side by side on laptop and Ingredients/Costs tabs below 1024px, sub-recipe inline, stat tiles, incomplete banner, saved toast | On Keside's iPhone and laptop, the Vanilla Cake fixtures show on screen; editing overhead doesn't change the saved recipe |
+| M8 | **Change and delete recipes:** "…" menu (Edit as a header button on laptop), Edit recipe with Discard, delete flows | An edit made offline syncs; deleting a sub-recipe in use marks its users incomplete |
+| M9 | **Settings and sync:** Settings, overhead items, categories, sign out (both variants), sync status (sidebar and pill) and sheet, loading, dark mode | The sign-out warning appears with changes waiting; every screen is checked in dark mode |
+| M10 | **Load her spreadsheet** (section 7) | Every loaded recipe matches its tab at ×1 |
+| M11 | **Hardening:** Sentry alerts, keep-alive still running, source maps, Playwright offline tests, screenshot comparison with the mockups at 1440 × 900, 834 × 1194 and 390 × 844, axe on every screen, her-phone pass (₦, tabular numbers, keyboard, safe areas, Wake Lock), a laptop pass in Chrome and Safari | No failing checks; ₦ renders on her phone and laptop |
+| M12 | **Pilot:** she uses it for real for 1–2 weeks | Issues logged and fixed |
 
 ---
 
@@ -736,7 +806,7 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 |---|---|
 | Name | Butterlogs |
 | Login | One-time email code (changed 19 Oct 2026 from email + password). No magic links (they open in Safari, not the installed app); no Google sign-in in the MVP |
-| Currencies | Naira, US Dollar, British Pound, Euro; the phone's region picks the first, otherwise Naira |
+| Currencies | Naira, US Dollar, British Pound, Euro; the device's region picks the first, otherwise Naira |
 | Money in minor units | Always × 100, whatever the currency |
 | Email sender | Resend via Supabase custom SMTP, on Keside's domain (19 Oct 2026) |
 | Default pricing at setup | Method for all four; a default % only for Markup and Margin. Fixed profit and Set price amounts are per recipe (19 Oct 2026) |
@@ -744,10 +814,10 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 | Cost per unit on screen | 2 decimals, but a whole amount drops ".00": "₦1.20 / g", "₦40 / g" (25 Oct 2026; the PRD said 2 decimals, the mockups showed whole prices) |
 | Ingredient list order | A to Z by name (25 Oct 2026) |
 | Recipe list order | Most recently updated first, drafts included (27 Oct 2026, the design system's default). No "…" sort menu: name sort isn't in the PRD |
-| Drafts | An unfinished recipe is a draft on the phone only; several allowed; × asks Keep as draft · Discard (27 Oct 2026) |
+| Drafts | An unfinished recipe is a draft on that device only; several allowed; × asks Keep as draft · Discard (27 Oct 2026) |
 | Overhead in the new-recipe flow | Starts empty; pick items or create one on the spot (27 Oct 2026) |
 | Cost only | A fifth pricing choice in the flow (27 Oct 2026) |
-| Sections | The first is never named; added ones need a name; lines move within a section, whole sections move in M7 (27 Oct 2026) |
+| Sections | The first is never named; added ones need a name; lines move within a section, whole sections move in M8 (27 Oct 2026) |
 | New ingredient while building a recipe | From the Add ingredients sheet, through New ingredient and Restock (27 Oct 2026) |
 | Empty required boxes | Red outline, cursor on the first, one line above the buttons (27 Oct 2026) |
 | Deleting an unused ingredient | Asks first, like deleting a recipe (25 Oct 2026) |
@@ -755,9 +825,9 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 | "Quantity bought", not "Amount bought" | 26 Oct 2026: in Nigeria "amount" usually means money. The label doesn't repeat the unit, since the unit chip sits in the field |
 | Phone storage | OPFS, with IndexedDB as the fallback (25 Oct 2026): with IndexedDB, iOS 26 reloaded the page every so often while idle |
 | Styling | CSS Modules + tokens; no shadcn/ui or Tailwind |
-| Next.js caching | `cacheComponents` off: data lives on the phone, and Serwist's route needs segment config it rejects |
+| Next.js caching | `cacheComponents` off: data lives on the device, and Serwist's route needs segment config it rejects |
 | PWA package | `@serwist/turbopack` (keeps the default Turbopack build); fall back to `@serwist/next` + webpack if it fails the M1 offline test |
-| Pilot hosting | Free tiers + daily keep-alive |
+| Pilot hosting | Free tiers + a daily keep-alive (Vercel Cron + GitHub Action backup) so Supabase and PowerSync never pause; paid plans when testers pay |
 | Overhead | Per-recipe amounts; never scales; one list |
 | Per-piece supplies | Ingredients in pcs |
 | Sub-recipes | Linked, ingredients-only cost, own proportions, no loops |
@@ -775,6 +845,16 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 | Spreadsheet | Load ingredients and finished cakes; she adds the rest |
 | Build order | Vertical slices from M3: each milestone builds its own components, maths and screens and is checked on a real iPhone (changed 19 Oct 2026, replacing "all components, then all maths, then screens") |
 | Drag to reorder | dnd-kit (changed 27 Oct 2026 from our own code, which failed when dragging a lower line up) |
+| Layout | Responsive web app (5 Nov 2026, replacing "built for phones"): dashboard with a sidebar on laptop, icon rail on tablet, tab bar on phones. Layout inspired by Tooclear; look stays the design system. Every rule above still applies at every size |
+| Phone tabs | Home · Recipes · + · Ingredients · Settings; the + opens the New menu (5 Nov 2026) |
+| Home | An overview worked out from existing data: setup checklist, then counts, needs attention, recent recipes and prices. Setup lands here, not on Recipes. All of it is built in M6. The checklist stays gone once finished, remembered on each device (5 Nov 2026) |
+| Theme | Follows the device; no switch in the MVP (5 Nov 2026) |
+| Pop-ups on laptop | No phone-style trays. Editing opens a side panel on the right; quick choices a small centred dialog; confirmations a centred dialog. Phones keep bottom sheets (5 Nov 2026) |
+| Keep-alive | Built now (M6), not in Hardening: a route that writes to Supabase and syncs once with PowerSync, called daily by Vercel Cron and a GitHub Action (5 Nov 2026) |
+| Markup on the recipe screen | Not a row, for any method; it only shows as the Markup method's percentage. Price, profit, margin and per piece are shown (5 Nov 2026) |
+| Drafts on Home | Not counted and not listed under Recently edited; they stay on the Recipes list (5 Nov 2026) |
+| Restock on laptop | Opens in the same side panel as the ingredient, replacing it, with a back arrow (no mockup; 5 Nov 2026) |
+| Laptop mockups drawn from the old PRD | Sign-in and the ingredient panel keep email codes and Restock; only the mockups' layout is used (5 Nov 2026) |
 
 ---
 
@@ -785,7 +865,7 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 | App icon and logo | To design. The name is set in Noto Sans Bold until then |
 | Highlight old prices | Not in the MVP. Later: "updated" turns red after a set time |
 | Swipe down to close sheets | Not in the MVP (close button and tapping outside). Add Vaul if she misses it |
-| Noto Sans ₦ and tabular figures | Check on Keside's iPhone in M3; again on her phone in M10 |
+| Noto Sans ₦ and tabular figures | Check on Keside's iPhone in M3; again on her phone and laptop in Hardening |
 
 ---
 
@@ -805,4 +885,6 @@ From her sheet's Vanilla Cake and Ingredients tabs (`tests/fixtures/vanilla-cake
 - Staff logins and roles
 - Payments
 - Converting between kinds of unit (cups ↔ grams)
-- A tablet and laptop layout
+- A light / dark switch (the app follows the device)
+- An AI assistant
+- Bake logs (a record of what she baked and when)

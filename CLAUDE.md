@@ -1,18 +1,19 @@
 # Butterlogs
 
-A phone-first app (installable as a PWA) for bakers. It scales recipes and works out their costs from bulk pack prices. The pilot user is The Butter Puff Co.
+A responsive web app for bakers (a dashboard on laptop, an icon rail on tablet, a tab bar on phones; installable as a PWA). It scales recipes and works out their costs from bulk pack prices. The pilot user is The Butter Puff Co.
 
 ## Where things are
 
 - **`docs/prd.md` is the source of truth** for features, rules, calculations, data model, sync, the build plan and test fixtures. Read only the sections the current task needs, not the whole file every time.
 - **`docs/plan.md`** breaks each milestone into tasks and tracks progress. Check its Status table to see where we are.
 - **Design system:** https://claude.ai/artifact/7H2cKYXx1qJq2PuN1V6Wa2
-  - tokens, 38 components with props in `components/index.d.ts`, `bundle.css`
+  - tokens (including breakpoints), 42 components with props in `components/index.d.ts`, `bundle.css`
   - `screen-patterns.md`
   - `building-in-code.md`: follow it for folder layout and conventions
 - **Mockups:** https://claude.ai/artifact/JChFePQ5mcTiZAVG4XScWw
-  - One file per screen, e.g. `Recipe.dc.html`. The PRD refers to screens by these names.
-- **Her spreadsheet** (Butter Puff Co Costing Journal), used for loading her data (M9) and checking totals, isn't in the repo. Keside keeps it locally and gives the path when it's needed; don't commit it or search outside the project for it. Vanilla Cake's numbers are in `tests/fixtures/vanilla-cake.ts`.
+  - One file per screen and size: `RecipeLaptop.dc.html` for laptop, `Recipe.dc.html` for phone. The PRD refers to screens by these names.
+  - Some laptop mockups were drawn from an older PRD (a password on sign-in, pack price on the ingredient panel). Use their layout, and the PRD's behaviour (email codes, Restock).
+- **Her spreadsheet** (Butter Puff Co Costing Journal), used for loading her data (M10) and checking totals, isn't in the repo. Keside keeps it locally and gives the path when it's needed; don't commit it or search outside the project for it. Vanilla Cake's numbers are in `tests/fixtures/vanilla-cake.ts`.
 
 Read the two artifacts with the Artifact tool, fetching only the files you need.
 
@@ -24,7 +25,7 @@ Read the two artifacts with the Artifact tool, fetching only the files you need.
 
 ## How we work
 
-- **Build one milestone at a time** (PRD section 8, M0–M11). From M3 on, each milestone is a vertical slice: its components, maths and screens, checked on a real iPhone.
+- **Build one milestone at a time** (PRD section 8, M0–M12). From M3 on, each milestone is a vertical slice: its components, maths and screens, checked on a real iPhone (and, from M6, a laptop).
   - Before starting: say what you'll do.
   - When finished: run the checks, then write 2–3 lines on what changed and what's next. Wait for me before starting the next milestone.
   - Keep `docs/plan.md` current: tick tasks as they're done, and on finishing set the status, date and Notes.
@@ -101,6 +102,6 @@ Database changes are migrations in `supabase/migrations/`, applied with `npx sup
 ## Done means
 
 - Typecheck, lint and tests pass.
-- The screen matches its mockup at 390 × 844, in light and dark.
+- The screen matches its mockup at 1440, 1024, 834 and 390 wide (390 × 844 only for M3–M5 screens until M6 reworks them), in light and dark.
 - It works offline.
 - No new axe errors.
